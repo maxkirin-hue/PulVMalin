@@ -347,19 +347,75 @@ function generateResumeFinal() {
 /* ----------------------------------------------------
    EXPORT PDF
 ---------------------------------------------------- */
-function exportPDF() {
-  const element = document.querySelector(".container");
+function buildPDFLayout() {
+  const machine = localStorage.getItem("machine") || "";
+  document.getElementById("pdfMachineName").innerText = machine;
 
-  const opt = {
-    margin: 10,
-    filename: 'reglage_pulve.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
+  const modelKey = document.getElementById("modeleRepartition").value;
+  const coefs = models[modelKey];
+  const names = labels[modelKey];
 
-  html2pdf().set(opt).from(element).save();
+  const rows = document.querySelectorAll("#resultTable tbody tr");
+
+  const mid = coefs.length / 2;
+
+  const left = [];
+  const right = [];
+
+  rows.forEach((r, i) => {
+    const label = r.children[1].innerText;
+    const coef = r.children[2].innerText;
+    const debit = r.children[3].innerText;
+    const pastille = r.children[4].innerText;
+
+    const item = { label, coef, debit, pastille };
+
+    if (i < mid) left.push(item);
+    else right.push(item);
+  });
+
+  const container = document.getElementById("pdfPulve");
+  container.innerHTML = "";
+
+  const colLeft = document.createElement("div");
+  colLeft.className = "pdf-col";
+
+  const colRight = document.createElement("div");
+  colRight.className = "pdf-col";
+
+  left.forEach(item => {
+    colLeft.appendChild(buildPDFRow(item));
+  });
+
+  right.forEach(item => {
+    colRight.appendChild(buildPDFRow(item));
+  });
+
+  container.appendChild(colLeft);
+  container.appendChild(colRight);
+
+  document.getElementById("pdfResume").innerHTML =
+    document.getElementById("resumeFinal").innerHTML;
 }
+
+function buildPDFRow(item) {
+  const row = document.createElement("div");
+  row.className = "pdf-row";
+
+  const dot = document.createElement("div");
+  dot.className = "pdf-dot";
+  dot.dataset.coef = item.coef;
+
+  const text = document.createElement("span");
+  text.className = "pdf-label";
+  text.innerText = `${item.label} — ${item.pastille} — ${item.debit} L/min`;
+
+  row.appendChild(dot);
+  row.appendChild(text);
+
+  return row;
+}
+
 
 /* ----------------------------------------------------
    EXPORT DES FONCTIONS DANS WINDOW
@@ -373,4 +429,5 @@ window.calculatePressureWithSameNozzles = calculatePressureWithSameNozzles;
 window.exportPDF = exportPDF;
 window.saveSettings = saveSettings;
 window.loadSettings = loadSettings;
+
 
