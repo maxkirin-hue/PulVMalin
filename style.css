@@ -1,212 +1,78 @@
-/* ------------------------------
-   RESET & BASE
------------------------------- */
-* {
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: "Inter", Arial, sans-serif;
-  background: linear-gradient(135deg, #355e3b, #6b8f71);
-  color: #fff;
-  min-height: 100vh;
-  padding: 20px;
-  display: flex;
-  justify-content: center;
 }
 
 .container {
-  width: 100%;
-  max-width: 480px;
-  background: rgba(255, 255, 255, 0.10);
-  backdrop-filter: blur(10px);
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  background: white;
 }
 
-/* ------------------------------
-   LOGO
------------------------------- */
-.logo {
-  width: 90px;
-  height: 90px;
-  margin: 0 auto 10px;
+section {
+  display: none;
+}
+
+section.active {
   display: block;
-  border-radius: 50%;
-  background: radial-gradient(circle, #8bc34a, #4e7d2e);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  position: relative;
 }
 
-.logo::after {
-  content: "🌱";
-  font-size: 48px;
-  position: absolute;
-  top: 18px;
-  left: 22px;
-}
-
-/* ------------------------------
-   TITRES
------------------------------- */
-h1 {
-  text-align: center;
-  font-size: 26px;
-  margin-bottom: 20px;
-  font-weight: 700;
-}
-
-h2 {
-  font-size: 20px;
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-
-/* ------------------------------
-   FORMULAIRES
------------------------------- */
-label {
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-input, select {
+input, select, button {
   width: 100%;
-  padding: 12px;
-  margin: 6px 0 16px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
+  padding: 10px;
+  margin: 8px 0;
   font-size: 16px;
-  outline: none;
 }
 
-input::placeholder {
-  color: rgba(255,255,255,0.6);
-}
-
-/* ------------------------------
-   BOUTONS
------------------------------- */
 button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
+  background: #3fa34d;
+  color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
   cursor: pointer;
-  background: linear-gradient(135deg, #8bc34a, #4e7d2e);
-  color: #fff;
-  transition: 0.2s ease;
-}
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
 }
 
-/* ------------------------------
-   SCHÉMA VERTICAL
------------------------------- */
-.schema-vertical {
+button:hover {
+  background: #2e7d32;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.schema-grid {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 20px 0;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.schema-col {
+  width: 48%;
 }
 
 .schema-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  margin: 6px 0;
 }
 
 .schema-dot {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  border: 2px solid #333;
+  margin-right: 8px;
 }
 
 .coef-label {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-/* Style normal du select */
-select {
-  width: 100%;
-  padding: 12px;
-  margin: 6px 0 16px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  font-size: 16px;
-  outline: none;
-
-}
-select {
-  background: rgba(0,0,0,0.35) !important;
-  color: #fff !important;
-}
-table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: collapse;
-  background: rgba(255,255,255,0.1);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-th, td {
-  padding: 10px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-}
-
-th {
-  background: rgba(0,0,0,0.3);
-  font-weight: 700;
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-.resume-box {
-  background: rgba(255,255,255,0.1);
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 15px;
-  line-height: 1.5;
-}
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #121212;
-    color: #e0e0e0;
-  }
-
-  .container {
-    background: #1e1e1e;
-  }
-
-  input, select, button {
-    background: #2a2a2a;
-    color: white;
-    border: 1px solid #444;
-  }
-
-  table {
-    background: #1e1e1e;
-    color: white;
-  }
-
-  .resume-box {
-    background: #2a2a2a;
-  }
+  font-size: 14px;
 }
