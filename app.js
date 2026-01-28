@@ -34,19 +34,49 @@ const labels = {
    PASTILLES TEEJET CP4916 (DÉBIT À 3 BAR)
 ---------------------------------------------------- */
 const pastilles = [
+  { nom: "CP4916-008", q3: 0.032 },
+  { nom: "CP4916-10", q3: 0.048 },
+  { nom: "CP4916-12", q3: 0.075 },
+  { nom: "CP4916-14", q3: 0.11 },
+  { nom: "CP4916-15", q3: 0.13 },
+  { nom: "CP4916-16", q3: 0.15 },
+  { nom: "CP4916-18", q3: 0.20 },
   { nom: "CP4916-20", q3: 0.21 },
-  { nom: "CP4916-25", q3: 0.26 },
-  { nom: "CP4916-30", q3: 0.31 },
-  { nom: "CP4916-35", q3: 0.36 },
-  { nom: "CP4916-40", q3: 0.42 },
-  { nom: "CP4916-45", q3: 0.47 },
-  { nom: "CP4916-47", q3: 0.49 },
-  { nom: "CP4916-50", q3: 0.52 },
-  { nom: "CP4916-55", q3: 0.57 },
-  { nom: "CP4916-60", q3: 0.63 },
-  { nom: "CP4916-65", q3: 0.68 },
-  { nom: "CP4916-70", q3: 0.73 }
+  { nom: "CP4916-22", q3: 0.28 },
+  { nom: "CP4916-24", q3: 0.34 },
+  { nom: "CP4916-25", q3: 0.36 },
+  { nom: "CP4916-26", q3: 0.39 },
+  { nom: "CP4916-27", q3: 0.42 },
+  { nom: "CP4916-28", q3: 0.45 },
+  { nom: "CP4916-30", q3: 0.52 },
+  { nom: "CP4916-31", q3: 0.57 },
+  { nom: "CP4916-32", q3: 0.61 },
+  { nom: "CP4916-34", q3: 0.67 },
+  { nom: "CP4916-35", q3: 0.71 },
+  { nom: "CP4916-37", q3: 0.79 },
+  { nom: "CP4916-39", q3: 0.87 },
+  { nom: "CP4916-40", q3: 0.94 },
+  { nom: "CP4916-41", q3: 1.03 },
+  { nom: "CP4916-43", q3: 1.15 },
+  { nom: "CP4916-45", q3: 1.30 },
+  { nom: "CP4916-46", q3: 1.24 },
+  { nom: "CP4916-47", q3: 1.10 },
+  { nom: "CP4916-48", q3: 1.16 },
+  { nom: "CP4916-49", q3: 1.30 },
+  { nom: "CP4916-51", q3: 1.30 },
+  { nom: "CP4916-52", q3: 1.32 },
+  { nom: "CP4916-54", q3: 1.35 },
+  { nom: "CP4916-55", q3: 1.49 },
+  { nom: "CP4916-57", q3: 1.58 },
+  { nom: "CP4916-59", q3: 1.71 },
+  { nom: "CP4916-61", q3: 1.88 },
+  { nom: "CP4916-63", q3: 2.04 },
+  { nom: "CP4916-65", q3: 2.16 },
+  { nom: "CP4916-67", q3: 2.20 },
+  { nom: "CP4916-68", q3: 2.32 },
+  { nom: "CP4916-70", q3: 2.39 }
 ];
+
 
 /* Débit réel d’une pastille à une pression donnée */
 function debitPastille(p, pression) {
@@ -343,3 +373,4 @@ window.calculatePressureWithSameNozzles = calculatePressureWithSameNozzles;
 window.exportPDF = exportPDF;
 window.saveSettings = saveSettings;
 window.loadSettings = loadSettings;
+
