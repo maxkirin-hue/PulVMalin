@@ -76,3 +76,30 @@ table th, table td {
 .coef-label {
   font-size: 14px;
 }
+.pdf-pulve-grid {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.pdf-col {
+  width: 48%;
+}
+
+.pdf-row {
+  display: flex;
+  align-items: center;
+  margin: 6px 0;
+  padding: 4px 0;
+}
+
+.pdf-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.pdf-label {
+  font-size: 14px;
+}
