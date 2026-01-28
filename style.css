@@ -103,3 +103,7 @@ table th, table td {
 .pdf-label {
   font-size: 14px;
 }
+.pdf-dot[data-coef="0"] { background:#ccc; }
+.pdf-dot[data-coef="0.25"] { background:#9be7a1; }
+.pdf-dot[data-coef="0.5"] { background:#4caf50; }
+.pdf-dot[data-coef="1"] { background:#1b5e20; }
