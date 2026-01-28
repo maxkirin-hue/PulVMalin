@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulvérisateur Malin</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3fa34d">
+
+  <!-- Librairie PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+
+    <h1>Pulvérisateur Malin</h1>
+
+    <!-- ACCUEIL -->
+    <section id="home" class="active">
+      <h2>Nom de la machine</h2>
+      <input id="machineName" type="text" placeholder="Ex : Calvet SP 200">
+
+      <button onclick="saveMachine()">Enregistrer</button>
+      <button onclick="goToSettings()">Commencer le réglage</button>
+    </section>
+
+    <!-- RÉGLAGES -->
+    <section id="settings">
+      <h2>Modèle de répartition</h2>
+
+      <label for="modeleRepartition">Choisir un modèle :</label>
+      <select id="modeleRepartition" onchange="showSchema(this.value)">
+        <option value="">Sélectionner...</option>
+        <option value="3r_sans">3 rangs – sans main de retour (8 sorties)</option>
+        <option value="3r_avec">3 rangs – avec main de retour (10 sorties)</option>
+        <option value="4r_sans">4 rangs – sans main de retour (8 sorties)</option>
+        <option value="4r_avec">4 rangs – avec main de retour (10 sorties)</option>
+      </select>
+
+      <div id="schemaContainer" class="schema-vertical"></div>
+
+      <h2>Paramètres de pulvérisation</h2>
+
+      <label for="dose">Dose (L/ha)</label>
+      <input id="dose" type="number" placeholder="Ex : 150">
+
+      <label for="interligne">Interligne (m)</label>
+      <input id="interligne" type="number" placeholder="Ex : 2">
+
+      <label for="vitesse">Vitesse (km/h)</label>
+      <input id="vitesse" type="number" placeholder="Ex : 5">
+
+      <button onclick="calculateOutputs()">Calculer réglage idéal (3 bar)</button>
+    </section>
+
+    <!-- RÉSULTATS -->
+    <section id="result">
+      <h2>Réglage idéal (3 bar)</h2>
+
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Coef</th>
+            <th>Débit cible</th>
+            <th>Pastille</th>
+            <th>Débit réel</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h2>Réglage alternatif (mêmes pastilles)</h2>
+
+      <label for="newInterligne">Nouvelle interligne (m)</label>
+      <input id="newInterligne" type="number" placeholder="Ex : 2.5">
+
+      <button onclick="calculatePressureWithSameNozzles()">Recalculer pression</button>
+
+      <table id="altTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Coef</th>
+            <th>Pastille</th>
+            <th>Pression</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div id="resumeFinal"></div>
+
+      <button onclick="exportPDF()">Exporter en PDF</button>
+      <button onclick="goHome()">Retour</button>
+    </section>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (typeof loadSettings === "function") {
+        loadSettings();
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "Pulvérisateur Malin",
+  "short_name": "PulveMalin",
+  "description": "Application de réglage de pulvérisateur viticole, utilisable hors ligne.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#3fa34d",
+  "theme_color": "#3fa34d",
+  "lang": "fr",
+  "categories": ["agriculture", "productivity"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
