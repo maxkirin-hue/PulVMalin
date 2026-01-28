@@ -9,7 +9,6 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#3fa34d">
 
-  <!-- Librairie PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
@@ -40,7 +39,7 @@
         <option value="4r_avec">4 rangs – avec main de retour (10 sorties)</option>
       </select>
 
-      <div id="schemaContainer" class="schema-vertical"></div>
+      <div id="schemaContainer"></div>
 
       <h2>Paramètres de pulvérisation</h2>
 
@@ -64,6 +63,7 @@
         <thead>
           <tr>
             <th>#</th>
+            <th>Sortie</th>
             <th>Coef</th>
             <th>Débit cible</th>
             <th>Pastille</th>
@@ -84,7 +84,7 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Coef</th>
+            <th>Sortie</th>
             <th>Pastille</th>
             <th>Pression</th>
           </tr>
@@ -100,7 +100,6 @@
 
   </div>
 
-  <!-- Scripts -->
   <script src="app.js"></script>
 
   <script>
@@ -109,9 +108,7 @@
     }
 
     window.addEventListener("DOMContentLoaded", () => {
-      if (typeof loadSettings === "function") {
-        loadSettings();
-      }
+      if (typeof loadSettings === "function") loadSettings();
     });
   </script>
 
