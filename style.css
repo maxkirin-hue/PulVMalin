@@ -4,6 +4,32 @@ body {
   margin: 0;
   padding: 0;
 }
+.app-logo {
+  text-align: center;
+  margin-bottom: 25px;
+  margin-top: 10px;
+}
+
+.logo-main {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #2e7d32;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.logo-main .accent {
+  color: #43a047;
+}
+
+.logo-sub {
+  display: block;
+  margin-top: -4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  font-family: 'Montserrat', sans-serif;
+}
 
 .container {
   max-width: 900px;
