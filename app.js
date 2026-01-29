@@ -531,24 +531,35 @@ function exportPDF() {
   buildPDFLayout();
 
   const pdfBlock = document.getElementById("pdfLayout");
+
+  // 1. On rend le bloc visible hors écran (pas masqué)
   pdfBlock.style.opacity = "1";
   pdfBlock.style.zIndex = "9999";
+  pdfBlock.style.position = "absolute";
+  pdfBlock.style.top = "-2000px"; // hors écran mais visible
+  pdfBlock.style.pointerEvents = "auto";
 
+  // 2. On attend que le DOM soit vraiment prêt
   setTimeout(() => {
     const opt = {
       margin: 10,
       filename: 'reglage_pulve.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
+      html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(pdfBlock).save().then(() => {
+      // 3. On remet tout propre
       pdfBlock.style.opacity = "0";
       pdfBlock.style.zIndex = "-1";
+      pdfBlock.style.position = "fixed";
+      pdfBlock.style.top = "0";
+      pdfBlock.style.pointerEvents = "none";
     });
-  }, 80);
+  }, 300); // délai augmenté pour stabilité
 }
+
 
 /* ----------------------------------------------------
    SIMULATEUR INTERACTIF
@@ -755,3 +766,4 @@ window.applySimulator = applySimulator;
 window.saveScenario = saveScenario;
 window.compareScenarios = compareScenarios;
 window.clearScenarios = clearScenarios;
+
