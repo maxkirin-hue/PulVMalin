@@ -416,7 +416,9 @@ function buildPDFLayout() {
 function exportPDF() {
   buildPDFLayout();
 
-  const element = document.getElementById("pdfLayout");
+  const pdfBlock = document.getElementById("pdfLayout");
+  pdfBlock.style.opacity = "1";
+  pdfBlock.style.zIndex = "9999";
 
   const opt = {
     margin: 10,
@@ -426,7 +428,10 @@ function exportPDF() {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
-  html2pdf().set(opt).from(element).save();
+  html2pdf().set(opt).from(pdfBlock).save().then(() => {
+    pdfBlock.style.opacity = "0";
+    pdfBlock.style.zIndex = "-1";
+  });
 }
 
 /* ----------------------------------------------------
@@ -438,3 +443,4 @@ window.goHome = goHome;
 window.showSchema = showSchema;
 window.calculateOutputs = calculateOutputs;
 window.calculatePressureWithSame
+
