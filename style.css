@@ -1,68 +1,104 @@
+/* ----------------------------------------------------
+   STYLE GLOBAL
+---------------------------------------------------- */
+
 body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
   margin: 0;
   padding: 0;
-}
-.app-logo {
-  text-align: center;
-  margin-bottom: 25px;
-  margin-top: 10px;
-}
-
-.logo-main {
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  color: #2e7d32;
+  background: #f1f8f4;
   font-family: 'Montserrat', sans-serif;
-}
-
-.logo-main .accent {
-  color: #43a047;
-}
-
-.logo-sub {
-  display: block;
-  margin-top: -4px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #555;
-  font-family: 'Montserrat', sans-serif;
+  color: #333;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 600px;
   margin: auto;
   padding: 20px;
-  background: white;
 }
+
+/* ----------------------------------------------------
+   HEADER / LOGO
+---------------------------------------------------- */
+
+.app-header {
+  text-align: center;
+  padding: 20px 0;
+  background: #e8f5e9;
+  border-bottom: 2px solid #c8e6c9;
+  margin-bottom: 20px;
+}
+
+.logo {
+  font-size: 32px;
+  font-weight: 800;
+  color: #2e7d32;
+}
+
+.logo span {
+  color: #43a047;
+}
+
+.author {
+  font-size: 14px;
+  color: #555;
+  margin-top: -6px;
+}
+
+/* ----------------------------------------------------
+   SECTIONS
+---------------------------------------------------- */
 
 section {
-  display: none;
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
 }
 
-section.active {
-  display: block;
+section h2 {
+  margin-top: 0;
+  color: #2e7d32;
 }
 
-input, select, button {
+/* ----------------------------------------------------
+   INPUTS
+---------------------------------------------------- */
+
+input, select {
   width: 100%;
-  padding: 10px;
-  margin: 8px 0;
+  padding: 12px;
+  margin: 8px 0 16px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
   font-size: 16px;
 }
 
+/* ----------------------------------------------------
+   BOUTONS
+---------------------------------------------------- */
+
 button {
-  background: #3fa34d;
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  background: #43a047;
   color: white;
   border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 button:hover {
   background: #2e7d32;
 }
+
+/* ----------------------------------------------------
+   TABLEAUX
+---------------------------------------------------- */
 
 table {
   width: 100%;
@@ -70,16 +106,26 @@ table {
   margin-top: 15px;
 }
 
-table th, table td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
+th {
+  background: #e8f5e9;
+  padding: 10px;
+  font-weight: 700;
+  border-bottom: 2px solid #c8e6c9;
 }
+
+td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+/* ----------------------------------------------------
+   SCHÉMA
+---------------------------------------------------- */
 
 .schema-grid {
   display: flex;
   justify-content: space-between;
-  margin-top: 15px;
+  margin: 20px 0;
 }
 
 .schema-col {
@@ -93,8 +139,8 @@ table th, table td {
 }
 
 .schema-dot {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   margin-right: 8px;
 }
@@ -102,39 +148,9 @@ table th, table td {
 .coef-label {
   font-size: 14px;
 }
-.pdf-pulve-grid {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
 
-.pdf-col {
-  width: 48%;
-}
-
-.pdf-row {
-  display: flex;
-  align-items: center;
-  margin: 6px 0;
-  padding: 4px 0;
-}
-
-.pdf-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  margin-right: 8px;
-}
-
-.pdf-label {
-  font-size: 14px;
-}
-.pdf-dot[data-coef="0"] { background:#ccc; }
-.pdf-dot[data-coef="0.25"] { background:#9be7a1; }
-.pdf-dot[data-coef="0.5"] { background:#4caf50; }
-.pdf-dot[data-coef="1"] { background:#1b5e20; }
 /* ----------------------------------------------------
-   STYLE DU PDF
+   PDF
 ---------------------------------------------------- */
 
 .pdf-pulve-grid {
@@ -151,7 +167,6 @@ table th, table td {
   display: flex;
   align-items: center;
   margin: 6px 0;
-  padding: 4px 0;
 }
 
 .pdf-dot {
@@ -166,7 +181,6 @@ table th, table td {
   font-size: 14px;
 }
 
-/* Couleurs selon coefficient */
 .pdf-dot[data-coef="0"] { background:#ccc; }
 .pdf-dot[data-coef="0.25"] { background:#9be7a1; }
 .pdf-dot[data-coef="0.5"] { background:#4caf50; }
