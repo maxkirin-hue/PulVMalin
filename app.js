@@ -77,14 +77,67 @@ const pastilles = [
   { nom: "CP4916-70", q3: 2.39 }
 ];
 
-/* Débit réel d’une pastille à une pression donnée */
-function debitPastille(p, pression) {
-  return p.q3 * Math.sqrt(pression / 3);
+/* ----------------------------------------------------
+   MOTEUR DE CALCUL UNIQUE
+---------------------------------------------------- */
+
+function computeSettings({
+  dose,
+  interligne,
+  vitesse,
+  coefs,
+  pastilles,
+  mode = "ideal",
+  newInterligne = null,
+  newDose = null
+}) {
+  const results = [];
+
+  coefs.forEach((coef, index) => {
+    const debitCible = (dose * interligne * vitesse * coef) / 600;
+
+    // Meilleure pastille à 3 bar
+    let best = null;
+    let bestDiff = Infinity;
+
+    pastilles.forEach(p => {
+      const debitReel = p.q3; // à 3 bar
+      const diff = Math.abs(debitReel - debitCible);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        best = p;
+      }
+    });
+
+    let pression = 3;
+
+    if (mode === "newInterligne") {
+      const debit2 = (dose * newInterligne * vitesse * coef) / 600;
+      pression = 3 * Math.pow(debit2 / best.q3, 2);
+    }
+
+    if (mode === "newDose") {
+      const debit2 = (newDose * interligne * vitesse * coef) / 600;
+      pression = 3 * Math.pow(debit2 / best.q3, 2);
+    }
+
+    results.push({
+      index: index + 1,
+      coef,
+      debitCible,
+      pastille: best.nom,
+      q3: best.q3,
+      pression
+    });
+  });
+
+  return results;
 }
 
 /* ----------------------------------------------------
    NAVIGATION
 ---------------------------------------------------- */
+
 function showSection(id) {
   document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
   document.getElementById(id).classList.add("active");
@@ -101,6 +154,7 @@ function goHome() {
 /* ----------------------------------------------------
    MACHINE + RÉGLAGES
 ---------------------------------------------------- */
+
 function saveMachine() {
   const name = document.getElementById("machineName").value;
   localStorage.setItem("machine", name);
@@ -134,6 +188,7 @@ function loadSettings() {
 /* ----------------------------------------------------
    SCHÉMA VISUEL GAUCHE / DROITE
 ---------------------------------------------------- */
+
 function showSchema(modelKey) {
   const container = document.getElementById("schemaContainer");
   container.innerHTML = "";
@@ -196,6 +251,7 @@ function createSchemaRow(coef, index, label) {
 /* ----------------------------------------------------
    CALCUL RÉGLAGE IDÉAL (3 BAR)
 ---------------------------------------------------- */
+
 function calculateOutputs() {
   const modelKey = document.getElementById("modeleRepartition").value;
   const coefs = models[modelKey];
@@ -215,33 +271,27 @@ function calculateOutputs() {
     return;
   }
 
-  const pression = 3; // réglage idéal
+  const results = computeSettings({
+    dose,
+    interligne,
+    vitesse,
+    coefs,
+    pastilles,
+    mode: "ideal"
+  });
+
   const tbody = document.querySelector("#resultTable tbody");
   tbody.innerHTML = "";
 
-  coefs.forEach((coef, index) => {
-    const debitCible = (dose * interligne * vitesse * coef) / 600;
-
-    let best = null;
-    let bestDiff = Infinity;
-
-    pastilles.forEach(p => {
-      const debitReel = debitPastille(p, pression);
-      const diff = Math.abs(debitReel - debitCible);
-      if (diff < bestDiff) {
-        bestDiff = diff;
-        best = { nom: p.nom, debit: debitReel };
-      }
-    });
-
+  results.forEach((r, i) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${index + 1}</td>
-      <td>${names[index]}</td>
-      <td>${coef}</td>
-      <td>${debitCible.toFixed(2)}</td>
-      <td>${best.nom}</td>
-      <td>${best.debit.toFixed(2)}</td>
+      <td>${r.index}</td>
+      <td>${names[i]}</td>
+      <td>${r.coef}</td>
+      <td>${r.debitCible.toFixed(2)}</td>
+      <td>${r.pastille}</td>
+      <td>${r.q3.toFixed(2)}</td>
     `;
     tbody.appendChild(row);
   });
@@ -251,8 +301,9 @@ function calculateOutputs() {
 }
 
 /* ----------------------------------------------------
-   CALCUL ALTERNATIF (MÊMES PASTILLES)
+   CALCUL ALTERNATIF (MÊMES PASTILLES, NOUVELLE INTERLIGNE)
 ---------------------------------------------------- */
+
 function calculatePressureWithSameNozzles() {
   const modelKey = document.getElementById("modeleRepartition").value;
   const coefs = models[modelKey];
@@ -260,38 +311,36 @@ function calculatePressureWithSameNozzles() {
   if (!coefs || !names) return;
 
   const dose = parseFloat(document.getElementById("dose").value);
-  const newInterligne = parseFloat(document.getElementById("newInterligne").value);
+  const interligne = parseFloat(document.getElementById("interligne").value);
   const vitesse = parseFloat(document.getElementById("vitesse").value);
+  const newInterligne = parseFloat(document.getElementById("newInterligne").value);
 
-  if (isNaN(dose) || isNaN(newInterligne) || isNaN(vitesse)) {
-    alert("Merci de remplir la nouvelle interligne.");
+  if (isNaN(dose) || isNaN(interligne) || isNaN(vitesse) || isNaN(newInterligne)) {
+    alert("Merci de remplir tous les paramètres, y compris la nouvelle interligne.");
     return;
   }
+
+  const results = computeSettings({
+    dose,
+    interligne,
+    vitesse,
+    coefs,
+    pastilles,
+    mode: "newInterligne",
+    newInterligne
+  });
 
   const altBody = document.querySelector("#altTable tbody");
   altBody.innerHTML = "";
 
-  const rows = document.querySelectorAll("#resultTable tbody tr");
-
-  coefs.forEach((coef, index) => {
-    const row = rows[index];
-    if (!row) return;
-
-    const pastilleNom = row.children[4].innerText;
-    const pastille = pastilles.find(p => p.nom === pastilleNom);
-    if (!pastille) return;
-
-    const debitCible = (dose * newInterligne * vitesse * coef) / 600;
-
-    const pression = 3 * Math.pow(debitCible / pastille.q3, 2);
-
+  results.forEach((r, i) => {
     let status = "";
     let color = "";
 
-    if (pression < 1.5 || pression > 6) {
+    if (r.pression < 1.5 || r.pression > 6) {
       status = "Hors plage";
       color = "#e53935";
-    } else if (pression < 2 || pression > 5) {
+    } else if (r.pression < 2 || r.pression > 5) {
       status = "Limite";
       color = "#fb8c00";
     } else {
@@ -301,11 +350,11 @@ function calculatePressureWithSameNozzles() {
 
     const altRow = document.createElement("tr");
     altRow.innerHTML = `
-      <td>${index + 1}</td>
-      <td>${names[index]}</td>
-      <td>${pastille.nom}</td>
+      <td>${r.index}</td>
+      <td>${names[i]}</td>
+      <td>${r.pastille}</td>
       <td style="color:${color}; font-weight:600;">
-        ${pression.toFixed(1)} bar (${status})
+        ${r.pression.toFixed(1)} bar (${status})
       </td>
     `;
     altBody.appendChild(altRow);
@@ -313,45 +362,48 @@ function calculatePressureWithSameNozzles() {
 
   generateResumeFinal();
 }
+
+/* ----------------------------------------------------
+   CALCUL PAR NOUVELLE DOSE (MÊMES PASTILLES)
+---------------------------------------------------- */
+
 function calculatePressureWithNewDose() {
   const modelKey = document.getElementById("modeleRepartition").value;
   const coefs = models[modelKey];
   const names = labels[modelKey];
   if (!coefs || !names) return;
 
-  const newDose = parseFloat(document.getElementById("newDose").value);
+  const dose = parseFloat(document.getElementById("dose").value);
   const interligne = parseFloat(document.getElementById("interligne").value);
   const vitesse = parseFloat(document.getElementById("vitesse").value);
+  const newDose = parseFloat(document.getElementById("newDose").value);
 
-  if (isNaN(newDose) || isNaN(interligne) || isNaN(vitesse)) {
-    alert("Merci de remplir la nouvelle dose.");
+  if (isNaN(dose) || isNaN(interligne) || isNaN(vitesse) || isNaN(newDose)) {
+    alert("Merci de remplir tous les paramètres, y compris la nouvelle dose.");
     return;
   }
+
+  const results = computeSettings({
+    dose,
+    interligne,
+    vitesse,
+    coefs,
+    pastilles,
+    mode: "newDose",
+    newDose
+  });
 
   const doseBody = document.querySelector("#doseTable tbody");
   doseBody.innerHTML = "";
 
-  const rows = document.querySelectorAll("#resultTable tbody tr");
-
-  coefs.forEach((coef, index) => {
-    const row = rows[index];
-    if (!row) return;
-
-    const pastilleNom = row.children[4].innerText;
-    const pastille = pastilles.find(p => p.nom === pastilleNom);
-    if (!pastille) return;
-
-    const debitCible = (newDose * interligne * vitesse * coef) / 600;
-
-    const pression = 3 * Math.pow(debitCible / pastille.q3, 2);
-
+  results.forEach((r, i) => {
     let status = "";
     let color = "";
 
-    if (pression < 1.5 || pression > 6) {
+    if (r.pression < 1.5 || r.pression > 6) {
       status = "Hors plage";
       color = "#e53935";
-    } else if (pression < 2 || pression > 5) {
+    } else if (r.pression < 2 || r.pression > 5) {
       status = "Limite";
       color = "#fb8c00";
     } else {
@@ -361,25 +413,29 @@ function calculatePressureWithNewDose() {
 
     const doseRow = document.createElement("tr");
     doseRow.innerHTML = `
-      <td>${index + 1}</td>
-      <td>${names[index]}</td>
-      <td>${pastille.nom}</td>
+      <td>${r.index}</td>
+      <td>${names[i]}</td>
+      <td>${r.pastille}</td>
       <td style="color:${color}; font-weight:600;">
-        ${pression.toFixed(1)} bar (${status})
+        ${r.pression.toFixed(1)} bar (${status})
       </td>
     `;
     doseBody.appendChild(doseRow);
   });
+
+  generateResumeFinal();
 }
 
 /* ----------------------------------------------------
    RÉSUMÉ FINAL
 ---------------------------------------------------- */
+
 function generateResumeFinal() {
   const dose = document.getElementById("dose").value;
   const interligne = document.getElementById("interligne").value;
   const vitesse = document.getElementById("vitesse").value;
   const newInterligne = document.getElementById("newInterligne").value;
+  const newDose = document.getElementById("newDose").value;
 
   const resume = document.getElementById("resumeFinal");
 
@@ -390,9 +446,11 @@ function generateResumeFinal() {
     • Vitesse : ${vitesse} km/h<br>
     • Pression : 3 bar<br><br>
 
-    <strong>Réglage alternatif :</strong><br>
-    • Nouvelle interligne : ${newInterligne} m<br>
-    • Pression recalculée pour chaque sortie (voir tableau ci-dessus)<br><br>
+    <strong>Réglage alternatif (interligne) :</strong><br>
+    • Nouvelle interligne : ${newInterligne || "-"} m<br><br>
+
+    <strong>Réglage par nouvelle dose :</strong><br>
+    • Nouvelle dose : ${newDose || "-"} L/ha<br><br>
 
     <strong>Conseil :</strong><br>
     • Vert = parfait<br>
@@ -404,6 +462,7 @@ function generateResumeFinal() {
 /* ----------------------------------------------------
    PDF STYLISÉ
 ---------------------------------------------------- */
+
 function buildPDFRow(item) {
   const row = document.createElement("div");
   row.className = "pdf-row";
@@ -431,6 +490,7 @@ function buildPDFLayout() {
   const names = labels[modelKey];
 
   const rows = document.querySelectorAll("#resultTable tbody tr");
+  if (!rows.length || !coefs) return;
 
   const mid = coefs.length / 2;
 
@@ -468,6 +528,10 @@ function buildPDFLayout() {
     document.getElementById("resumeFinal").innerHTML;
 }
 
+/* ----------------------------------------------------
+   EXPORT PDF
+---------------------------------------------------- */
+
 function exportPDF() {
   buildPDFLayout();
 
@@ -475,7 +539,6 @@ function exportPDF() {
   pdfBlock.style.opacity = "1";
   pdfBlock.style.zIndex = "9999";
 
-  // Laisser le temps au DOM de se mettre à jour
   setTimeout(() => {
     const opt = {
       margin: 10,
@@ -489,23 +552,20 @@ function exportPDF() {
       pdfBlock.style.opacity = "0";
       pdfBlock.style.zIndex = "-1";
     });
-  }, 100);
+  }, 50);
 }
 
 /* ----------------------------------------------------
    EXPORT DES FONCTIONS
 ---------------------------------------------------- */
+
 window.saveMachine = saveMachine;
 window.goToSettings = goToSettings;
 window.goHome = goHome;
 window.showSchema = showSchema;
 window.calculateOutputs = calculateOutputs;
 window.calculatePressureWithSameNozzles = calculatePressureWithSameNozzles;
+window.calculatePressureWithNewDose = calculatePressureWithNewDose;
 window.exportPDF = exportPDF;
 window.saveSettings = saveSettings;
 window.loadSettings = loadSettings;
-
-
-
-
-
