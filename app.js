@@ -1,5 +1,5 @@
 /* ----------------------------------------------------
-   MODÈLES DE RÉPARTITION (COEFFICIENTS)
+   MODÈLES, LABELS, PASTILLES
 ---------------------------------------------------- */
 const models = {
   "3r_sans": [0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25],
@@ -8,9 +8,6 @@ const models = {
   "4r_avec": [0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.25, 0.25]
 };
 
-/* ----------------------------------------------------
-   NOMS DES SORTIES (SYMÉTRIQUES GAUCHE / DROITE)
----------------------------------------------------- */
 const labels = {
   "3r_sans": [
     "Canon", "Canon", "Main", "Main",
@@ -30,9 +27,6 @@ const labels = {
   ]
 };
 
-/* ----------------------------------------------------
-   PASTILLES TEEJET CP4916 (DÉBIT À 3 BAR)
----------------------------------------------------- */
 const pastilles = [
   { nom: "CP4916-008", q3: 0.032 },
   { nom: "CP4916-10", q3: 0.048 },
@@ -78,7 +72,18 @@ const pastilles = [
 ];
 
 /* ----------------------------------------------------
+   UTILITAIRES
+---------------------------------------------------- */
+
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+function formatNum(v, digits = 2) {
+  return Number.isFinite(v) ? v.toFixed(digits) : "-";
+}
+
+/* ----------------------------------------------------
    MOTEUR DE CALCUL UNIQUE
+   - mode: "ideal" | "newInterligne" | "newDose" | "forcePressure"
 ---------------------------------------------------- */
 
 function computeSettings({
@@ -89,19 +94,20 @@ function computeSettings({
   pastilles,
   mode = "ideal",
   newInterligne = null,
-  newDose = null
+  newDose = null,
+  forcedPressure = null
 }) {
   const results = [];
 
   coefs.forEach((coef, index) => {
-    const debitCible = (dose * interligne * vitesse * coef) / 600;
+    const debitCible = (dose * interligne * vitesse * coef) / 600; // L/min
 
-    // Meilleure pastille à 3 bar
+    // Meilleure pastille à 3 bar (q3)
     let best = null;
     let bestDiff = Infinity;
 
     pastilles.forEach(p => {
-      const debitReel = p.q3; // à 3 bar
+      const debitReel = p.q3; // L/min at 3 bar
       const diff = Math.abs(debitReel - debitCible);
       if (diff < bestDiff) {
         bestDiff = diff;
@@ -109,17 +115,25 @@ function computeSettings({
       }
     });
 
+    // Calcul pression selon mode
     let pression = 3;
+    let debitAtPressure = best.q3;
 
     if (mode === "newInterligne") {
       const debit2 = (dose * newInterligne * vitesse * coef) / 600;
       pression = 3 * Math.pow(debit2 / best.q3, 2);
-    }
-
-    if (mode === "newDose") {
+      debitAtPressure = best.q3 * Math.sqrt(pression / 3);
+    } else if (mode === "newDose") {
       const debit2 = (newDose * interligne * vitesse * coef) / 600;
       pression = 3 * Math.pow(debit2 / best.q3, 2);
+      debitAtPressure = best.q3 * Math.sqrt(pression / 3);
+    } else if (mode === "forcePressure" && forcedPressure) {
+      pression = forcedPressure;
+      debitAtPressure = best.q3 * Math.sqrt(pression / 3);
     }
+
+    // Clamp realistic pressure
+    pression = clamp(pression, 0, 99);
 
     results.push({
       index: index + 1,
@@ -127,7 +141,8 @@ function computeSettings({
       debitCible,
       pastille: best.nom,
       q3: best.q3,
-      pression
+      pression,
+      debitAtPressure
     });
   });
 
@@ -140,23 +155,20 @@ function computeSettings({
 
 function showSection(id) {
   document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
 }
 
-function goToSettings() {
-  showSection("settings");
-}
-
-function goHome() {
-  showSection("home");
-}
+function goToSettings() { showSection("settings"); }
+function goHome() { showSection("home"); }
+function openSimulator() { showSection("simulator"); }
 
 /* ----------------------------------------------------
-   MACHINE + RÉGLAGES
+   MACHINE + RÉGLAGES (localStorage)
 ---------------------------------------------------- */
 
 function saveMachine() {
-  const name = document.getElementById("machineName").value;
+  const name = document.getElementById("machineName").value || "";
   localStorage.setItem("machine", name);
   alert("Machine enregistrée !");
 }
@@ -180,13 +192,14 @@ function loadSettings() {
   document.getElementById("vitesse").value = data.vitesse;
   document.getElementById("modeleRepartition").value = data.modele;
 
-  if (data.modele) {
-    showSchema(data.modele);
-  }
+  if (data.modele) showSchema(data.modele);
+
+  const machine = localStorage.getItem("machine") || "";
+  document.getElementById("machineName").value = machine;
 }
 
 /* ----------------------------------------------------
-   SCHÉMA VISUEL GAUCHE / DROITE
+   SCHÉMA VISUEL
 ---------------------------------------------------- */
 
 function showSchema(modelKey) {
@@ -198,10 +211,8 @@ function showSchema(modelKey) {
   if (!coefs || !names) return;
 
   const mid = coefs.length / 2;
-
   const leftCoefs = coefs.slice(0, mid);
   const rightCoefs = coefs.slice(mid);
-
   const leftNames = names.slice(0, mid);
   const rightNames = names.slice(mid);
 
@@ -214,13 +225,8 @@ function showSchema(modelKey) {
   const colRight = document.createElement("div");
   colRight.className = "schema-col right";
 
-  leftCoefs.forEach((coef, i) => {
-    colLeft.appendChild(createSchemaRow(coef, i + 1, leftNames[i]));
-  });
-
-  rightCoefs.forEach((coef, i) => {
-    colRight.appendChild(createSchemaRow(coef, i + 1 + mid, rightNames[i]));
-  });
+  leftCoefs.forEach((coef, i) => colLeft.appendChild(createSchemaRow(coef, i + 1, leftNames[i])));
+  rightCoefs.forEach((coef, i) => colRight.appendChild(createSchemaRow(coef, i + 1 + mid, rightNames[i])));
 
   grid.appendChild(colLeft);
   grid.appendChild(colRight);
@@ -233,11 +239,7 @@ function createSchemaRow(coef, index, label) {
 
   const dot = document.createElement("div");
   dot.className = "schema-dot";
-
-  if (coef === 0) dot.style.background = "#ccc";
-  if (coef === 0.25) dot.style.background = "#9be7a1";
-  if (coef === 0.5) dot.style.background = "#4caf50";
-  if (coef === 1) dot.style.background = "#1b5e20";
+  dot.dataset.coef = coef;
 
   const text = document.createElement("span");
   text.className = "coef-label";
@@ -289,9 +291,9 @@ function calculateOutputs() {
       <td>${r.index}</td>
       <td>${names[i]}</td>
       <td>${r.coef}</td>
-      <td>${r.debitCible.toFixed(2)}</td>
+      <td>${formatNum(r.debitCible,2)}</td>
       <td>${r.pastille}</td>
-      <td>${r.q3.toFixed(2)}</td>
+      <td>${formatNum(r.q3,2)}</td>
     `;
     tbody.appendChild(row);
   });
@@ -301,7 +303,7 @@ function calculateOutputs() {
 }
 
 /* ----------------------------------------------------
-   CALCUL ALTERNATIF (MÊMES PASTILLES, NOUVELLE INTERLIGNE)
+   CALCUL ALTERNATIF (NOUVELLE INTERLIGNE)
 ---------------------------------------------------- */
 
 function calculatePressureWithSameNozzles() {
@@ -354,7 +356,7 @@ function calculatePressureWithSameNozzles() {
       <td>${names[i]}</td>
       <td>${r.pastille}</td>
       <td style="color:${color}; font-weight:600;">
-        ${r.pression.toFixed(1)} bar (${status})
+        ${formatNum(r.pression,1)} bar (${status})
       </td>
     `;
     altBody.appendChild(altRow);
@@ -364,7 +366,7 @@ function calculatePressureWithSameNozzles() {
 }
 
 /* ----------------------------------------------------
-   CALCUL PAR NOUVELLE DOSE (MÊMES PASTILLES)
+   CALCUL PAR NOUVELLE DOSE
 ---------------------------------------------------- */
 
 function calculatePressureWithNewDose() {
@@ -417,7 +419,7 @@ function calculatePressureWithNewDose() {
       <td>${names[i]}</td>
       <td>${r.pastille}</td>
       <td style="color:${color}; font-weight:600;">
-        ${r.pression.toFixed(1)} bar (${status})
+        ${formatNum(r.pression,1)} bar (${status})
       </td>
     `;
     doseBody.appendChild(doseRow);
@@ -431,11 +433,11 @@ function calculatePressureWithNewDose() {
 ---------------------------------------------------- */
 
 function generateResumeFinal() {
-  const dose = document.getElementById("dose").value;
-  const interligne = document.getElementById("interligne").value;
-  const vitesse = document.getElementById("vitesse").value;
-  const newInterligne = document.getElementById("newInterligne").value;
-  const newDose = document.getElementById("newDose").value;
+  const dose = document.getElementById("dose").value || "-";
+  const interligne = document.getElementById("interligne").value || "-";
+  const vitesse = document.getElementById("vitesse").value || "-";
+  const newInterligne = document.getElementById("newInterligne").value || "-";
+  const newDose = document.getElementById("newDose").value || "-";
 
   const resume = document.getElementById("resumeFinal");
 
@@ -447,10 +449,10 @@ function generateResumeFinal() {
     • Pression : 3 bar<br><br>
 
     <strong>Réglage alternatif (interligne) :</strong><br>
-    • Nouvelle interligne : ${newInterligne || "-"} m<br><br>
+    • Nouvelle interligne : ${newInterligne} m<br><br>
 
     <strong>Réglage par nouvelle dose :</strong><br>
-    • Nouvelle dose : ${newDose || "-"} L/ha<br><br>
+    • Nouvelle dose : ${newDose} L/ha<br><br>
 
     <strong>Conseil :</strong><br>
     • Vert = parfait<br>
@@ -485,13 +487,11 @@ function buildPDFLayout() {
   const machine = localStorage.getItem("machine") || "";
   document.getElementById("pdfMachineName").innerText = machine;
 
+  const rows = document.querySelectorAll("#resultTable tbody tr");
+  if (!rows.length) return;
+
   const modelKey = document.getElementById("modeleRepartition").value;
   const coefs = models[modelKey];
-  const names = labels[modelKey];
-
-  const rows = document.querySelectorAll("#resultTable tbody tr");
-  if (!rows.length || !coefs) return;
-
   const mid = coefs.length / 2;
 
   const left = [];
@@ -502,11 +502,8 @@ function buildPDFLayout() {
     const coef = r.children[2].innerText;
     const debit = r.children[3].innerText;
     const pastille = r.children[4].innerText;
-
     const item = { label, coef, debit, pastille };
-
-    if (i < mid) left.push(item);
-    else right.push(item);
+    if (i < mid) left.push(item); else right.push(item);
   });
 
   const container = document.getElementById("pdfPulve");
@@ -514,7 +511,6 @@ function buildPDFLayout() {
 
   const colLeft = document.createElement("div");
   colLeft.className = "pdf-col";
-
   const colRight = document.createElement("div");
   colRight.className = "pdf-col";
 
@@ -524,12 +520,11 @@ function buildPDFLayout() {
   container.appendChild(colLeft);
   container.appendChild(colRight);
 
-  document.getElementById("pdfResume").innerHTML =
-    document.getElementById("resumeFinal").innerHTML;
+  document.getElementById("pdfResume").innerHTML = document.getElementById("resumeFinal").innerHTML;
 }
 
 /* ----------------------------------------------------
-   EXPORT PDF
+   EXPORT PDF (avec délai pour rendu DOM)
 ---------------------------------------------------- */
 
 function exportPDF() {
@@ -552,8 +547,194 @@ function exportPDF() {
       pdfBlock.style.opacity = "0";
       pdfBlock.style.zIndex = "-1";
     });
-  }, 50);
+  }, 80);
 }
+
+/* ----------------------------------------------------
+   SIMULATEUR INTERACTIF
+   - sliders, debounce, scenarios (localStorage)
+---------------------------------------------------- */
+
+let simTimer = null;
+const SIM_DEBOUNCE = 120;
+
+function initSimulator() {
+  // Elements
+  const simDose = document.getElementById("simDose");
+  const simInter = document.getElementById("simInter");
+  const simVite = document.getElementById("simVite");
+  const simPress = document.getElementById("simPress");
+
+  const simDoseVal = document.getElementById("simDoseVal");
+  const simInterVal = document.getElementById("simInterVal");
+  const simViteVal = document.getElementById("simViteVal");
+  const simPressVal = document.getElementById("simPressVal");
+
+  function updateLabels() {
+    simDoseVal.innerText = simDose.value;
+    simInterVal.innerText = Number(simInter.value).toFixed(2);
+    simViteVal.innerText = Number(simVite.value).toFixed(1);
+    simPressVal.innerText = simPress.value ? `${simPress.value} bar (forcée)` : "—";
+  }
+
+  function scheduleCompute() {
+    clearTimeout(simTimer);
+    simTimer = setTimeout(() => {
+      applySimulator(false);
+    }, SIM_DEBOUNCE);
+  }
+
+  [simDose, simInter, simVite, simPress].forEach(el => {
+    el.addEventListener("input", () => {
+      updateLabels();
+      scheduleCompute();
+    });
+  });
+
+  updateLabels();
+  renderScenarioList();
+}
+
+function applySimulator(forceShow = true) {
+  const modelKey = document.getElementById("modeleRepartition").value;
+  const coefs = models[modelKey];
+  const names = labels[modelKey];
+  if (!coefs || !names) {
+    if (forceShow) alert("Choisissez d'abord un modèle de répartition.");
+    return;
+  }
+
+  const dose = parseFloat(document.getElementById("simDose").value);
+  const interligne = parseFloat(document.getElementById("simInter").value);
+  const vitesse = parseFloat(document.getElementById("simVite").value);
+  const forcedPressure = parseFloat(document.getElementById("simPress").value);
+
+  // Compute with forced pressure mode to preview debit at that pressure
+  const results = computeSettings({
+    dose,
+    interligne,
+    vitesse,
+    coefs,
+    pastilles,
+    mode: "forcePressure",
+    forcedPressure
+  });
+
+  const tbody = document.querySelector("#simTable tbody");
+  tbody.innerHTML = "";
+
+  results.forEach((r, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${r.index}</td>
+      <td>${names[i]}</td>
+      <td>${r.coef}</td>
+      <td>${formatNum(r.debitCible,2)}</td>
+      <td>${r.pastille}</td>
+      <td>${formatNum(r.pression,2)}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function saveScenario() {
+  const modelKey = document.getElementById("modeleRepartition").value;
+  if (!modelKey) { alert("Choisissez un modèle avant d'enregistrer."); return; }
+
+  const scenario = {
+    id: Date.now(),
+    name: `Scénario ${new Date().toLocaleString()}`,
+    model: modelKey,
+    dose: Number(document.getElementById("simDose").value),
+    interligne: Number(document.getElementById("simInter").value),
+    vitesse: Number(document.getElementById("simVite").value),
+    pressure: Number(document.getElementById("simPress").value)
+  };
+
+  const list = JSON.parse(localStorage.getItem("simScenarios") || "[]");
+  list.unshift(scenario);
+  localStorage.setItem("simScenarios", JSON.stringify(list));
+  renderScenarioList();
+}
+
+function renderScenarioList() {
+  const list = JSON.parse(localStorage.getItem("simScenarios") || "[]");
+  const container = document.getElementById("scenarioList");
+  container.innerHTML = "";
+
+  if (!list.length) {
+    container.innerHTML = "<div class='small-note'>Aucun scénario enregistré.</div>";
+    return;
+  }
+
+  list.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "scenario-item";
+    el.innerHTML = `
+      <input type="checkbox" data-id="${s.id}" />
+      <div class="scenario-meta">
+        <div class="scenario-name">${s.name}</div>
+        <div class="scenario-desc">Dose ${s.dose} L/ha • Inter ${s.interligne} m • Vit ${s.vitesse} km/h • P ${s.pressure} bar</div>
+      </div>
+      <div class="scenario-actions">
+        <button class="tiny" onclick="loadScenario(${s.id})">Charger</button>
+        <button class="tiny danger" onclick="deleteScenario(${s.id})">Suppr</button>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+function loadScenario(id) {
+  const list = JSON.parse(localStorage.getItem("simScenarios") || "[]");
+  const s = list.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById("simDose").value = s.dose;
+  document.getElementById("simInter").value = s.interligne;
+  document.getElementById("simVite").value = s.vitesse;
+  document.getElementById("simPress").value = s.pressure;
+  applySimulator();
+}
+
+function deleteScenario(id) {
+  let list = JSON.parse(localStorage.getItem("simScenarios") || "[]");
+  list = list.filter(x => x.id !== id);
+  localStorage.setItem("simScenarios", JSON.stringify(list));
+  renderScenarioList();
+}
+
+function clearScenarios() {
+  if (!confirm("Supprimer tous les scénarios enregistrés ?")) return;
+  localStorage.removeItem("simScenarios");
+  renderScenarioList();
+}
+
+function compareScenarios() {
+  const checks = Array.from(document.querySelectorAll("#scenarioList input[type=checkbox]:checked"));
+  if (checks.length < 2) { alert("Sélectionnez au moins 2 scénarios pour comparer."); return; }
+
+  const ids = checks.map(c => Number(c.dataset.id));
+  const list = JSON.parse(localStorage.getItem("simScenarios") || "[]").filter(s => ids.includes(s.id));
+
+  // Build a simple comparison table in a new window
+  let html = `<h2>Comparatif scénarios</h2><table border="1" cellpadding="6" cellspacing="0"><thead><tr><th>Nom</th><th>Dose</th><th>Interligne</th><th>Vitesse</th><th>Pression</th></tr></thead><tbody>`;
+  list.forEach(s => {
+    html += `<tr><td>${s.name}</td><td>${s.dose}</td><td>${s.interligne}</td><td>${s.vitesse}</td><td>${s.pressure}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+  const w = window.open("", "_blank", "noopener");
+  w.document.write(html);
+  w.document.close();
+}
+
+/* ----------------------------------------------------
+   INIT
+---------------------------------------------------- */
+
+window.addEventListener("DOMContentLoaded", () => {
+  loadSettings();
+  initSimulator();
+});
 
 /* ----------------------------------------------------
    EXPORT DES FONCTIONS
@@ -569,3 +750,8 @@ window.calculatePressureWithNewDose = calculatePressureWithNewDose;
 window.exportPDF = exportPDF;
 window.saveSettings = saveSettings;
 window.loadSettings = loadSettings;
+window.openSimulator = openSimulator;
+window.applySimulator = applySimulator;
+window.saveScenario = saveScenario;
+window.compareScenarios = compareScenarios;
+window.clearScenarios = clearScenarios;
