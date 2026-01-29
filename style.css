@@ -107,3 +107,41 @@ table th, table td {
 .pdf-dot[data-coef="0.25"] { background:#9be7a1; }
 .pdf-dot[data-coef="0.5"] { background:#4caf50; }
 .pdf-dot[data-coef="1"] { background:#1b5e20; }
+/* ----------------------------------------------------
+   STYLE DU PDF
+---------------------------------------------------- */
+
+.pdf-pulve-grid {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.pdf-col {
+  width: 48%;
+}
+
+.pdf-row {
+  display: flex;
+  align-items: center;
+  margin: 6px 0;
+  padding: 4px 0;
+}
+
+.pdf-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 8px;
+  border: 1px solid #333;
+}
+
+.pdf-label {
+  font-size: 14px;
+}
+
+/* Couleurs selon coefficient */
+.pdf-dot[data-coef="0"] { background:#ccc; }
+.pdf-dot[data-coef="0.25"] { background:#9be7a1; }
+.pdf-dot[data-coef="0.5"] { background:#4caf50; }
+.pdf-dot[data-coef="1"] { background:#1b5e20; }
