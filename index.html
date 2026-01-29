@@ -173,6 +173,19 @@
           </div>
         </div>
       </div>
+<section id="diagnostic">
+  <h2>Diagnostic terrain</h2>
+
+  <label for="diagPressure">Pression mesurée (bar)</label>
+  <input id="diagPressure" type="number" step="0.1" placeholder="Ex : 3.2">
+
+  <div id="diagTableContainer"></div>
+
+  <div class="row">
+    <button onclick="generateDiagnostic()">Analyser</button>
+    <button onclick="goToSettings()" class="secondary">Retour réglages</button>
+  </div>
+</section>
 
       <div class="row">
         <button onclick="goToSettings()" class="secondary">Retour réglages</button>
@@ -208,3 +221,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+
