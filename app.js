@@ -442,5 +442,9 @@ window.goToSettings = goToSettings;
 window.goHome = goHome;
 window.showSchema = showSchema;
 window.calculateOutputs = calculateOutputs;
-window.calculatePressureWithSame
+window.calculatePressureWithSameNozzles = calculatePressureWithSameNozzles;
+window.exportPDF = exportPDF;
+window.saveSettings = saveSettings;
+window.loadSettings = loadSettings;
+
 
