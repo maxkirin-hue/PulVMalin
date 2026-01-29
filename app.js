@@ -431,7 +431,7 @@ function exportPDF() {
       pdfBlock.style.opacity = "0";
       pdfBlock.style.zIndex = "-1";
     });
-  }, 50);
+  }, 100);
 }
 
 /* ----------------------------------------------------
@@ -446,6 +446,7 @@ window.calculatePressureWithSameNozzles = calculatePressureWithSameNozzles;
 window.exportPDF = exportPDF;
 window.saveSettings = saveSettings;
 window.loadSettings = loadSettings;
+
 
 
 
