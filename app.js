@@ -313,6 +313,64 @@ function calculatePressureWithSameNozzles() {
 
   generateResumeFinal();
 }
+function calculatePressureWithNewDose() {
+  const modelKey = document.getElementById("modeleRepartition").value;
+  const coefs = models[modelKey];
+  const names = labels[modelKey];
+  if (!coefs || !names) return;
+
+  const newDose = parseFloat(document.getElementById("newDose").value);
+  const interligne = parseFloat(document.getElementById("interligne").value);
+  const vitesse = parseFloat(document.getElementById("vitesse").value);
+
+  if (isNaN(newDose) || isNaN(interligne) || isNaN(vitesse)) {
+    alert("Merci de remplir la nouvelle dose.");
+    return;
+  }
+
+  const doseBody = document.querySelector("#doseTable tbody");
+  doseBody.innerHTML = "";
+
+  const rows = document.querySelectorAll("#resultTable tbody tr");
+
+  coefs.forEach((coef, index) => {
+    const row = rows[index];
+    if (!row) return;
+
+    const pastilleNom = row.children[4].innerText;
+    const pastille = pastilles.find(p => p.nom === pastilleNom);
+    if (!pastille) return;
+
+    const debitCible = (newDose * interligne * vitesse * coef) / 600;
+
+    const pression = 3 * Math.pow(debitCible / pastille.q3, 2);
+
+    let status = "";
+    let color = "";
+
+    if (pression < 1.5 || pression > 6) {
+      status = "Hors plage";
+      color = "#e53935";
+    } else if (pression < 2 || pression > 5) {
+      status = "Limite";
+      color = "#fb8c00";
+    } else {
+      status = "OK";
+      color = "#43a047";
+    }
+
+    const doseRow = document.createElement("tr");
+    doseRow.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${names[index]}</td>
+      <td>${pastille.nom}</td>
+      <td style="color:${color}; font-weight:600;">
+        ${pression.toFixed(1)} bar (${status})
+      </td>
+    `;
+    doseBody.appendChild(doseRow);
+  });
+}
 
 /* ----------------------------------------------------
    RÉSUMÉ FINAL
@@ -446,6 +504,7 @@ window.calculatePressureWithSameNozzles = calculatePressureWithSameNozzles;
 window.exportPDF = exportPDF;
 window.saveSettings = saveSettings;
 window.loadSettings = loadSettings;
+
 
 
 
