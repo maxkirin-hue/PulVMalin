@@ -410,9 +410,6 @@ function buildPDFLayout() {
     document.getElementById("resumeFinal").innerHTML;
 }
 
-/* ----------------------------------------------------
-   EXPORT PDF
----------------------------------------------------- */
 function exportPDF() {
   buildPDFLayout();
 
@@ -420,18 +417,21 @@ function exportPDF() {
   pdfBlock.style.opacity = "1";
   pdfBlock.style.zIndex = "9999";
 
-  const opt = {
-    margin: 10,
-    filename: 'reglage_pulve.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
+  // Laisser le temps au DOM de se mettre à jour
+  setTimeout(() => {
+    const opt = {
+      margin: 10,
+      filename: 'reglage_pulve.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
 
-  html2pdf().set(opt).from(pdfBlock).save().then(() => {
-    pdfBlock.style.opacity = "0";
-    pdfBlock.style.zIndex = "-1";
-  });
+    html2pdf().set(opt).from(pdfBlock).save().then(() => {
+      pdfBlock.style.opacity = "0";
+      pdfBlock.style.zIndex = "-1";
+    });
+  }, 50);
 }
 
 /* ----------------------------------------------------
@@ -446,5 +446,6 @@ window.calculatePressureWithSameNozzles = calculatePressureWithSameNozzles;
 window.exportPDF = exportPDF;
 window.saveSettings = saveSettings;
 window.loadSettings = loadSettings;
+
 
 
