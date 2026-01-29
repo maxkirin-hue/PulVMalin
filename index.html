@@ -3,23 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pulvérisateur Malin</title>
+  <title>PULV MALIN — par Max Nicolet</title>
 
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">
   <meta name="theme-color" content="#3fa34d">
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
 
- <div class="app-logo">
-  <span class="logo-main">PULV <span class="accent">MALIN</span></span>
-  <span class="logo-sub">par Max Nicolet</span>
-</div>
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="logo">PULV <span>MALIN</span></div>
+    <div class="author">par Max Nicolet</div>
+  </header>
 
+  <div class="container">
 
     <!-- ACCUEIL -->
     <section id="home" class="active">
@@ -95,24 +98,25 @@
         </thead>
         <tbody></tbody>
       </table>
-<h2>Réglage par nouvelle dose (mêmes pastilles)</h2>
 
-<label for="newDose">Nouvelle dose (L/ha)</label>
-<input id="newDose" type="number" placeholder="Ex : 125">
+      <h2>Réglage par nouvelle dose (mêmes pastilles)</h2>
 
-<button onclick="calculatePressureWithNewDose()">Recalculer pression</button>
+      <label for="newDose">Nouvelle dose (L/ha)</label>
+      <input id="newDose" type="number" placeholder="Ex : 125">
 
-<table id="doseTable">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Sortie</th>
-      <th>Pastille</th>
-      <th>Pression</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+      <button onclick="calculatePressureWithNewDose()">Recalculer pression</button>
+
+      <table id="doseTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Sortie</th>
+            <th>Pastille</th>
+            <th>Pression</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
 
       <div id="resumeFinal"></div>
 
@@ -133,41 +137,32 @@
       if (typeof loadSettings === "function") loadSettings();
     });
   </script>
-<div id="pdfLayout" style="
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 210mm;
-  min-height: 297mm;
-  background: white;
-  padding: 20px;
-  z-index: -1;
-  opacity: 0;
-  pointer-events: none;
-  font-family: Arial;
-">
 
-  <h1 style="text-align:center;">Réglage Pulvérisateur</h1>
-  <h3 id="pdfMachineName" style="text-align:center; margin-top:-10px;"></h3>
+  <!-- PDF HIDDEN LAYOUT -->
+  <div id="pdfLayout" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    padding: 20px;
+    z-index: -1;
+    opacity: 0;
+    pointer-events: none;
+    font-family: Arial;
+  ">
 
-  <h2 style="margin-top:30px;">Schéma du pulvé</h2>
-  <div id="pdfPulve" class="pdf-pulve-grid"></div>
+    <h1 style="text-align:center;">Réglage Pulvérisateur</h1>
+    <h3 id="pdfMachineName" style="text-align:center; margin-top:-10px;"></h3>
 
-  <h2 style="margin-top:30px;">Résumé</h2>
-  <div id="pdfResume"></div>
+    <h2 style="margin-top:30px;">Schéma du pulvé</h2>
+    <div id="pdfPulve" class="pdf-pulve-grid"></div>
 
-</div>
+    <h2 style="margin-top:30px;">Résumé</h2>
+    <div id="pdfResume"></div>
 
+  </div>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
