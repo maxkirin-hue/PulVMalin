@@ -43,17 +43,18 @@
         <option value="4r_sans">4 rangs – sans main de retour (8 sorties)</option>
         <option value="4r_avec">4 rangs – avec main de retour (10 sorties)</option>
       </select>
-<h2>Type de buses</h2>
 
-<label for="buseFamily">Choisir une famille :</label>
-<select id="buseFamily" onchange="updateBuseList()">
-  <option value="TeeJet CP4916">TeeJet CP4916 (origine)</option>
-  <option value="Albuz ATR 80">Albuz ATR 80</option>
-  <option value="Lechler IDK 90">Lechler IDK 90</option>
-  <option value="TeeJet TXR">TeeJet TXR</option>
-  <option value="Albuz AMT">Albuz AMT</option>
-</select>
       <div id="schemaContainer"></div>
+
+      <h2>Type de buses</h2>
+      <label for="buseFamily">Choisir une famille :</label>
+      <select id="buseFamily" onchange="updateBuseList()">
+        <option value="TeeJet CP4916">TeeJet CP4916 (origine)</option>
+        <option value="Albuz ATR 80">Albuz ATR 80</option>
+        <option value="Lechler IDK 90">Lechler IDK 90</option>
+        <option value="TeeJet TXR">TeeJet TXR</option>
+        <option value="Albuz AMT">Albuz AMT</option>
+      </select>
 
       <h2>Paramètres de pulvérisation</h2>
 
@@ -67,16 +68,14 @@
       <input id="vitesse" type="number" placeholder="Ex : 5" min="0.1" step="0.1">
 
       <div class="row">
-        <button onclick="calculateOutputs()">Calculer réglage idéal (3 bar)</button>
+        <button onclick="calculateOutputs()">Calculer réglage idéal</button>
         <button onclick="openSimulator()" class="secondary">Ouvrir simulateur</button>
-        <button onclick="openDiagnostic()" class="secondary">Diagnostic terrain</button>
-
       </div>
     </section>
 
     <!-- RÉSULTATS -->
     <section id="result">
-      <h2>Réglage idéal (3 bar)</h2>
+      <h2>Réglage idéal</h2>
 
       <table id="resultTable">
         <thead>
@@ -86,15 +85,13 @@
             <th>Coef</th>
             <th>Débit cible (L/min)</th>
             <th>Pastille</th>
-            <th>Débit réel (L/min)</th>
-            <th>Couleur</th>
+            <th>Débit nominal (L/min)</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
-<button onclick="openDiagnostic()" class="secondary">Diagnostic terrain</button>
 
-      <h2>Réglage alternatif (mêmes pastilles)</h2>
+      <h2>Réglage alternatif (même pastilles)</h2>
 
       <label for="newInterligne">Nouvelle interligne (m)</label>
       <input id="newInterligne" type="number" placeholder="Ex : 2.5" min="0.1" step="0.01">
@@ -113,7 +110,7 @@
         <tbody></tbody>
       </table>
 
-      <h2>Réglage par nouvelle dose (mêmes pastilles)</h2>
+      <h2>Réglage par nouvelle dose</h2>
 
       <label for="newDose">Nouvelle dose (L/ha)</label>
       <input id="newDose" type="number" placeholder="Ex : 125" min="0">
@@ -136,7 +133,23 @@
 
       <div class="row">
         <button onclick="exportPDF()">Exporter en PDF</button>
-        <button onclick="goHome()" class="secondary">Retour</button>
+        <button onclick="openDiagnostic()" class="secondary">Diagnostic terrain</button>
+        <button onclick="goToSettings()" class="secondary">Retour</button>
+      </div>
+    </section>
+
+    <!-- DIAGNOSTIC -->
+    <section id="diagnostic">
+      <h2>Diagnostic terrain</h2>
+
+      <label for="diagPressure">Pression mesurée (bar)</label>
+      <input id="diagPressure" type="number" step="0.1" placeholder="Ex : 3.2">
+
+      <div id="diagTableContainer"></div>
+
+      <div class="row">
+        <button onclick="generateDiagnostic()">Analyser</button>
+        <button onclick="goToSettings()" class="secondary">Retour réglages</button>
       </div>
     </section>
 
@@ -186,19 +199,12 @@
           </div>
         </div>
       </div>
-<section id="diagnostic">
-  <h2>Diagnostic terrain</h2>
 
-  <label for="diagPressure">Pression mesurée (bar)</label>
-  <input id="diagPressure" type="number" step="0.1" placeholder="Ex : 3.2">
+      <div class="row">
+        <button onclick="goToSettings()" class="secondary">Retour réglages</button>
+      </div>
+    </section>
 
-  <div id="diagTableContainer"></div>
-
-  <div class="row">
-    <button onclick="generateDiagnostic()">Analyser</button>
-    <button onclick="goToSettings()" class="secondary">Retour réglages</button>
-  </div>
-</section>
   </div>
 
   <!-- PDF HIDDEN LAYOUT -->
@@ -228,9 +234,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
-
-
-
-
-
