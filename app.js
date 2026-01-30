@@ -649,34 +649,36 @@ function buildPDFLayout() {
    EXPORT PDF
 ---------------------------------------------------- */
 
-function exportPDF() {
+async function exportPDF() {
+  // On construit le layout PDF comme avant
   buildPDFLayout();
 
-  const pdfBlock = document.getElementById("pdfLayout");
+  // On récupère le HTML complet du bloc PDF
+  const html = document.getElementById("pdfLayout").outerHTML;
 
-  pdfBlock.style.opacity = "1";
-  pdfBlock.style.zIndex = "9999";
-  pdfBlock.style.position = "absolute";
-  pdfBlock.style.top = "-2000px";
-  pdfBlock.style.pointerEvents = "auto";
+  // Envoi au backend Render
+  const response = await fetch("https://pdf-backend-t5b4.onrender.com/pdf", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ html })
+  });
 
-  setTimeout(() => {
-    const opt = {
-      margin: 10,
-      filename: 'reglage_pulve.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+  if (!response.ok) {
+    alert("Erreur lors de la génération du PDF");
+    return;
+  }
 
-    html2pdf().set(opt).from(pdfBlock).save().then(() => {
-      pdfBlock.style.opacity = "0";
-      pdfBlock.style.zIndex = "-1";
-      pdfBlock.style.position = "fixed";
-      pdfBlock.style.top = "0";
-      pdfBlock.style.pointerEvents = "none";
-    });
-  }, 300);
+  // Récupération du PDF
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+
+  // Téléchargement
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "reglage_pulve.pdf";
+  a.click();
+
+  URL.revokeObjectURL(url);
 }
 /* ----------------------------------------------------
    SIMULATEUR INTERACTIF
@@ -1013,6 +1015,7 @@ window.renderScenarioList = renderScenarioList;
 window.updateBuseList = updateBuseList;
 window.openDiagnostic = openDiagnostic;
 window.generateDiagnostic = generateDiagnostic;
+
 
 
 
