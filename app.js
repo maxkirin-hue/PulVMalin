@@ -648,15 +648,11 @@ function buildPDFLayout() {
 /* ----------------------------------------------------
    EXPORT PDF
 ---------------------------------------------------- */
-
 async function exportPDF() {
-  // On construit le layout PDF comme avant
   buildPDFLayout();
 
-  // On récupère le HTML complet du bloc PDF
   const html = document.getElementById("pdfLayout").outerHTML;
 
-  // Envoi au backend Render
   const response = await fetch("https://pulvmalinpdf-backend.onrender.com/pdf", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -668,11 +664,9 @@ async function exportPDF() {
     return;
   }
 
-  // Récupération du PDF
   const blob = await response.blob();
   const url = URL.createObjectURL(blob);
 
-  // Téléchargement
   const a = document.createElement("a");
   a.href = url;
   a.download = "reglage_pulve.pdf";
@@ -1015,6 +1009,7 @@ window.renderScenarioList = renderScenarioList;
 window.updateBuseList = updateBuseList;
 window.openDiagnostic = openDiagnostic;
 window.generateDiagnostic = generateDiagnostic;
+
 
 
 
