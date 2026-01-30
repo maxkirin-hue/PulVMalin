@@ -139,6 +139,22 @@ td { padding:10px; border-bottom:1px solid #f0f0f0; }
 .scenario-desc { font-size:13px; color:var(--muted); }
 
 /* ----------------------------------------------------
+   DIAGNOSTIC
+---------------------------------------------------- */
+
+#diagnostic input[type="number"] {
+  background:#fff7f7;
+  border:1px solid #ffd4d4;
+}
+
+#diagTableContainer table td input {
+  width:100%;
+  padding:6px;
+  border-radius:6px;
+  border:1px solid #ddd;
+}
+
+/* ----------------------------------------------------
    PDF
 ---------------------------------------------------- */
 
