@@ -43,7 +43,16 @@
         <option value="4r_sans">4 rangs – sans main de retour (8 sorties)</option>
         <option value="4r_avec">4 rangs – avec main de retour (10 sorties)</option>
       </select>
+<h2>Type de buses</h2>
 
+<label for="buseFamily">Choisir une famille :</label>
+<select id="buseFamily" onchange="updateBuseList()">
+  <option value="TeeJet CP4916">TeeJet CP4916 (origine)</option>
+  <option value="Albuz ATR 80">Albuz ATR 80</option>
+  <option value="Lechler IDK 90">Lechler IDK 90</option>
+  <option value="TeeJet TXR">TeeJet TXR</option>
+  <option value="Albuz AMT">Albuz AMT</option>
+</select>
       <div id="schemaContainer"></div>
 
       <h2>Paramètres de pulvérisation</h2>
@@ -223,5 +232,6 @@
   <script src="app.js"></script>
 </body>
 </html>
+
 
 
