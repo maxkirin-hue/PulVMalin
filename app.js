@@ -418,7 +418,10 @@ function calculateOutputs() {
     `;
     tbody.appendChild(row);
   });
-
+document.getElementById("resumeFinal").innerHTML = `
+  <strong>Pression de travail recommandée :</strong> 
+  ${pressionRecommandee.toFixed(1)} bar
+`;
   saveSettings();
   showSection("result");
 }
@@ -1011,4 +1014,5 @@ window.renderScenarioList = renderScenarioList;
 window.updateBuseList = updateBuseList;
 window.openDiagnostic = openDiagnostic;
 window.generateDiagnostic = generateDiagnostic;
+
 
