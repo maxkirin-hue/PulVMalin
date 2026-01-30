@@ -657,7 +657,7 @@ async function exportPDF() {
   const html = document.getElementById("pdfLayout").outerHTML;
 
   // Envoi au backend Render
-  const response = await fetch("https://pdf-backend-t5b4.onrender.com/pdf", {
+  const response = await fetch("https://pulvmalinpdf-backend.onrender.com/pdf", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ html })
@@ -1015,6 +1015,7 @@ window.renderScenarioList = renderScenarioList;
 window.updateBuseList = updateBuseList;
 window.openDiagnostic = openDiagnostic;
 window.generateDiagnostic = generateDiagnostic;
+
 
 
 
