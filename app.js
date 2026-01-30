@@ -829,6 +829,102 @@ function generateDiagnostic() {
 
   document.getElementById("diagTableContainer").innerHTML += msg;
 }
+function openDiagnostic() {
+  const modelKey = document.getElementById("modeleRepartition").value;
+  if (!modelKey) {
+    alert("Choisissez un modèle avant d’ouvrir le diagnostic.");
+    return;
+  }
+
+  const container = document.getElementById("diagTableContainer");
+  container.innerHTML = "";
+
+  const rows = document.querySelectorAll("#resultTable tbody tr");
+  if (!rows.length) {
+    alert("Faites d’abord un réglage idéal pour récupérer les pastilles.");
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Sortie</th>
+        <th>Pastille</th>
+        <th>Débit mesuré (L/min)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
+
+  const tbody = table.querySelector("tbody");
+
+  rows.forEach((r, i) => {
+    const name = r.children[1].innerText.trim();
+    const pastille = r.children[4].innerText.trim();
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${name}</td>
+      <td>${pastille}</td>
+      <td><input type="number" step="0.01" data-index="${i}" class="diagInput"></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  container.appendChild(table);
+  showSection("diagnostic");
+}
+
+function generateDiagnostic() {
+  const pressure = parseFloat(document.getElementById("diagPressure").value);
+  if (isNaN(pressure)) {
+    alert("Indique la pression mesurée.");
+    return;
+  }
+
+  const modelKey = document.getElementById("modeleRepartition").value;
+  const names = labels[modelKey];
+
+  const inputs = document.querySelectorAll(".diagInput");
+
+  let msg = "<h3>Résultats du diagnostic</h3>";
+
+  inputs.forEach((input, i) => {
+    const measured = parseFloat(input.value);
+    if (isNaN(measured)) return;
+
+    const pastilleName = input.parentElement.previousElementSibling.innerText.trim();
+    const pastille = pastilles.find(p => p.nom.trim() === pastilleName);
+
+    if (!pastille) {
+      msg += `<div style="color:#e53935;">Pastille inconnue : ${pastilleName}</div>`;
+      return;
+    }
+
+    const theoretical = pastille.q3 * Math.sqrt(pressure / 3);
+    const diff = Math.abs(measured - theoretical) / theoretical * 100;
+
+    let status = "";
+    let color = "";
+
+    if (diff <= 5) { status = "OK"; color = "#43a047"; }
+    else if (diff <= 10) { status = "Limite"; color = "#fb8c00"; }
+    else { status = "À changer"; color = "#e53935"; }
+
+    msg += `
+      <div style="margin:6px 0;">
+        <strong>${names[i]}</strong> — ${pastilleName}<br>
+        Mesuré : ${measured.toFixed(2)} L/min — Théorique : ${theoretical.toFixed(2)} L/min<br>
+        <span style="color:${color}; font-weight:700;">${status} (${diff.toFixed(1)} %)</span>
+      </div>
+    `;
+  });
+
+  document.getElementById("diagTableContainer").innerHTML += msg;
+}
 
 /* ----------------------------------------------------
    INIT
@@ -858,5 +954,6 @@ window.applySimulator = applySimulator;
 window.saveScenario = saveScenario;
 window.compareScenarios = compareScenarios;
 window.clearScenarios = clearScenarios;
+
 
 
