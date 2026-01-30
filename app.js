@@ -255,14 +255,6 @@ function computeSettings({
 
   return results;
 }
-// Calcul de la pression unique recommandée
-let sum = 0;
-results.forEach(r => sum += r.pression);
-const pressionRecommandee = sum / results.length;
-
-// On stocke pour le PDF et le diagnostic
-window.pressionRecommandee = pressionRecommandee;
-
 /* ----------------------------------------------------
    NAVIGATION
 ---------------------------------------------------- */
@@ -402,6 +394,13 @@ function calculateOutputs() {
     pastilles: currentPastilles,
     mode: "ideal"
   });
+   // Calcul de la pression unique recommandée
+let sum = 0;
+results.forEach(r => sum += r.pression);
+const pressionRecommandee = sum / results.length;
+
+// On stocke pour le PDF et le diagnostic
+window.pressionRecommandee = pressionRecommandee;
 
   const tbody = document.querySelector("#resultTable tbody");
   tbody.innerHTML = "";
@@ -1014,5 +1013,6 @@ window.renderScenarioList = renderScenarioList;
 window.updateBuseList = updateBuseList;
 window.openDiagnostic = openDiagnostic;
 window.generateDiagnostic = generateDiagnostic;
+
 
 
