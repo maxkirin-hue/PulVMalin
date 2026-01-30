@@ -1009,6 +1009,63 @@ window.renderScenarioList = renderScenarioList;
 window.updateBuseList = updateBuseList;
 window.openDiagnostic = openDiagnostic;
 window.generateDiagnostic = generateDiagnostic;
+function buildPDFLayout() {
+  const pdf = document.getElementById("pdfLayout");
+
+  // Récupération des données existantes dans ton app
+  const machineName = document.getElementById("machineNameInput")?.value || "Machine non définie";
+  const buses = document.querySelectorAll(".buse"); // tes buses affichées à l’écran
+  const resumeHTML = document.getElementById("resume").innerHTML; // ton résumé existant
+  const reglages = collectReglages(); // fonction qu’on crée juste après
+
+  // Remplir le nom de la machine
+  document.getElementById("pdfMachineName").innerText = machineName;
+
+  // -------------------------
+  // 1) SCHÉMA DU PULVÉ
+  // -------------------------
+  const pdfPulve = document.getElementById("pdfPulve");
+  pdfPulve.innerHTML = "";
+
+  buses.forEach(buse => {
+    const color = buse.style.backgroundColor;
+    const debit = buse.dataset.debit;
+    const pression = buse.dataset.pression;
+    const vitesse = buse.dataset.vitesse;
+
+    const item = document.createElement("div");
+    item.className = "pdf-buse-item";
+    item.innerHTML = `
+      <div class="pdf-buse-color" style="background:${color}"></div>
+      <div class="pdf-buse-info">
+        <strong>${debit} L/min</strong><br>
+        ${pression} bar – ${vitesse} km/h
+      </div>
+    `;
+    pdfPulve.appendChild(item);
+  });
+
+  // -------------------------
+  // 2) TABLEAU DE RÉGLAGES
+  // -------------------------
+  const pdfResume = document.getElementById("pdfResume");
+
+  pdfResume.innerHTML = `
+    <table class="pdf-table">
+      <tr><th>Paramètre</th><th>Valeur</th></tr>
+      <tr><td>Volume/ha</td><td>${reglages.volumeHa} L/ha</td></tr>
+      <tr><td>Vitesse</td><td>${reglages.vitesse} km/h</td></tr>
+      <tr><td>Pression</td><td>${reglages.pression} bar</td></tr>
+      <tr><td>Largeur</td><td>${reglages.largeur} m</td></tr>
+      <tr><td>Type de buses</td><td>${reglages.typeBuse}</td></tr>
+    </table>
+
+    <div class="pdf-resume-final">
+      ${resumeHTML}
+    </div>
+  `;
+}
+
 
 
 
