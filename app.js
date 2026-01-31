@@ -22,6 +22,26 @@ let selectedFamily = null;
 const $ = id => document.getElementById(id);
 const num = v => Number(v);
 const round = (v, d = 2) => Number.isFinite(v) ? v.toFixed(d) : "—";
+/* =========================
+   NAVIGATION SECTIONS
+========================= */
+
+function showSection(id) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
+}
+
+/* =========================
+   MACHINE (PERSISTENCE)
+========================= */
+
+function saveMachine() {
+  const name = document.getElementById("machineName")?.value || "";
+  localStorage.setItem("machineName", name);
+  alert("Machine enregistrée !");
+}
+
 
 /* =========================
    MACHINE & FAMILLES
@@ -184,4 +204,5 @@ window.setMachineType = setMachineType;
 window.onFamilyChange = onFamilyChange;
 window.calculateOutputs = calculateOutputs;
 window.showSection = showSection;
+
 
