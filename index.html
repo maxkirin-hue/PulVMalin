@@ -1,6 +1,87 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta charset="UTF-8">
+  <title>PULV MALIN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <h1>PULV MALIN</h1>
+  <p>Réglage précis des pulvérisateurs</p>
+  <p>Gratuitement proposé par Max Nicolet</p>
+</header>
+
+<main>
+
+<!-- PAGE 1 -->
+<section id="step1" class="active">
+  <h2>Type de machine</h2>
+  <button onclick="selectMachine('sans_retour')">Sans main de retour</button>
+  <button onclick="selectMachine('avec_retour')">Avec main de retour</button>
+</section>
+
+<!-- PAGE 2 -->
+<section id="step2">
+  <h2>Famille de buses installée</h2>
+  <select id="familySelect"></select>
+  <button onclick="go(1)">Retour</button>
+  <button onclick="go(3)">Continuer</button>
+</section>
+
+<!-- PAGE 3 -->
+<section id="step3">
+  <h2>Modèle de répartition</h2>
+  <select id="modelSelect"></select>
+
+  <h2>Paramètres</h2>
+  <input id="dose" placeholder="Dose (L/ha)" type="number">
+  <input id="largeur" placeholder="Largeur (m)" type="number">
+  <input id="vitesse" placeholder="Vitesse (km/h)" type="number">
+
+  <label>
+    <input type="checkbox" id="forcedToggle"> Pastilles forcées
+  </label>
+
+  <select id="forcedNozzle" style="display:none"></select>
+
+  <button onclick="go(2)">Retour</button>
+  <button onclick="calculate()">Calculer</button>
+</section>
+
+<!-- PAGE 4 -->
+<section id="step4">
+  <h2>Réglage par sortie</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Sortie</th>
+        <th>Coef</th>
+        <th>Débit cible (L/min)</th>
+        <th>Pastille</th>
+        <th>Pression (bar)</th>
+        <th>Statut</th>
+      </tr>
+    </thead>
+    <tbody id="resultBody"></tbody>
+  </table>
+
+  <button onclick="go(3)">Modifier</button>
+  <button onclick="go(1)">Recommencer</button>
+</section>
+
+</main>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PULV MALIN</title>
@@ -159,3 +240,4 @@
 <script type="module" src="/app.js"></script>
 </body>
 </html>
+
