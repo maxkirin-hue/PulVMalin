@@ -204,5 +204,7 @@ window.setMachineType = setMachineType;
 window.onFamilyChange = onFamilyChange;
 window.calculateOutputs = calculateOutputs;
 window.showSection = showSection;
+window.saveMachine = saveMachine;
+
 
 
