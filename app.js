@@ -1,54 +1,82 @@
 /* ----------------------------------------------------
    MODÈLES, LABELS, PASTILLES
 ---------------------------------------------------- */
-const models = {
-  "3r_sans": [0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25],
-  "3r_avec": [0.25, 0.25, 0.5, 0.25, 0.25, 0.25, 0.25, 0.5, 0.25, 0.25],
-  "4r_sans": [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-  "4r_avec": [0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.25, 0.25],
 
-  /* Nouveau modèle Tangentiel 10 sorties – 2 rangs */
-  "tangentiel_10": [1,1,1,1,1,1,1,1,1,1]
+// Modèles corrigés selon ta machine
+
+const models = {
+  // 3 rangs sans main de retour – 8 sorties
+  "3r_sans": [
+    0.5, 0.5, // 1,2 canons
+    0.5, 0.5, // 3,4 mains
+    0.5, 0.5, // 5,6 canons
+    0.5, 0.5  // 7,8 mains
+  ],
+
+  // 3 rangs avec main de retour – 10 sorties
+  // canons : 1,2,6,7 → 0.5
+  // mains normales : 3,5,9,10 → 0.5
+  // mains de retour : 4,8 → 1.0
+  "3r_avec": [
+    0.5, 0.5,   // 1,2 canons
+    0.5,        // 3 main normale
+    1.0,        // 4 main retour
+    0.5,        // 5 main normale
+    0.5, 0.5,   // 6,7 canons
+    1.0,        // 8 main retour
+    0.5, 0.5    // 9,10 mains normales
+  ],
+
+  // 4 rangs sans main de retour – 8 sorties (schéma générique)
+  "4r_sans": [
+    0.5, 0.5,
+    0.5, 0.5,
+    0.5, 0.5,
+    0.5, 0.5
+  ],
+
+  // 4 rangs avec main de retour – 10 sorties (schéma générique)
+  "4r_avec": [
+    0.5, 0.5,
+    0.5, 0.5,
+    0.5, 0.5,
+    1.0, 1.0,
+    0.5, 0.5
+  ]
 };
 
 const labels = {
   "3r_sans": [
-    "Canon", "Canon", "Main", "Main",
-    "Canon", "Canon", "Main", "Main"
-  ],
-  "4r_sans": [
-    "Canon", "Canon", "Main", "Main",
-    "Canon", "Canon", "Main", "Main"
+    "Canon 1", "Canon 2",
+    "Main 3", "Main 4",
+    "Canon 5", "Canon 6",
+    "Main 7", "Main 8"
   ],
   "3r_avec": [
-    "Canon", "Canon", "Main retour", "Main", "Main",
-    "Canon", "Canon", "Main retour", "Main", "Main"
+    "Canon 1", "Canon 2",
+    "Main 3", "Main retour 4",
+    "Main 5",
+    "Canon 6", "Canon 7",
+    "Main retour 8",
+    "Main 9", "Main 10"
+  ],
+  "4r_sans": [
+    "Canon G", "Canon D",
+    "Main G 1", "Main D 1",
+    "Main G 2", "Main D 2",
+    "Main G 3", "Main D 3"
   ],
   "4r_avec": [
-    "Canon (0.5)", "Canon (0.5)", "Main retour (0.5)", "Main", "Main",
-    "Canon (0.5)", "Canon (0.5)", "Main retour (0.5)", "Main", "Main"
-  ],
-
-  /* Labels Tangentiel – Option C */
-  "tangentiel_10": [
-    "Rang 1 – Sortie 1",
-    "Rang 1 – Sortie 2",
-    "Rang 1 – Sortie 3",
-    "Rang 1 – Sortie 4",
-    "Rang 1 – Sortie 5",
-    "Rang 2 – Sortie 1",
-    "Rang 2 – Sortie 2",
-    "Rang 2 – Sortie 3",
-    "Rang 2 – Sortie 4",
-    "Rang 2 – Sortie 5"
+    "Canon G", "Canon D",
+    "Main G 1", "Main D 1",
+    "Main G 2", "Main D 2",
+    "Main retour G", "Main retour D",
+    "Main G 3", "Main D 3"
   ]
 };
 
-/* ----------------------------------------------------
-   FAMILLES DE BUSES (ISO + CP4916)
----------------------------------------------------- */
-
-const cp4916_raw = [
+// Pastilles CP4916 (débit à 3 bar)
+const pastilles = [
   { nom: "CP4916-008", q3: 0.032 },
   { nom: "CP4916-10", q3: 0.048 },
   { nom: "CP4916-12", q3: 0.075 },
@@ -92,105 +120,16 @@ const cp4916_raw = [
   { nom: "CP4916-70", q3: 2.39 }
 ];
 
-const buses = {
-  "TeeJet CP4916": {
-    pressionNominale: 3,
-    buses: cp4916_raw.map(p => ({
-      iso: "",
-      nom: p.nom,
-      q: p.q3
-    }))
-  },
-
-  "Albuz ATR 80": {
-    pressionNominale: 3,
-    buses: [
-      { iso: "01", nom: "ATR 80 Jaune", q: 0.20 },
-      { iso: "015", nom: "ATR 80 Bleu", q: 0.30 },
-      { iso: "02", nom: "ATR 80 Rouge", q: 0.40 },
-      { iso: "025", nom: "ATR 80 Marron", q: 0.50 },
-      { iso: "03", nom: "ATR 80 Gris", q: 0.60 },
-      { iso: "04", nom: "ATR 80 Blanc", q: 0.80 }
-    ]
-  },
-
-  "Lechler IDK 90": {
-    pressionNominale: 2,
-    buses: [
-      { iso: "01", nom: "IDK 90-01", q: 0.39 },
-      { iso: "015", nom: "IDK 90-015", q: 0.57 },
-      { iso: "02", nom: "IDK 90-02", q: 0.78 },
-      { iso: "025", nom: "IDK 90-025", q: 0.97 },
-      { iso: "03", nom: "IDK 90-03", q: 1.17 },
-      { iso: "04", nom: "IDK 90-04", q: 1.56 }
-    ]
-  },
-
-  "TeeJet TXR": {
-    pressionNominale: 3,
-    buses: [
-      { iso: "067", nom: "TXR800067", q: 0.26 },
-      { iso: "01", nom: "TXR8001", q: 0.39 },
-      { iso: "015", nom: "TXR80015", q: 0.57 },
-      { iso: "02", nom: "TXR8002", q: 0.78 },
-      { iso: "025", nom: "TXR80025", q: 0.97 },
-      { iso: "03", nom: "TXR8003", q: 1.17 }
-    ]
-  },
-
-  "Albuz AMT": {
-    pressionNominale: 3,
-    buses: [
-      { iso: "01", nom: "AMT 80 Jaune", q: 0.20 },
-      { iso: "015", nom: "AMT 80 Bleu", q: 0.30 },
-      { iso: "02", nom: "AMT 80 Rouge", q: 0.40 },
-      { iso: "025", nom: "AMT 80 Marron", q: 0.50 },
-      { iso: "03", nom: "AMT 80 Gris", q: 0.60 },
-      { iso: "04", nom: "AMT 80 Blanc", q: 0.80 }
-    ]
-  }
-};
-
-const isoColors = {
-  "067": "#cccccc",
-  "01": "#f28c28",
-  "015": "#4caf50",
-  "02": "#fdd835",
-  "025": "#9c27b0",
-  "03": "#2196f3",
-  "04": "#f44336",
-  "05": "#795548",
-  "06": "#9e9e9e",
-  "08": "#ffffff"
-};
-
-function getIsoColor(iso) {
-  return isoColors[iso] || "#999";
-}
-
-let currentFamily = buses["TeeJet CP4916"];
-let currentPastilles = currentFamily.buses;
-
 /* ----------------------------------------------------
    UTILITAIRES
 ---------------------------------------------------- */
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-function formatNum(v, digits = 2) { return Number.isFinite(v) ? v.toFixed(digits) : "-"; }
+function formatNum(v, d = 2) { return Number.isFinite(v) ? v.toFixed(d) : "-"; }
 
 /* ----------------------------------------------------
-   MISE À JOUR FAMILLE DE BUSES
----------------------------------------------------- */
-
-function updateBuseList() {
-  const sel = document.getElementById("buseFamily");
-  const familyName = sel.value || "TeeJet CP4916";
-  currentFamily = buses[familyName];
-  currentPastilles = currentFamily.buses;
-}
-
-/* ----------------------------------------------------
-   MOTEUR DE CALCUL UNIQUE
+   MOTEUR DE CALCUL
+   mode: "ideal" | "newInterligne" | "newDose" | "forcePressure"
 ---------------------------------------------------- */
 
 function computeSettings({
@@ -205,7 +144,6 @@ function computeSettings({
   forcedPressure = null
 }) {
   const results = [];
-  const Pnom = currentFamily.pressionNominale;
 
   coefs.forEach((coef, index) => {
     const debitCible = (dose * interligne * vitesse * coef) / 600;
@@ -214,29 +152,28 @@ function computeSettings({
     let bestDiff = Infinity;
 
     pastilles.forEach(p => {
-      const diff = Math.abs(p.q - debitCible);
+      const debitReel = p.q3;
+      const diff = Math.abs(debitReel - debitCible);
       if (diff < bestDiff) {
         bestDiff = diff;
         best = p;
       }
     });
 
-    let pression = Pnom;
-    let debitAtPressure = best.q;
+    let pression = 3;
+    let debitAtPressure = best.q3;
 
     if (mode === "newInterligne") {
       const debit2 = (dose * newInterligne * vitesse * coef) / 600;
-      pression = Pnom * Math.pow(debit2 / best.q, 2);
-      debitAtPressure = best.q * Math.sqrt(pression / Pnom);
-
+      pression = 3 * Math.pow(debit2 / best.q3, 2);
+      debitAtPressure = best.q3 * Math.sqrt(pression / 3);
     } else if (mode === "newDose") {
       const debit2 = (newDose * interligne * vitesse * coef) / 600;
-      pression = Pnom * Math.pow(debit2 / best.q, 2);
-      debitAtPressure = best.q * Math.sqrt(pression / Pnom);
-
+      pression = 3 * Math.pow(debit2 / best.q3, 2);
+      debitAtPressure = best.q3 * Math.sqrt(pression / 3);
     } else if (mode === "forcePressure" && forcedPressure) {
       pression = forcedPressure;
-      debitAtPressure = best.q * Math.sqrt(pression / Pnom);
+      debitAtPressure = best.q3 * Math.sqrt(pression / 3);
     }
 
     pression = clamp(pression, 0, 99);
@@ -246,8 +183,7 @@ function computeSettings({
       coef,
       debitCible,
       pastille: best.nom,
-      iso: best.iso,
-      q: best.q,
+      q3: best.q3,
       pression,
       debitAtPressure
     });
@@ -255,12 +191,13 @@ function computeSettings({
 
   return results;
 }
+
 /* ----------------------------------------------------
    NAVIGATION
 ---------------------------------------------------- */
 
 function showSection(id) {
-  document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
   const el = document.getElementById(id);
   if (el) el.classList.add("active");
 }
@@ -268,10 +205,10 @@ function showSection(id) {
 function goToSettings() { showSection("settings"); }
 function goHome() { showSection("home"); }
 function openSimulator() { showSection("simulator"); }
-function openDiagnostic() { showSection("diagnostic"); }
+function openCustomModel() { showSection("customModel"); }
 
 /* ----------------------------------------------------
-   MACHINE + RÉGLAGES (localStorage)
+   MACHINE + RÉGLAGES
 ---------------------------------------------------- */
 
 function saveMachine() {
@@ -285,30 +222,23 @@ function saveSettings() {
     dose: document.getElementById("dose").value,
     interligne: document.getElementById("interligne").value,
     vitesse: document.getElementById("vitesse").value,
-    modele: document.getElementById("modeleRepartition").value,
-    buseFamily: document.getElementById("buseFamily") ? document.getElementById("buseFamily").value : ""
+    modele: document.getElementById("modeleRepartition").value
   };
   localStorage.setItem("pulveSettings", JSON.stringify(data));
 }
 
 function loadSettings() {
-  const data = JSON.parse(localStorage.getItem("pulveSettings"));
-  if (!data) return;
-
-  document.getElementById("dose").value = data.dose || "";
-  document.getElementById("interligne").value = data.interligne || "";
-  document.getElementById("vitesse").value = data.vitesse || "";
-  document.getElementById("modeleRepartition").value = data.modele || "";
-
-  if (document.getElementById("buseFamily") && data.buseFamily) {
-    document.getElementById("buseFamily").value = data.buseFamily;
+  const data = JSON.parse(localStorage.getItem("pulveSettings") || "null");
+  if (data) {
+    document.getElementById("dose").value = data.dose || "";
+    document.getElementById("interligne").value = data.interligne || "";
+    document.getElementById("vitesse").value = data.vitesse || "";
+    document.getElementById("modeleRepartition").value = data.modele || "";
+    if (data.modele) showSchema(data.modele);
   }
-  updateBuseList();
-
-  if (data.modele) showSchema(data.modele);
-
   const machine = localStorage.getItem("machine") || "";
-  document.getElementById("machineName").value = machine;
+  const mInput = document.getElementById("machineName");
+  if (mInput) mInput.value = machine;
 }
 
 /* ----------------------------------------------------
@@ -323,7 +253,7 @@ function showSchema(modelKey) {
   const names = labels[modelKey];
   if (!coefs || !names) return;
 
-  const mid = coefs.length / 2;
+  const mid = Math.ceil(coefs.length / 2);
   const leftCoefs = coefs.slice(0, mid);
   const rightCoefs = coefs.slice(mid);
   const leftNames = names.slice(0, mid);
@@ -391,16 +321,9 @@ function calculateOutputs() {
     interligne,
     vitesse,
     coefs,
-    pastilles: currentPastilles,
+    pastilles,
     mode: "ideal"
   });
-   // Calcul de la pression unique recommandée
-let sum = 0;
-results.forEach(r => sum += r.pression);
-const pressionRecommandee = sum / results.length;
-
-// On stocke pour le PDF et le diagnostic
-window.pressionRecommandee = pressionRecommandee;
 
   const tbody = document.querySelector("#resultTable tbody");
   tbody.innerHTML = "";
@@ -413,20 +336,17 @@ window.pressionRecommandee = pressionRecommandee;
       <td>${r.coef}</td>
       <td>${formatNum(r.debitCible,2)}</td>
       <td>${r.pastille}</td>
-      <td>${formatNum(r.q,2)}</td>
+      <td>${formatNum(r.q3,2)}</td>
     `;
     tbody.appendChild(row);
   });
-document.getElementById("resumeFinal").innerHTML = `
-  <strong>Pression de travail recommandée :</strong> 
-  ${pressionRecommandee.toFixed(1)} bar
-`;
+
   saveSettings();
   showSection("result");
 }
 
 /* ----------------------------------------------------
-   CALCUL ALTERNATIF (NOUVELLE INTERLIGNE)
+   CALCUL ALTERNATIF (INTERLIGNE)
 ---------------------------------------------------- */
 
 function calculatePressureWithSameNozzles() {
@@ -450,7 +370,7 @@ function calculatePressureWithSameNozzles() {
     interligne,
     vitesse,
     coefs,
-    pastilles: currentPastilles,
+    pastilles,
     mode: "newInterligne",
     newInterligne
   });
@@ -513,7 +433,7 @@ function calculatePressureWithNewDose() {
     interligne,
     vitesse,
     coefs,
-    pastilles: currentPastilles,
+    pastilles,
     mode: "newDose",
     newDose
   });
@@ -568,7 +488,8 @@ function generateResumeFinal() {
     <strong>Réglage idéal :</strong><br>
     • Dose : ${dose} L/ha<br>
     • Interligne : ${interligne} m<br>
-    • Vitesse : ${vitesse} km/h<br><br>
+    • Vitesse : ${vitesse} km/h<br>
+    • Pression : 3 bar<br><br>
 
     <strong>Réglage alternatif (interligne) :</strong><br>
     • Nouvelle interligne : ${newInterligne} m<br><br>
@@ -584,7 +505,7 @@ function generateResumeFinal() {
 }
 
 /* ----------------------------------------------------
-   PDF STYLISÉ
+   PDF
 ---------------------------------------------------- */
 
 function buildPDFRow(item) {
@@ -601,7 +522,6 @@ function buildPDFRow(item) {
 
   row.appendChild(dot);
   row.appendChild(text);
-
   return row;
 }
 
@@ -613,8 +533,8 @@ function buildPDFLayout() {
   if (!rows.length) return;
 
   const modelKey = document.getElementById("modeleRepartition").value;
-  const coefs = models[modelKey];
-  const mid = coefs.length / 2;
+  const coefs = models[modelKey] || [];
+  const mid = Math.ceil(coefs.length / 2);
 
   const left = [];
   const right = [];
@@ -642,40 +562,35 @@ function buildPDFLayout() {
   container.appendChild(colLeft);
   container.appendChild(colRight);
 
-  document.getElementById("pdfResume").innerHTML = document.getElementById("resumeFinal").innerHTML;
+  document.getElementById("pdfResume").innerHTML =
+    document.getElementById("resumeFinal").innerHTML;
 }
 
-/* ----------------------------------------------------
-   EXPORT PDF
----------------------------------------------------- */
-async function exportPDF() {
+function exportPDF() {
   buildPDFLayout();
 
-  const html = document.getElementById("pdfLayout").outerHTML;
+  const pdfBlock = document.getElementById("pdfLayout");
+  pdfBlock.style.opacity = "1";
+  pdfBlock.style.zIndex = "9999";
 
-  const response = await fetch("https://pulvmalinpdf-backend.onrender.com/pdf", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ html })
-  });
+  setTimeout(() => {
+    const opt = {
+      margin: 10,
+      filename: 'reglage_pulve.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
 
-  if (!response.ok) {
-    alert("Erreur lors de la génération du PDF");
-    return;
-  }
-
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "reglage_pulve.pdf";
-  a.click();
-
-  URL.revokeObjectURL(url);
+    html2pdf().set(opt).from(pdfBlock).save().then(() => {
+      pdfBlock.style.opacity = "0";
+      pdfBlock.style.zIndex = "-1";
+    });
+  }, 300);
 }
+
 /* ----------------------------------------------------
-   SIMULATEUR INTERACTIF
+   SIMULATEUR
 ---------------------------------------------------- */
 
 let simTimer = null;
@@ -696,7 +611,7 @@ function initSimulator() {
     simDoseVal.innerText = simDose.value;
     simInterVal.innerText = Number(simInter.value).toFixed(2);
     simViteVal.innerText = Number(simVite.value).toFixed(1);
-    simPressVal.innerText = simPress.value ? `${simPress.value} bar (forcée)` : "—";
+    simPressVal.innerText = simPress.value ? `${simPress.value} bar` : "—";
   }
 
   function scheduleCompute() {
@@ -721,7 +636,6 @@ function applySimulator(forceShow = true) {
   const modelKey = document.getElementById("modeleRepartition").value;
   const coefs = models[modelKey];
   const names = labels[modelKey];
-
   if (!coefs || !names) {
     if (forceShow) alert("Choisissez d'abord un modèle de répartition.");
     return;
@@ -737,7 +651,7 @@ function applySimulator(forceShow = true) {
     interligne,
     vitesse,
     coefs,
-    pastilles: currentPastilles,
+    pastilles,
     mode: "forcePressure",
     forcedPressure
   });
@@ -760,7 +674,7 @@ function applySimulator(forceShow = true) {
 }
 
 /* ----------------------------------------------------
-   SCÉNARIOS
+   SCÉNARIOS SIMULATEUR
 ---------------------------------------------------- */
 
 function saveScenario() {
@@ -774,8 +688,7 @@ function saveScenario() {
     dose: Number(document.getElementById("simDose").value),
     interligne: Number(document.getElementById("simInter").value),
     vitesse: Number(document.getElementById("simVite").value),
-    pressure: Number(document.getElementById("simPress").value),
-    buseFamily: document.getElementById("buseFamily") ? document.getElementById("buseFamily").value : ""
+    pressure: Number(document.getElementById("simPress").value)
   };
 
   const list = JSON.parse(localStorage.getItem("simScenarios") || "[]");
@@ -802,7 +715,7 @@ function renderScenarioList() {
       <div class="scenario-meta">
         <div class="scenario-name">${s.name}</div>
         <div class="scenario-desc">
-          Dose ${s.dose} L/ha • Inter ${s.interligne} m • Vit ${s.vitesse} km/h • P ${s.pressure} bar
+          Modèle ${s.model} • Dose ${s.dose} L/ha • Inter ${s.interligne} m • Vit ${s.vitesse} km/h • P ${s.pressure} bar
         </div>
       </div>
       <div class="scenario-actions">
@@ -818,17 +731,10 @@ function loadScenario(id) {
   const list = JSON.parse(localStorage.getItem("simScenarios") || "[]");
   const s = list.find(x => x.id === id);
   if (!s) return;
-
   document.getElementById("simDose").value = s.dose;
   document.getElementById("simInter").value = s.interligne;
   document.getElementById("simVite").value = s.vitesse;
   document.getElementById("simPress").value = s.pressure;
-
-  if (document.getElementById("buseFamily") && s.buseFamily) {
-    document.getElementById("buseFamily").value = s.buseFamily;
-    updateBuseList();
-  }
-
   applySimulator();
 }
 
@@ -852,23 +758,10 @@ function compareScenarios() {
   const ids = checks.map(c => Number(c.dataset.id));
   const list = JSON.parse(localStorage.getItem("simScenarios") || "[]").filter(s => ids.includes(s.id));
 
-  let html = `<h2>Comparatif scénarios</h2>
-  <table border="1" cellpadding="6" cellspacing="0">
-  <thead><tr>
-  <th>Nom</th><th>Dose</th><th>Interligne</th><th>Vitesse</th><th>Pression</th><th>Buses</th>
-  </tr></thead><tbody>`;
-
+  let html = `<h2>Comparatif scénarios</h2><table border="1" cellpadding="6" cellspacing="0"><thead><tr><th>Nom</th><th>Modèle</th><th>Dose</th><th>Interligne</th><th>Vitesse</th><th>Pression</th></tr></thead><tbody>`;
   list.forEach(s => {
-    html += `<tr>
-      <td>${s.name}</td>
-      <td>${s.dose}</td>
-      <td>${s.interligne}</td>
-      <td>${s.vitesse}</td>
-      <td>${s.pressure}</td>
-      <td>${s.buseFamily || ""}</td>
-    </tr>`;
+    html += `<tr><td>${s.name}</td><td>${s.model}</td><td>${s.dose}</td><td>${s.interligne}</td><td>${s.vitesse}</td><td>${s.pressure}</td></tr>`;
   });
-
   html += `</tbody></table>`;
   const w = window.open("", "_blank", "noopener");
   w.document.write(html);
@@ -876,104 +769,56 @@ function compareScenarios() {
 }
 
 /* ----------------------------------------------------
-   DIAGNOSTIC TERRAIN
+   MODÈLE PERSONNALISÉ
 ---------------------------------------------------- */
 
-function openDiagnostic() {
-  const modelKey = document.getElementById("modeleRepartition").value;
-  if (!modelKey) {
-    alert("Choisissez un modèle avant d’ouvrir le diagnostic.");
-    return;
-  }
-
-  const container = document.getElementById("diagTableContainer");
+function buildCustomCoefInputs() {
+  const n = Number(document.getElementById("customCount").value);
+  const container = document.getElementById("customCoefContainer");
   container.innerHTML = "";
 
-  const rows = document.querySelectorAll("#resultTable tbody tr");
-  if (!rows.length) {
-    alert("Faites d’abord un réglage idéal pour récupérer les pastilles.");
-    return;
-  }
-
-  const table = document.createElement("table");
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Sortie</th>
-        <th>Pastille</th>
-        <th>Débit mesuré (L/min)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  `;
-
-  const tbody = table.querySelector("tbody");
-
-  rows.forEach((r, i) => {
-    const name = r.children[1].innerText.trim();
-    const pastille = r.children[4].innerText.trim();
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${name}</td>
-      <td>${pastille}</td>
-      <td><input type="number" step="0.01" data-index="${i}" class="diagInput"></td>
+  for (let i = 1; i <= n; i++) {
+    const row = document.createElement("div");
+    row.className = "customCoefRow";
+    row.innerHTML = `
+      <label>Sortie ${i}</label>
+      <input type="text" placeholder="Nom (ex : Main G ${i})" id="customLabel_${i}">
+      <input type="number" step="0.01" value="0.5" id="customCoef_${i}">
     `;
-    tbody.appendChild(tr);
-  });
-
-  container.appendChild(table);
-  showSection("diagnostic");
+    container.appendChild(row);
+  }
 }
 
-function generateDiagnostic() {
-  const pressure = parseFloat(document.getElementById("diagPressure").value);
-  if (isNaN(pressure)) {
-    alert("Indique la pression mesurée.");
+function saveCustomModel() {
+  const name = document.getElementById("customName").value.trim();
+  const n = Number(document.getElementById("customCount").value);
+
+  if (!name) {
+    alert("Nom du modèle obligatoire");
     return;
   }
 
-  const modelKey = document.getElementById("modeleRepartition").value;
-  const names = labels[modelKey];
+  const coefs = [];
+  const lbls = [];
 
-  let msg = "<h3>Résultats du diagnostic</h3>";
+  for (let i = 1; i <= n; i++) {
+    const coef = Number(document.getElementById(`customCoef_${i}`).value);
+    const lbl = document.getElementById(`customLabel_${i}`).value.trim() || `Sortie ${i}`;
+    coefs.push(coef);
+    lbls.push(lbl);
+  }
 
-  const inputs = document.querySelectorAll(".diagInput");
+  models[name] = coefs;
+  labels[name] = lbls;
 
-  inputs.forEach((input, i) => {
-    const measured = parseFloat(input.value);
-    if (isNaN(measured)) return;
+  // Ajouter dans la liste des modèles du select
+  const select = document.getElementById("modeleRepartition");
+  const opt = document.createElement("option");
+  opt.value = name;
+  opt.textContent = `Perso – ${name}`;
+  select.appendChild(opt);
 
-    const pastilleName = input.parentElement.previousElementSibling.innerText.trim();
-    const pastille = currentPastilles.find(p => p.nom === pastilleName);
-
-    if (!pastille) {
-      msg += `<div style="color:#e53935;">Pastille inconnue : ${pastilleName}</div>`;
-      return;
-    }
-
-    const theoretical = pastille.q * Math.sqrt(pressure / currentFamily.pressionNominale);
-    const diff = Math.abs(measured - theoretical) / theoretical * 100;
-
-    let status = "";
-    let color = "";
-
-    if (diff <= 5) { status = "OK"; color = "#43a047"; }
-    else if (diff <= 10) { status = "Limite"; color = "#fb8c00"; }
-    else { status = "À changer"; color = "#e53935"; }
-
-    msg += `
-      <div style="margin:6px 0;">
-        <strong>${names[i]}</strong> — ${pastilleName}<br>
-        Mesuré : ${measured.toFixed(2)} L/min — Théorique : ${theoretical.toFixed(2)} L/min<br>
-        <span style="color:${color}; font-weight:700;">${status} (${diff.toFixed(1)} %)</span>
-      </div>
-    `;
-  });
-
-  document.getElementById("diagTableContainer").innerHTML += msg;
+  alert("Modèle personnalisé enregistré !");
 }
 
 /* ----------------------------------------------------
@@ -982,8 +827,12 @@ function generateDiagnostic() {
 
 window.addEventListener("DOMContentLoaded", () => {
   loadSettings();
-  updateBuseList();
   initSimulator();
+  const customCount = document.getElementById("customCount");
+  if (customCount) {
+    customCount.addEventListener("input", buildCustomCoefInputs);
+    buildCustomCoefInputs();
+  }
 });
 
 /* ----------------------------------------------------
@@ -1005,71 +854,8 @@ window.applySimulator = applySimulator;
 window.saveScenario = saveScenario;
 window.compareScenarios = compareScenarios;
 window.clearScenarios = clearScenarios;
-window.renderScenarioList = renderScenarioList;
-window.updateBuseList = updateBuseList;
-window.openDiagnostic = openDiagnostic;
-window.generateDiagnostic = generateDiagnostic;
-function buildPDFLayout() {
-  const pdf = document.getElementById("pdfLayout");
-
-  // Récupération des données existantes dans ton app
-  const machineName = document.getElementById("machineNameInput")?.value || "Machine non définie";
-  const buses = document.querySelectorAll(".buse"); // tes buses affichées à l’écran
-  const resumeHTML = document.getElementById("resume").innerHTML; // ton résumé existant
-  const reglages = collectReglages(); // fonction qu’on crée juste après
-
-  // Remplir le nom de la machine
-  document.getElementById("pdfMachineName").innerText = machineName;
-
-  // -------------------------
-  // 1) SCHÉMA DU PULVÉ
-  // -------------------------
-  const pdfPulve = document.getElementById("pdfPulve");
-  pdfPulve.innerHTML = "";
-
-  buses.forEach(buse => {
-    const color = buse.style.backgroundColor;
-    const debit = buse.dataset.debit;
-    const pression = buse.dataset.pression;
-    const vitesse = buse.dataset.vitesse;
-
-    const item = document.createElement("div");
-    item.className = "pdf-buse-item";
-    item.innerHTML = `
-      <div class="pdf-buse-color" style="background:${color}"></div>
-      <div class="pdf-buse-info">
-        <strong>${debit} L/min</strong><br>
-        ${pression} bar – ${vitesse} km/h
-      </div>
-    `;
-    pdfPulve.appendChild(item);
-  });
-
-  // -------------------------
-  // 2) TABLEAU DE RÉGLAGES
-  // -------------------------
-  const pdfResume = document.getElementById("pdfResume");
-
-  pdfResume.innerHTML = `
-    <table class="pdf-table">
-      <tr><th>Paramètre</th><th>Valeur</th></tr>
-      <tr><td>Volume/ha</td><td>${reglages.volumeHa} L/ha</td></tr>
-      <tr><td>Vitesse</td><td>${reglages.vitesse} km/h</td></tr>
-      <tr><td>Pression</td><td>${reglages.pression} bar</td></tr>
-      <tr><td>Largeur</td><td>${reglages.largeur} m</td></tr>
-      <tr><td>Type de buses</td><td>${reglages.typeBuse}</td></tr>
-    </table>
-
-    <div class="pdf-resume-final">
-      ${resumeHTML}
-    </div>
-  `;
-}
-
-
-
-
-
-
-
-
+window.openCustomModel = openCustomModel;
+window.saveCustomModel = saveCustomModel;
+window.buildCustomCoefInputs = buildCustomCoefInputs;
+window.loadScenario = loadScenario;
+window.deleteScenario = deleteScenario;
