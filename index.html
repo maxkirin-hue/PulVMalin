@@ -1,238 +1,90 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PULV MALIN — par Max Nicolet</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>PULV MALIN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
-  <meta name="theme-color" content="#3fa34d">
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="app-header">
-    <div class="logo">PULV <span>MALIN</span></div>
-    <div class="author">par Max Nicolet</div>
-  </header>
+<header class="header">
+  <div class="logo">PULV <span>MALIN</span></div>
+  <div class="subtitle">Réglage intelligent de pulvérisateur</div>
+</header>
 
-  <div class="container">
+<main class="container">
 
-    <!-- ACCUEIL -->
-    <section id="home" class="active">
-      <h2>Nom de la machine</h2>
-      <input id="machineName" type="text" placeholder="Ex : Calvet SP 200">
-      <div class="row">
-        <button onclick="saveMachine()">Enregistrer</button>
-        <button onclick="goToSettings()" class="secondary">Commencer le réglage</button>
-      </div>
-    </section>
+<section id="home" class="active">
+  <h2>Machine</h2>
+  <input id="machineName" placeholder="Nom de la machine">
+  <button onclick="saveMachine()">Enregistrer</button>
+  <button class="secondary" onclick="showSection('settings')">Commencer</button>
+</section>
 
-    <!-- RÉGLAGES -->
-    <section id="settings">
-      <h2>Modèle de répartition</h2>
+<section id="settings">
+  <h2>Modèle de répartition</h2>
 
-      <label for="modeleRepartition">Choisir un modèle :</label>
-      <select id="modeleRepartition" onchange="showSchema(this.value)">
-        <option value="">Sélectionner...</option>
-        <option value="3r_sans">3 rangs – sans main de retour (8 sorties)</option>
-        <option value="3r_avec">3 rangs – avec main de retour (10 sorties)</option>
-        <option value="4r_sans">4 rangs – sans main de retour (8 sorties)</option>
-        <option value="4r_avec">4 rangs – avec main de retour (10 sorties)</option>
-        <option value="tangentiel_10">Tangentiel – 10 sorties – 2 rangs</option>
-      </select>
+  <select id="modeleRepartition" onchange="showSchema(this.value)">
+    <option value="">Choisir…</option>
+    <option value="3r_sans">3 rangs – sans retour</option>
+    <option value="3r_avec">3 rangs – avec retour</option>
+    <option value="4r_sans">4 rangs – sans retour</option>
+    <option value="4r_avec">4 rangs – avec retour</option>
+  </select>
 
-      <div id="schemaContainer"></div>
+  <button class="secondary" onclick="showSection('tangentiel')">
+    2 rangs – Tangentiel / Aéro
+  </button>
 
-      <h2>Type de buses</h2>
-      <label for="buseFamily">Choisir une famille :</label>
-      <select id="buseFamily" onchange="updateBuseList()">
-        <option value="TeeJet CP4916">TeeJet CP4916 (origine)</option>
-        <option value="Albuz ATR 80">Albuz ATR 80</option>
-        <option value="Lechler IDK 90">Lechler IDK 90</option>
-        <option value="TeeJet TXR">TeeJet TXR</option>
-        <option value="Albuz AMT">Albuz AMT</option>
-      </select>
+  <div id="schemaContainer"></div>
 
-      <h2>Paramètres de pulvérisation</h2>
+  <h2>Paramètres</h2>
+  <input id="dose" type="number" placeholder="Dose (L/ha)">
+  <input id="interligne" type="number" step="0.01" placeholder="Interligne (m)">
+  <input id="vitesse" type="number" step="0.1" placeholder="Vitesse (km/h)">
 
-      <label for="dose">Dose (L/ha)</label>
-      <input id="dose" type="number" placeholder="Ex : 150" min="0">
+  <button onclick="calculateOutputs()">Calculer</button>
+</section>
 
-      <label for="interligne">Interligne (m)</label>
-      <input id="interligne" type="number" placeholder="Ex : 2" min="0.1" step="0.01">
+<section id="tangentiel">
+  <h2>2 rangs – Tangentiel / Aéro</h2>
+  <input id="nbBusesTangentiel" type="number" min="1" value="4">
+  <button onclick="createTangentielModel()">Créer le modèle</button>
+  <button class="secondary" onclick="showSection('settings')">Retour</button>
+</section>
 
-      <label for="vitesse">Vitesse (km/h)</label>
-      <input id="vitesse" type="number" placeholder="Ex : 5" min="0.1" step="0.1">
+<section id="result">
+  <h2>Résultats</h2>
 
-      <div class="row">
-        <button onclick="calculateOutputs()">Calculer réglage idéal</button>
-        <button onclick="openSimulator()" class="secondary">Ouvrir simulateur</button>
-      </div>
-    </section>
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>#</th><th>Sortie</th><th>Coef</th>
+        <th>Débit cible</th><th>Pastille</th><th>Débit 3 bar</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    <!-- RÉSULTATS -->
-    <section id="result">
-      <h2>Réglage idéal</h2>
+  <button onclick="exportPDF()">Exporter PDF</button>
+  <button class="secondary" onclick="showSection('settings')">Retour</button>
+</section>
 
-      <table id="resultTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Sortie</th>
-            <th>Coef</th>
-            <th>Débit cible (L/min)</th>
-            <th>Pastille</th>
-            <th>Débit nominal (L/min)</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+</main>
 
-      <h2>Réglage alternatif (même pastilles)</h2>
-
-      <label for="newInterligne">Nouvelle interligne (m)</label>
-      <input id="newInterligne" type="number" placeholder="Ex : 2.5" min="0.1" step="0.01">
-
-      <button onclick="calculatePressureWithSameNozzles()">Recalculer pression</button>
-
-      <table id="altTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Sortie</th>
-            <th>Pastille</th>
-            <th>Pression</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <h2>Réglage par nouvelle dose</h2>
-
-      <label for="newDose">Nouvelle dose (L/ha)</label>
-      <input id="newDose" type="number" placeholder="Ex : 125" min="0">
-
-      <button onclick="calculatePressureWithNewDose()">Recalculer pression</button>
-
-      <table id="doseTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Sortie</th>
-            <th>Pastille</th>
-            <th>Pression</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <div id="resumeFinal"></div>
-
-      <div class="row">
-        <button onclick="exportPDF()">Exporter en PDF</button>
-        <button onclick="openDiagnostic()" class="secondary">Diagnostic terrain</button>
-        <button onclick="goToSettings()" class="secondary">Retour</button>
-      </div>
-    </section>
-
-    <!-- DIAGNOSTIC -->
-    <section id="diagnostic">
-      <h2>Diagnostic terrain</h2>
-
-      <label for="diagPressure">Pression mesurée (bar)</label>
-      <input id="diagPressure" type="number" step="0.1" placeholder="Ex : 3.2">
-
-      <div id="diagTableContainer"></div>
-
-      <div class="row">
-        <button onclick="generateDiagnostic()">Analyser</button>
-        <button onclick="goToSettings()" class="secondary">Retour réglages</button>
-      </div>
-    </section>
-
-    <!-- SIMULATEUR -->
-    <section id="simulator">
-      <h2>Simulateur interactif</h2>
-
-      <div class="sim-grid">
-        <div class="sim-controls">
-          <label>Dose (L/ha) <span id="simDoseVal">150</span></label>
-          <input id="simDose" type="range" min="50" max="300" step="1" value="150">
-
-          <label>Interligne (m) <span id="simInterVal">2.00</span></label>
-          <input id="simInter" type="range" min="0.5" max="4" step="0.01" value="2">
-
-          <label>Vitesse (km/h) <span id="simViteVal">5.0</span></label>
-          <input id="simVite" type="range" min="1" max="20" step="0.1" value="5">
-
-          <label>Pression forcée (bar) <span id="simPressVal">—</span></label>
-          <input id="simPress" type="range" min="1.5" max="6" step="0.1" value="3">
-
-          <div class="row">
-            <button onclick="applySimulator()">Appliquer (aperçu)</button>
-            <button onclick="saveScenario()" class="secondary">Enregistrer scénario</button>
-          </div>
-
-          <div class="small-note">Astuce : déplacez les sliders pour voir les effets en temps réel.</div>
-        </div>
-
-        <div class="sim-preview">
-          <h3>Aperçu sorties</h3>
-          <div id="simTableContainer">
-            <table id="simTable">
-              <thead>
-                <tr><th>#</th><th>Sortie</th><th>Coef</th><th>Débit cible</th><th>Pastille</th><th>Pression requise</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-
-          <h3>Scénarios enregistrés</h3>
-          <div id="scenarioList"></div>
-
-          <div class="row">
-            <button onclick="compareScenarios()" class="secondary">Comparer sélection</button>
-            <button onclick="clearScenarios()" class="danger">Supprimer tout</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <button onclick="goToSettings()" class="secondary">Retour réglages</button>
-      </div>
-    </section>
-
-  </div>
-
-  <!-- PDF HIDDEN LAYOUT -->
-<div id="pdfLayout" style="
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 210mm;
-    min-height: 297mm;
-    background: white;
-    padding: 20px;
-    z-index: -1;
-    opacity: 0;
-    pointer-events: none;
-    font-family: Arial;
-">
-    <h1 style="text-align:center;">Réglage Pulvérisateur</h1>
-    <h3 id="pdfMachineName" style="text-align:center; margin-top:-10px;"></h3>
-
-    <h2 style="margin-top:30px;">Schéma du pulvé</h2>
-    <div id="pdfPulve" class="pdf-pulve-grid"></div>
-
-    <h2 style="margin-top:30px;">Résumé</h2>
-    <div id="pdfResume"></div>
+<!-- Loader PDF -->
+<div id="pdfLoader" class="pdf-loader hidden">
+  <div class="spinner"></div>
+  <div>Génération du PDF…</div>
 </div>
-  <script src="app.js"></script>
+
+<!-- Zone PDF cachée -->
+<div id="pdfLayout" style="display:none">
+  <div id="pdfPulve"></div>
+  <div id="pdfResume"></div>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
-
-
