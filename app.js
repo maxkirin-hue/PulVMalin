@@ -49,34 +49,48 @@ function saveMachine(){
 ======================= */
 
 function calculateOutputs(){
-  const modelKey=document.getElementById("modeleRepartition").value;
-  const coefs=models[modelKey];
-  const names=labels[modelKey];
+  const modelKey = document.getElementById("modeleRepartition").value;
+  const coefs = models[modelKey];
+  const names = labels[modelKey];
 
-  const dose=+doseInput.value;
-  const inter=+interligne.value;
-  const vit=+vitesse.value;
+  if (!coefs || !names) {
+    alert("Choisis un modèle de répartition");
+    return;
+  }
 
-  const debitRang=(dose*inter*vit)/600;
+  const dose = Number(document.getElementById("dose").value);
+  const inter = Number(document.getElementById("interligne").value);
+  const vit = Number(document.getElementById("vitesse").value);
 
-  const tbody=document.querySelector("#resultTable tbody");
-  tbody.innerHTML="";
+  if (!dose || !inter || !vit) {
+    alert("Dose, interligne et vitesse doivent être renseignées");
+    return;
+  }
 
-  coefs.forEach((coef,i)=>{
-    const cible=debitRang*coef;
-    let best=pastilles[0];
-    pastilles.forEach(p=>{
-      if(Math.abs(p.q3-cible)<Math.abs(best.q3-cible)) best=p;
+  const debitRang = (dose * inter * vit) / 600;
+  const tbody = document.querySelector("#resultTable tbody");
+  tbody.innerHTML = "";
+
+  coefs.forEach((coef, i) => {
+    const cible = debitRang * coef;
+
+    let best = pastilles[0];
+    pastilles.forEach(p => {
+      if (Math.abs(p.q3 - cible) < Math.abs(best.q3 - cible)) {
+        best = p;
+      }
     });
-    tbody.innerHTML+=`
-      <tr>
-        <td>${i+1}</td>
-        <td>${names[i]}</td>
-        <td>${coef}</td>
-        <td>${cible.toFixed(2)}</td>
-        <td>${best.nom}</td>
-        <td>${best.q3}</td>
-      </tr>`;
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${names[i]}</td>
+      <td>${coef}</td>
+      <td>${cible.toFixed(2)}</td>
+      <td>${best.nom}</td>
+      <td>${best.q3}</td>
+    `;
+    tbody.appendChild(row);
   });
 
   showSection("result");
@@ -129,3 +143,4 @@ async function exportPDF(){
 
   pdfLoader.classList.add("hidden");
 }
+
