@@ -35,7 +35,28 @@ function showSection(id){
   document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
+function showSchema(modelKey) {
+  const container = document.getElementById("schemaContainer");
+  container.innerHTML = "";
 
+  const coefs = models[modelKey];
+  const names = labels[modelKey];
+
+  if (!coefs || !names) return;
+
+  const list = document.createElement("ul");
+  list.style.listStyle = "none";
+  list.style.padding = "0";
+
+  coefs.forEach((coef, i) => {
+    const li = document.createElement("li");
+    li.style.padding = "4px 0";
+    li.innerHTML = `<strong>${names[i]}</strong> — coef ${coef}`;
+    list.appendChild(li);
+  });
+
+  container.appendChild(list);
+}
 /* =======================
    MACHINE
 ======================= */
@@ -143,4 +164,5 @@ async function exportPDF(){
 
   pdfLoader.classList.add("hidden");
 }
+
 
