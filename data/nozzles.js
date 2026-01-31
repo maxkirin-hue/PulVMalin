@@ -28,8 +28,7 @@ XR: {
     { code: "XR110-06", color: "gris", qRef: 2.37 },
     { code: "XR110-08", color: "blanc", qRef: 3.16 }
   ]
-}
-,
+},
 
   /* =====================================================
      CP4916 — TeeJet (vigne classique)
@@ -60,8 +59,7 @@ XR: {
     { code: "CP4916-42", color: "noir clair", qRef: 1.03 },
     { code: "CP4916-45", color: "vert", qRef: 1.30 }
   ]
-}
-,
+},
   /* =====================================================
      AMT — Céramique double face (vigne)
   ===================================================== */
@@ -80,8 +78,7 @@ AMT: {
     { code: "AMT-020", faces: [{ side: "plate", qRef: 6.85 }, { side: "creuse", qRef: 5.58 }] },
     { code: "AMT-023", faces: [{ side: "plate", qRef: 9.17 }, { side: "creuse", qRef: 7.12 }] }
   ]
-}
-
+},
   /* =====================================================
      TXR — Cône creux haute pression
      (vigne + aéro)
@@ -105,8 +102,7 @@ TXR: {
     { code: "TXR8004", color: "marron", qRef: 2.868 },
     { code: "TXR80049", color: "blanc", qRef: 3.500 }
   ]
-}
-
+},
   /* =====================================================
      IDK 90 — Injection d’air (aéro / tangentiel)
   ===================================================== */
@@ -124,9 +120,7 @@ TXR: {
     { code: "IDK90-025", color: "rouge", qRef: 1.81 },
     { code: "IDK90-03", color: "bleu", qRef: 2.17 }
   ]
-}
-
-
+},
   /* =====================================================
      ATR 80 — Cône creux céramique (aéro)
   ===================================================== */
