@@ -7,6 +7,12 @@
    - Recalculs: même pastilles + nouvelle interligne / nouvelle dose
    - Export PDF: via backend Puppeteer (Render)
 ========================================================= */
+import { nozzleFamilies } from "./data/nozzles.js";
+
+let currentMachineType = null;
+let selectedFamily = null;
+let selectedNozzle = null;
+let selectedFace = null;
 
 /* =========================
    CONFIG
@@ -122,6 +128,47 @@ function showSection(id) {
   const el = $(id);
   if (el) el.classList.add("active");
 }
+function setMachineType(type) {
+  currentMachineType = type;
+  populateFamilySelector();
+}
+function populateFamilySelector() {
+  const select = document.getElementById("familySelect");
+  select.innerHTML = "";
+   function onFamilyChange(familyKey) {
+  selectedFamily = nozzleFamilies[familyKey];
+  populateNozzleSelector(selectedFamily);
+}
+   function populateNozzleSelector(family) {
+  const select = document.getElementById("nozzleSelect");
+  select.innerHTML = "";
+
+  family.nozzles.forEach(nozzle => {
+    if (nozzle.faces) {
+      nozzle.faces.forEach(face => {
+        const option = document.createElement("option");
+        option.value = `${nozzle.code}|${face.side}`;
+        option.textContent = `${nozzle.code} – ${face.label}`;
+        select.appendChild(option);
+      });
+    } else {
+      const option = document.createElement("option");
+      option.value = nozzle.code;
+      option.textContent = nozzle.code;
+      select.appendChild(option);
+    }
+  });
+}
+
+  Object.entries(nozzleFamilies).forEach(([key, family]) => {
+    if (family.machines.includes(currentMachineType)) {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = family.label;
+      select.appendChild(option);
+    }
+  });
+}
 
 /* =========================
    PRESSIONS & STATUTS
@@ -143,6 +190,29 @@ function pressureStatus(p) {
 /* =========================
    CALCULS
 ========================= */
+function getSelectedNozzle(value) {
+  if (value.includes("|")) {
+    const [code, side] = value.split("|");
+    const nozzle = selectedFamily.nozzles.find(n => n.code === code);
+    const face = nozzle.faces.find(f => f.side === side);
+    return { code, qRef: face.qRef, face: face.label };
+  }
+function calculatePressure(qTarget, qRef, pRef) {
+  return pRef * Math.pow(qTarget / qRef, 2);
+}
+function getPressureStatus(p, family) {
+  if (p < family.limitRange[0] || p > family.limitRange[1]) {
+    return "Changer de buse";
+  }
+  if (p < family.optimalRange[0] || p > family.optimalRange[1]) {
+    return "Limite";
+  }
+  return "OK";
+}
+
+  const nozzle = selectedFamily.nozzles.find(n => n.code === value);
+  return { code: nozzle.code, qRef: nozzle.qRef };
+}
 
 function debitParRang(dose, interligne, vitesse) {
   return (dose * interligne * vitesse) / 600;
@@ -163,6 +233,25 @@ function pickBestPastilleForTargetAt3bar(qTarget) {
  * - choisit la pastille (proche à 3 bar)
  * - calcule pression exacte pour obtenir le débit cible
  */
+function computeResult(qTarget) {
+  const nozzleValue = document.getElementById("nozzleSelect").value;
+  const nozzle = getSelectedNozzle(nozzleValue);
+
+  const pressure = calculatePressure(
+    qTarget,
+    nozzle.qRef,
+    selectedFamily.refPressure
+  );
+
+  return {
+    family: selectedFamily.label,
+    nozzle: nozzle.code,
+    face: nozzle.face || null,
+    pressure: pressure.toFixed(2),
+    status: getPressureStatus(pressure, selectedFamily)
+  };
+}
+
 function computeIdeal({ dose, interligne, vitesse, modelKey }) {
   const coefs = models[modelKey];
   const names = labels[modelKey];
@@ -639,3 +728,4 @@ window.calculatePressureWithSameNozzles = calculatePressureWithSameNozzles;
 window.calculatePressureWithNewDose = calculatePressureWithNewDose;
 
 window.exportPDF = exportPDF;
+
