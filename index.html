@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PULV MALIN</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
 
+<body>
 <header class="header">
   <div class="logo">PULV <span>MALIN</span></div>
   <div class="subtitle">Régler sa machine devient un jeu d'enfant</div>
@@ -16,158 +16,145 @@
 
 <main class="container">
 
-<!-- =======================
-     ACCUEIL
-======================= -->
-<section id="home" class="active">
-  <h2>Machine</h2>
-  <input id="machineName" placeholder="Nom de la machine">
-  <button onclick="saveMachine()">Enregistrer</button>
-  <button class="secondary" onclick="showSection('settings')">Commencer</button>
-</section>
+  <!-- =======================
+       PAGE 1 — TYPE MACHINE
+  ======================= -->
+  <section id="page1-machine" class="active">
+    <h2>Choisir le type de machine</h2>
 
-<!-- =======================
-     PARAMÈTRES
-======================= -->
-<section id="settings">
-  <h2>Type de machine</h2>
+    <div class="machine-buttons">
+      <button onclick="selectMachineType('vigne')">Vigne</button>
+      <button onclick="selectMachineType('aero')">Aéro / Tangentiel</button>
+      <button onclick="selectMachineType('desherbage')">Désherbage</button>
+    </div>
 
-  <div class="machine-buttons">
-    <button onclick="setMachineType('vigne')">Vigne</button>
-    <button onclick="setMachineType('aero')">Aéro / Tangentiel</button>
-    <button onclick="setMachineType('desherbage')">Désherbage</button>
-  </div>
+    <div class="small-note" id="machineTypeHint"></div>
 
-  <h2>Famille de buses</h2>
-  <select id="familySelect" onchange="onFamilyChange(this.value)"></select>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button class="secondary" onclick="goToStep(2)">Continuer</button>
+    </div>
+  </section>
 
-  <h2>Buse</h2>
-  <select id="nozzleSelect"></select>
+  <!-- =======================
+       PAGE 2 — FAMILLE BUSES
+  ======================= -->
+  <section id="page2-family">
+    <h2>Famille de buses installée</h2>
+    <p class="small-note">
+      Choisis la famille réellement montée sur ta machine. Elle sera utilisée pour les calculs et validations.
+    </p>
 
-  <h2>Modèle de répartition</h2>
-  <select id="modeleRepartition" onchange="showSchema(this.value)">
-    <option value="">Choisir…</option>
-    <option value="3r_sans">3 rangs – sans retour</option>
-    <option value="3r_avec">3 rangs – avec retour</option>
-    <option value="4r_sans">4 rangs – sans retour</option>
-    <option value="4r_avec">4 rangs – avec retour</option>
-  </select>
+    <label>Famille de buses</label>
+    <select id="familySelect"></select>
 
-  <button class="secondary" onclick="showSection('tangentiel')">
-    2 rangs – Tangentiel / Aéro
-  </button>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button class="secondary" onclick="goToStep(1)">Retour</button>
+      <button onclick="goToStep(3)">Continuer</button>
+    </div>
+  </section>
 
-  <div id="schemaContainer"></div>
+  <!-- =======================
+       PAGE 3 — MODÈLE + PARAMÈTRES
+  ======================= -->
+  <section id="page3-settings">
+    <h2>Modèle de répartition</h2>
 
-  <h2>Paramètres de travail</h2>
+    <label>Modèle</label>
+    <select id="modeleRepartition">
+      <option value="">Choisir…</option>
+      <option value="3r_sans">3 rangs – sans retour</option>
+      <option value="3r_avec">3 rangs – avec retour</option>
+      <option value="4r_sans">4 rangs – sans retour</option>
+      <option value="4r_avec">4 rangs – avec retour</option>
+    </select>
 
-  <label>Dose (L/ha)</label>
-  <input id="dose" type="number" placeholder="Ex : 150">
+    <div id="schemaContainer" class="small-note"></div>
 
-  <label>Interligne (m)</label>
-  <input id="interligne" type="number" step="0.01" placeholder="Ex : 2.5">
+    <h2>Paramètres de travail</h2>
 
-  <label>Vitesse (km/h)</label>
-  <input id="vitesse" type="number" step="0.1" placeholder="Ex : 6">
+    <label>Dose (L/ha)</label>
+    <input id="dose" type="number" inputmode="decimal" placeholder="Ex : 150" />
 
-  <button onclick="calculateOutputs()">Calculer</button>
-</section>
+    <label>Largeur / interligne (m)</label>
+    <input id="largeur" type="number" step="0.01" inputmode="decimal" placeholder="Ex : 2.5" />
 
-<!-- =======================
-     TANGENTIEL
-======================= -->
-<section id="tangentiel">
-  <h2>2 rangs – Tangentiel / Aéro</h2>
-  <label>Nombre de buses</label>
-  <input id="nbBusesTangentiel" type="number" min="1" value="4">
-  <button onclick="createTangentielModel()">Créer le modèle</button>
-  <button class="secondary" onclick="showSection('settings')">Retour</button>
-</section>
+    <label>Vitesse (km/h)</label>
+    <input id="vitesse" type="number" step="0.1" inputmode="decimal" placeholder="Ex : 6" />
 
-<!-- =======================
-     RÉSULTATS
-======================= -->
-<section id="result">
-  <h2>Réglage idéal</h2>
+    <h2>Pastilles</h2>
 
-  <table id="resultTable">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Sortie</th>
-        <th>Coef</th>
-        <th>Débit cible</th>
-        <th>Buse</th>
-        <th>Débit réf</th>
-        <th>Pression à régler</th>
-        <th>Statut</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <label>
+      <input id="forcedToggle" type="checkbox" />
+      Pastille forcée (je veux valider mon réglage avec les pastilles déjà montées)
+    </label>
 
-  <p class="small-note">
-    La pression affichée est celle à régler sur le manomètre pour obtenir
-    le débit cible avec la buse choisie.
-  </p>
+    <div id="forcedPanel" style="display:none; margin-top:10px;">
+      <label>Pastille montée</label>
+      <select id="forcedNozzleSelect">
+        <option value="">Choisir…</option>
+      </select>
 
-  <div id="resumeFinal"></div>
+      <p class="small-note">
+        En mode forcé, Pulv Malin ne change pas de pastille : il calcule la pression nécessaire et signale si c’est hors plage.
+      </p>
+    </div>
 
-  <h3>Mêmes buses – nouvelle interligne</h3>
-  <input id="newInterligne" type="number" step="0.01" placeholder="Nouvelle interligne (m)">
-  <button onclick="calculatePressureWithSameNozzles()">Recalculer pression</button>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button class="secondary" onclick="goToStep(2)">Retour</button>
+      <button onclick="calculateAndGo()">Calculer</button>
+    </div>
+  </section>
 
-  <table id="altTable">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Sortie</th>
-        <th>Buse</th>
-        <th>Pression</th>
-        <th>Statut</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <!-- =======================
+       PAGE 4 — RÉSULTATS + ALTERNATIVES
+  ======================= -->
+  <section id="page4-results">
+    <h2>Réglage idéal</h2>
 
-  <h3>Mêmes buses – nouvelle dose</h3>
-  <input id="newDose" type="number" placeholder="Nouvelle dose (L/ha)">
-  <button onclick="calculatePressureWithNewDose()">Recalculer pression</button>
+    <div id="resumeFinal" class="small-note"></div>
 
-  <table id="doseTable">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Sortie</th>
-        <th>Buse</th>
-        <th>Pression</th>
-        <th>Statut</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <table id="resultTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Sortie</th>
+          <th>Coef</th>
+          <th>Débit cible (L/min)</th>
+          <th>Pastille</th>
+          <th>Débit réf</th>
+          <th>Pression (bar)</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-  <button onclick="exportPDF()">Exporter PDF</button>
-  <button class="secondary" onclick="showSection('settings')">Retour</button>
-</section>
+    <h3>Alternatives proposées</h3>
+    <p class="small-note">
+      Suggestions à partir de la famille choisie (et du mode automatique). Objectif : se rapprocher d’une zone confortable.
+    </p>
+
+    <table id="altTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Sortie</th>
+          <th>Pastille</th>
+          <th>Pression (bar)</th>
+          <th>Statut</th>
+          <th>Pourquoi</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button class="secondary" onclick="goToStep(3)">Modifier paramètres</button>
+      <button class="secondary" onclick="goToStep(1)">Recommencer</button>
+    </div>
+  </section>
 
 </main>
-
-<!-- =======================
-     LOADER PDF
-======================= -->
-<div id="pdfLoader" class="pdf-loader hidden">
-  <div class="spinner"></div>
-  <div>Génération du PDF…</div>
-</div>
-
-<!-- =======================
-     ZONE PDF CACHÉE
-======================= -->
-<div id="pdfLayout" style="display:none">
-  <div id="pdfPulve"></div>
-  <div id="pdfResume"></div>
-</div>
 
 <script type="module" src="/app.js"></script>
 </body>
