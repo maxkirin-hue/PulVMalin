@@ -190,10 +190,6 @@ function renderResult(res) {
 window.addEventListener("DOMContentLoaded", () => {
   populateFamilySelector();
 });
-function showSection(id) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-  const el = document.getElementById(id);
-  if (el) el.classList.add("active");
 }
 
 /* =========================
@@ -205,6 +201,7 @@ window.onFamilyChange = onFamilyChange;
 window.calculateOutputs = calculateOutputs;
 window.showSection = showSection;
 window.saveMachine = saveMachine;
+
 
 
 
