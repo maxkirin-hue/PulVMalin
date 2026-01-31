@@ -100,6 +100,25 @@ function populateNozzleSelector(family) {
     }
   });
 }
+function populateFamilySelector() {
+  const select = document.getElementById("familySelect");
+  if (!select) return;   // ⬅️ PROTECTION
+
+  select.innerHTML = "";
+
+  Object.entries(nozzleFamilies).forEach(([key, family]) => {
+    if (family.machines.includes(currentMachineType)) {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = family.label;
+      select.appendChild(option);
+    }
+  });
+
+  if (select.options.length) {
+    onFamilyChange(select.value);
+  }
+}
 
 /* =========================
    BUSE & PRESSION
@@ -237,3 +256,15 @@ window.setMachineType=setMachineType;
 window.onFamilyChange=onFamilyChange;
 window.calculateOutputs=calculateOutputs;
 window.exportPDF=exportPDF;
+window.saveMachine = saveMachine;
+window.setMachineType = setMachineType;
+window.onFamilyChange = onFamilyChange;
+window.calculateOutputs = calculateOutputs;
+window.exportPDF = exportPDF;
+
+window.showSection = showSection;
+window.saveMachine = saveMachine;
+window.createTangentielModel = createTangentielModel;
+window.calculatePressureWithSameNozzles = calculatePressureWithSameNozzles;
+window.calculatePressureWithNewDose = calculatePressureWithNewDose;
+
