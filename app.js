@@ -190,7 +190,6 @@ function renderResult(res) {
 window.addEventListener("DOMContentLoaded", () => {
   populateFamilySelector();
 });
-}
 
 /* =========================
    EXPORTS POUR HTML
@@ -201,6 +200,7 @@ window.onFamilyChange = onFamilyChange;
 window.calculateOutputs = calculateOutputs;
 window.showSection = showSection;
 window.saveMachine = saveMachine;
+
 
 
 
