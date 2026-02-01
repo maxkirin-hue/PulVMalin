@@ -663,7 +663,53 @@ async function downloadPdf() {
     </tr>
 
     ${state.results.map(r => `
-      <
+      <tr>
+        <td>${r.outputName}</td>
+        <td>${r.coef.toFixed(2)}</td>
+        <td>${r.qTarget.toFixed(2)}</td>
+        <td>${r.nozzleLabel}</td>
+        <td>${r.pressure.toFixed(2)}</td>
+        <td>${r.status}</td>
+      </tr>
+    `).join("")}
+  </table>
+
+  <footer>
+    Les réglages proposés sont des estimations automatiques.  
+    Toujours vérifier la cohérence du résultat sur la machine réelle avant utilisation.
+  </footer>
+
+  </body>
+  </html>
+  `;
+
+  try {
+    const resp = await fetch("https://pulvmalinpdf-backend.onrender.com/pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ html }),
+    });
+
+    if (!resp.ok) {
+      alert("Erreur lors de la génération du PDF.");
+      return;
+    }
+
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pulvmalin_reglage.pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+  } catch (e) {
+    alert("Impossible de contacter le service PDF.");
+    console.error(e);
+  }
+}
 /* ---------- INIT BOUTONS MACHINE ---------- */
 
 function initMachineButtons() {
@@ -723,5 +769,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
