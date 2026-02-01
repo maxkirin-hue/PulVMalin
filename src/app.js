@@ -125,48 +125,51 @@ function populateForcedNozzleSelect() {
 
 const vitiModels = {
   "3r_avec": [
-    { name: "Canon G1", role: "moitie" },
-    { name: "Canon G2", role: "moitie" },
-    { name: "Canon D2", role: "moitie" },
-    { name: "Canon D1", role: "moitie" },
-    { name: "Main retour G", role: "complete" },
-    { name: "Main retour D", role: "complete" },
-    { name: "Main G1", role: "moitie" },
-    { name: "Main G2", role: "moitie" },
-    { name: "Main D2", role: "moitie" },
-    { name: "Main D1", role: "moitie" },
+    { name: "Canon G1", role: "moitie", group: 1 },
+    { name: "Canon G2", role: "moitie", group: 1 },
+    { name: "Canon D2", role: "moitie", group: 1 },
+    { name: "Canon D1", role: "moitie", group: 1 },
+    { name: "Main retour G", role: "complete", group: 2 },
+    { name: "Main retour D", role: "complete", group: 2 },
+    { name: "Main G1", role: "moitie", group: 1 },
+    { name: "Main G2", role: "moitie", group: 1 },
+    { name: "Main D2", role: "moitie", group: 1 },
+    { name: "Main D1", role: "moitie", group: 1 },
   ],
+
   "4r_avec": [
-    { name: "Canon G1", role: "complete" },
-    { name: "Canon G2", role: "complete" },
-    { name: "Main retour G", role: "complete" },
-    { name: "Main G1", role: "moitie" },
-    { name: "Main G2", role: "moitie" },
-    { name: "Canon D1", role: "complete" },
-    { name: "Canon D2", role: "complete" },
-    { name: "Main retour D", role: "complete" },
-    { name: "Main D1", role: "moitie" },
-    { name: "Main D2", role: "moitie" },
+    { name: "Canon G1", role: "complete", group: 1 },
+    { name: "Canon G2", role: "complete", group: 1 },
+    { name: "Main retour G", role: "complete", group: 1 },
+    { name: "Main G1", role: "moitie", group: 2 },
+    { name: "Main G2", role: "moitie", group: 2 },
+    { name: "Canon D1", role: "complete", group: 1 },
+    { name: "Canon D2", role: "complete", group: 1 },
+    { name: "Main retour D", role: "complete", group: 1 },
+    { name: "Main D1", role: "moitie", group: 2 },
+    { name: "Main D2", role: "moitie", group: 2 },
   ],
+
   "3r_sans": [
-    { name: "Canon G1", role: "moitie" },
-    { name: "Canon G2", role: "moitie" },
-    { name: "Canon D2", role: "moitie" },
-    { name: "Canon D1", role: "moitie" },
-    { name: "Main G1", role: "complete" },
-    { name: "Main G2", role: "complete" },
-    { name: "Main D2", role: "complete" },
-    { name: "Main D1", role: "complete" },
+    { name: "Canon G1", role: "moitie", group: 1 },
+    { name: "Canon G2", role: "moitie", group: 1 },
+    { name: "Canon D2", role: "moitie", group: 1 },
+    { name: "Canon D1", role: "moitie", group: 1 },
+    { name: "Main G1", role: "moitie", group: 1 },
+    { name: "Main G2", role: "moitie", group: 1 },
+    { name: "Main D2", role: "moitie", group: 1 },
+    { name: "Main D1", role: "moitie", group: 1 },
   ],
+
   "4r_sans": [
-    { name: "Canon G1", role: "complete" },
-    { name: "Canon G2", role: "complete" },
-    { name: "Main G1", role: "complete" },
-    { name: "Main G2", role: "complete" },
-    { name: "Canon D1", role: "complete" },
-    { name: "Canon D2", role: "complete" },
-    { name: "Main D1", role: "complete" },
-    { name: "Main D2", role: "complete" },
+    { name: "Canon G1", role: "complete", group: 1 },
+    { name: "Canon G2", role: "complete", group: 1 },
+    { name: "Main G1", role: "complete", group: 1 },
+    { name: "Main G2", role: "complete", group: 1 },
+    { name: "Canon D1", role: "complete", group: 1 },
+    { name: "Canon D2", role: "complete", group: 1 },
+    { name: "Main D1", role: "complete", group: 1 },
+    { name: "Main D2", role: "complete", group: 1 },
   ],
 };
 
@@ -299,19 +302,36 @@ function validatePage2() {
 function validatePage3() {
   state.forced = $("#forcedToggle").checked;
 
-  if (state.forced) {
-    state.forcedNozzleValue = $("#forcedNozzleSelect").value;
-    if (!state.forcedNozzleValue) {
-      alert("En mode pastille forcée, choisis la pastille montée.");
-      return false;
-    }
-  } else {
-    state.forcedNozzleValue = "";
+if (state.forced) {
+
+  // Récupération des valeurs forcées
+  state.forcedNozzleValueGroup1 = $("#forcedNozzle1").value;
+  state.forcedNozzleValueGroup2 = $("#forcedNozzle2").value;
+
+  // Groupe 1 obligatoire
+  if (!state.forcedNozzleValueGroup1) {
+    alert("Choisis la pastille forcée du groupe 1.");
+    return false;
   }
 
-  return true;
+  // Certains modèles nécessitent 2 groupes
+  const needsTwo =
+    state.modelKey === "3r_avec" ||
+    state.modelKey === "4r_avec";
+
+  if (needsTwo && !state.forcedNozzleValueGroup2) {
+    alert("Choisis la pastille forcée du groupe 2.");
+    return false;
+  }
+
+} else {
+  // Si pas forcé, on vide les valeurs
+  state.forcedNozzleValueGroup1 = "";
+  state.forcedNozzleValueGroup2 = "";
+}
+
+return true;
 }/* ---------- CHOIX DE PASTILLE POUR PRESSION UNIQUE ---------- */
-/* Choisit la pastille qui donne une pression la plus proche de la pression cible */
 function chooseVariantForPressureTarget(family, qTarget, pressureTarget) {
   const variants = listNozzleVariants(family);
 
@@ -322,7 +342,6 @@ function chooseVariantForPressureTarget(family, qTarget, pressureTarget) {
     const p = pressureForFlow(qTarget, v.qRef, family.refPressure);
     const score = Math.abs(p - pressureTarget);
 
-    // On ne garde que les pastilles dans la plage limite
     if (p >= family.limitRange[0] && p <= family.limitRange[1]) {
       if (score < bestScore) {
         bestScore = score;
@@ -331,7 +350,7 @@ function chooseVariantForPressureTarget(family, qTarget, pressureTarget) {
     }
   });
 
-  return best || null;
+  return best || variants[0];
 }
 
 /* ---------- CALCUL PRINCIPAL AVEC PRESSION UNIQUE ---------- */
@@ -339,42 +358,34 @@ function chooseVariantForPressureTarget(family, qTarget, pressureTarget) {
 function computeAll() {
   const fam = nozzleFamilies[state.familyKey];
   const { names, coefs, modelLabel } = getOutputsAndCoefs();
+  const model = vitiModels[state.modelKey];
 
-  /* Débit par rang */
   const qParRang = (state.dose * state.largeur * state.vitesse) / 600;
 
-  /* Nombre de rangs traités */
   let rangs = 1;
   if (state.machineType === "viti") {
     if (state.modelKey.includes("3r")) rangs = 3;
     if (state.modelKey.includes("4r")) rangs = 4;
   }
-if (state.machineType === "arbo") {
-  rangs = 2;
-}
-  /* Débit total machine */
+  if (state.machineType === "arbo") rangs = 2;
+
   const qTotal = qParRang * rangs;
   state.qTotal = qTotal;
 
   const sumCoef = coefs.reduce((a, b) => a + b, 0);
 
-  /* 1) Première passe : calcul des pressions individuelles */
   const firstPass = [];
 
   names.forEach((name, idx) => {
     const coef = coefs[idx];
     const qTarget = qTotal * (coef / sumCoef);
 
-    const variant = state.forced
-      ? getVariantByValue(fam, state.forcedNozzleValue)
-      : chooseBestVariantForTargetFlow(fam, qTarget);
-
+    const variant = chooseBestVariantForTargetFlow(fam, qTarget);
     const p = pressureForFlow(qTarget, variant.qRef, fam.refPressure);
 
     firstPass.push({ name, coef, qTarget, variant, pressure: p });
   });
 
-  /* 2) Détermination de la pression unique recommandée */
   const pressures = firstPass.map(r => r.pressure).sort((a, b) => a - b);
   const mid = Math.floor(pressures.length / 2);
   const pressureTarget =
@@ -384,15 +395,24 @@ if (state.machineType === "arbo") {
 
   state.recommendedPressure = pressureTarget;
 
-  /* 3) Deuxième passe : recalcul des pastilles pour respecter la pression unique */
   const results = [];
 
   firstPass.forEach((r, idx) => {
     const qTarget = r.qTarget;
+    const group = model[idx].group;
 
-    const variant = state.forced
-      ? r.variant
-      : chooseVariantForPressureTarget(fam, qTarget, pressureTarget);
+    let variant;
+
+    if (state.forced) {
+      const forcedValue =
+        group === 1
+          ? state.forcedNozzleValueGroup1
+          : state.forcedNozzleValueGroup2;
+
+      variant = getVariantByValue(fam, forcedValue);
+    } else {
+      variant = chooseVariantForPressureTarget(fam, qTarget, pressureTarget);
+    }
 
     const p = pressureForFlow(qTarget, variant.qRef, fam.refPressure);
     const status = pressureStatus(p, fam);
@@ -411,6 +431,8 @@ if (state.machineType === "arbo") {
 
   renderSummary(modelLabel);
   renderTables();
+}
+
 }
 /* ---------- RECALCUL POUR NOUVEL INTERLIGNE ---------- */
 
@@ -630,6 +652,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
