@@ -511,4 +511,62 @@ function initNav() {
   document.querySelectorAll("button[data-back]").forEach(btn => {
     btn.addEventListener("click", () => {
       const target = Number(btn.dataset.back);
-      show
+      showPage(target);
+    });
+  });
+
+  $("#toPage3").addEventListener("click", () => {
+    if (!validatePage2()) return;
+    showPage(3);
+  });
+
+  $("#toPage4").addEventListener("click", () => {
+    if (!validatePage3()) return;
+    computeAll();
+    showPage(4);
+  });
+
+  $("#modifyBtn").addEventListener("click", () => {
+    showPage(2);
+  });
+
+  $("#restartBtn").addEventListener("click", () => {
+    Object.assign(state, {
+      machineType: null,
+      machineName: "",
+      familyKey: null,
+      modelKey: null,
+      dose: null,
+      largeur: null,
+      vitesse: null,
+      arboCount: null,
+      rampeCount: null,
+      forced: false,
+      forcedNozzleValue: "",
+      results: [],
+      alternatives: [],
+      qTotal: 0,
+    });
+    showPage(1);
+  });
+
+  $("#pdfBtn").addEventListener("click", downloadPdf);
+}
+
+function initForcedMode() {
+  const toggle = $("#forcedToggle");
+  const selectWrapper = $("#forcedSelectWrapper");
+
+  toggle.addEventListener("change", () => {
+    selectWrapper.style.display = toggle.checked ? "block" : "none";
+  });
+}
+
+// Initialisation au chargement de la page
+document.addEventListener("DOMContentLoaded", () => {
+  initMachineButtons();
+  initNav();
+  initForcedMode();
+  showPage(1);
+});
+
