@@ -153,20 +153,20 @@ const vitiModels = {
     { name: "Canon G2", role: "moitie" },
     { name: "Canon D2", role: "moitie" },
     { name: "Canon D1", role: "moitie" },
-    { name: "Main G1", role: "moitie" },
-    { name: "Main G2", role: "moitie" },
-    { name: "Main D2", role: "moitie" },
-    { name: "Main D1", role: "moitie" },
+    { name: "Main G1", role: "complete" },
+    { name: "Main G2", role: "complete" },
+    { name: "Main D2", role: "complete" },
+    { name: "Main D1", role: "complete" },
   ],
   "4r_sans": [
     { name: "Canon G1", role: "complete" },
     { name: "Canon G2", role: "complete" },
-    { name: "Main G1", role: "moitie" },
-    { name: "Main G2", role: "moitie" },
+    { name: "Main G1", role: "complete" },
+    { name: "Main G2", role: "complete" },
     { name: "Canon D1", role: "complete" },
     { name: "Canon D2", role: "complete" },
-    { name: "Main D1", role: "moitie" },
-    { name: "Main D2", role: "moitie" },
+    { name: "Main D1", role: "complete" },
+    { name: "Main D2", role: "complete" },
   ],
 };
 
@@ -628,4 +628,5 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
