@@ -1,0 +1,27 @@
+<svg width="260" height="70" viewBox="0 0 260 70" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond icône -->
+  <rect x="0" y="10" width="50" height="50" rx="12" fill="url(#grad)" />
+
+  <!-- Dégradé vert -->
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2ecc71"/>
+      <stop offset="100%" stop-color="#27ae60"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icône pulvérisateur -->
+  <g transform="translate(12,20)" fill="white">
+    <path d="M8 3h2v2h2V3h2v2h1c.55 0 1 .45 1 1v2h-1v12c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V8H6V6c0-.55.45-1 1-1h1V3zm1 5v12h4V8H9zm9-3c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z"/>
+  </g>
+
+  <!-- Texte PulvMalin -->
+  <text x="70" y="40" font-family="Arial, sans-serif" font-size="32" font-weight="800">
+    <tspan fill="#2ecc71">Pulv</tspan><tspan fill="#2c3e50">Malin</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="72" y="58" font-family="Arial, sans-serif" font-size="14" fill="#7f8c8d" font-style="italic">
+    by Max Nicolet
+  </text>
+</svg>
