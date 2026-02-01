@@ -471,7 +471,6 @@ const resp = await fetch("/api/pdf", {
   } catch (e) {
     alert("Impossible de contacter le service PDF.");
   }
-}
 
 /* ---------- INIT ---------- */
 function initMachineButtons() {
@@ -525,6 +524,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
