@@ -104,14 +104,11 @@ function populateFamilySelect() {
     populateForcedNozzleSelect();
   });
 
-  populateForcedNozzleSelect();
-}
-
 function populateForcedNozzleSelect() {
   const sel1 = $("#forcedNozzle1");
   const sel2 = $("#forcedNozzle2");
 
-  if (!sel1 || !sel2) return; // sécurité
+  if (!sel1 || !sel2) return;
 
   sel1.innerHTML = "";
   sel2.innerHTML = "";
@@ -143,25 +140,6 @@ function populateForcedNozzleSelect() {
     o2.value = v.value;
     o2.textContent = v.label;
     sel2.appendChild(o2);
-  });
-}
-
-
-  const fam = nozzleFamilies[state.familyKey];
-  if (!fam) return;
-
-  const variants = listNozzleVariants(fam);
-
-  const opt0 = document.createElement("option");
-  opt0.value = "";
-  opt0.textContent = "Choisir…";
-  sel.appendChild(opt0);
-
-  variants.forEach(v => {
-    const o = document.createElement("option");
-    o.value = v.value;
-    o.textContent = v.label;
-    sel.appendChild(o);
   });
 }
 
@@ -688,6 +666,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
