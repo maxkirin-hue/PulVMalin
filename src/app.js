@@ -100,8 +100,44 @@ function populateFamilySelect() {
 }
 
 function populateForcedNozzleSelect() {
-  const sel = $("#forcedNozzleSelect");
-  sel.innerHTML = "";
+  const sel1 = $("#forcedNozzle1");
+  const sel2 = $("#forcedNozzle2");
+
+  if (!sel1 || !sel2) return; // sécurité
+
+  sel1.innerHTML = "";
+  sel2.innerHTML = "";
+
+  const fam = nozzleFamilies[state.familyKey];
+  if (!fam) return;
+
+  const variants = listNozzleVariants(fam);
+
+  // Option vide
+  const opt0a = document.createElement("option");
+  opt0a.value = "";
+  opt0a.textContent = "Choisir…";
+  sel1.appendChild(opt0a);
+
+  const opt0b = document.createElement("option");
+  opt0b.value = "";
+  opt0b.textContent = "Choisir…";
+  sel2.appendChild(opt0b);
+
+  // Remplissage des deux listes
+  variants.forEach(v => {
+    const o1 = document.createElement("option");
+    o1.value = v.value;
+    o1.textContent = v.label;
+    sel1.appendChild(o1);
+
+    const o2 = document.createElement("option");
+    o2.value = v.value;
+    o2.textContent = v.label;
+    sel2.appendChild(o2);
+  });
+}
+
 
   const fam = nozzleFamilies[state.familyKey];
   if (!fam) return;
@@ -650,6 +686,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
