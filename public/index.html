@@ -111,35 +111,45 @@
   </section>
 
   <!-- PAGE 3 : MODE PASTILLE -->
-  <section id="page3" class="page">
-    <h1>3. Mode pastille</h1>
+ <!-- PAGE 3 : MODE PASTILLE -->
+<section id="page3" class="page">
+  <h1>3. Mode pastille</h1>
 
-    <div class="card">
-      <label class="field checkbox">
-        <input id="forcedToggle" type="checkbox" />
-        <span>Je veux valider un réglage existant (pastilles déjà montées)</span>
-      </label>
-      <p class="hint">
-        Sans cocher, PULV MALIN choisit automatiquement la pastille la plus adaptée pour chaque sortie.
-      </p>
+  <div class="card">
 
-      <div id="forcedPanel" style="display:none;">
-  <label>Pastille forcée – Groupe 1</label>
-  <select id="forcedNozzle1"></select>
+    <label class="field checkbox">
+      <input id="forcedToggle" type="checkbox" />
+      <span>Je veux valider un réglage existant (pastilles déjà montées)</span>
+    </label>
 
-  <label>Pastille forcée – Groupe 2</label>
-  <select id="forcedNozzle2"></select>
-</div>
-          En mode forcé, la pastille est imposée pour toutes les sorties. La pression est calculée et signalée si hors plage.
-        </p>
-      </div>
+    <p class="hint">
+      Sans cocher, PULV MALIN choisit automatiquement la pastille la plus adaptée pour chaque sortie.
+    </p>
+
+    <!-- PANEL DES PASTILLES FORCÉES -->
+    <div id="forcedPanel" style="display:none; margin-top:1rem;">
+
+      <label>Pastille forcée – Groupe 1</label>
+      <select id="forcedNozzle1"></select>
+
+      <label>Pastille forcée – Groupe 2</label>
+      <select id="forcedNozzle2"></select>
+
     </div>
 
-    <div class="nav-row">
-      <button class="secondary" data-back="2">Retour</button>
-      <button class="primary" id="toPage4">Calculer</button>
-    </div>
-  </section>
+    <p class="hint">
+      En mode forcé, les pastilles choisies sont imposées pour les groupes correspondants.
+      La pression est calculée et signalée si hors plage.
+    </p>
+
+  </div>
+
+  <div class="nav-row">
+    <button class="secondary" data-back="2">Retour</button>
+    <button class="primary" id="toPage4">Calculer</button>
+  </div>
+</section>
+
 
   <!-- PAGE 4 : RÉSULTATS -->
   <section id="page4" class="page">
@@ -198,6 +208,7 @@
   
 </body>
 </html>
+
 
 
 
