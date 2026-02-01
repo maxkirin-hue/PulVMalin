@@ -365,6 +365,56 @@ function computeAll() {
   renderSummary(modelLabel);
   renderTables();
 }
+function recomputePressureForNewInterligne() {
+  const newL = num($("#newInterligne").value);
+  if (!newL || newL <= 0) {
+    alert("Saisis un interligne valide.");
+    return;
+  }
+
+  // Débit par rang recalculé
+  const qParRang = (state.dose * newL * state.vitesse) / 600;
+
+  // Nombre de rangs
+  let rangs = 1;
+  if (state.machineType === "viti") {
+    if (state.modelKey.includes("3r")) rangs = 3;
+    if (state.modelKey.includes("4r")) rangs = 4;
+  }
+
+  const qTotal = qParRang * rangs;
+
+  const fam = nozzleFamilies[state.familyKey];
+  const { names, coefs } = getOutputsAndCoefs();
+  const sumCoef = coefs.reduce((a, b) => a + b, 0);
+
+  const pressures = [];
+
+  state.results.forEach((r, idx) => {
+    const coef = coefs[idx];
+    const qTarget = qTotal * (coef / sumCoef);
+
+    // On garde la pastille déjà choisie
+    const variant = listNozzleVariants(fam).find(v => v.label === r.nozzleLabel);
+
+    const p = pressureForFlow(qTarget, variant.qRef, fam.refPressure);
+    pressures.push(p);
+
+    // Mise à jour affichage
+    r.qTarget = qTarget;
+    r.pressure = p;
+    r.status = pressureStatus(p, fam);
+  });
+
+  // Pression recommandée = médiane
+  const sorted = pressures.slice().sort((a,b)=>a-b);
+  const mid = Math.floor(sorted.length/2);
+  const recommended = sorted.length % 2 ? sorted[mid] : (sorted[mid-1]+sorted[mid])/2;
+
+  $("#sumPressure").textContent = recommended.toFixed(2) + " bar";
+
+  renderTables();
+}
 
 /* ---------- RENDER ---------- */
 
@@ -530,7 +580,10 @@ function initNav() {
     btn.addEventListener("click", () => {
       const target = Number(btn.dataset.back);
       showPage(target);
+        $("#btnRecalc").addEventListener("click", recomputePressureForNewInterligne);
+
     });
+  
   });
 
   $("#toPage3").addEventListener("click", () => {
@@ -565,4 +618,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initForcedMode();
   showPage(1);
 });
+
 
