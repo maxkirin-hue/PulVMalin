@@ -506,6 +506,8 @@ function initMachineButtons() {
     showPage(2);
   });
 }
+// PARTIE FINALE CORRIGÉE DU FICHIER app.js
+// Remplacez la fin de votre fichier (à partir de la fonction initNav) par ce code
 
 function initNav() {
   document.querySelectorAll("button[data-back]").forEach(btn => {
@@ -526,39 +528,17 @@ function initNav() {
     showPage(4);
   });
 
-  $("#modifyBtn").addEventListener("click", () => {
-    showPage(2);
-  });
-
-  $("#restartBtn").addEventListener("click", () => {
-    Object.assign(state, {
-      machineType: null,
-      machineName: "",
-      familyKey: null,
-      modelKey: null,
-      dose: null,
-      largeur: null,
-      vitesse: null,
-      arboCount: null,
-      rampeCount: null,
-      forced: false,
-      forcedNozzleValue: "",
-      results: [],
-      alternatives: [],
-      qTotal: 0,
-    });
-    showPage(1);
-  });
-
-  $("#pdfBtn").addEventListener("click", downloadPdf);
+  // Bouton PDF - CORRIGÉ : c'est #btnPdf dans le HTML, pas #pdfBtn
+  $("#btnPdf").addEventListener("click", downloadPdf);
 }
 
 function initForcedMode() {
   const toggle = $("#forcedToggle");
-  const selectWrapper = $("#forcedSelectWrapper");
+  // CORRIGÉ : c'est #forcedPanel dans le HTML, pas #forcedSelectWrapper
+  const panel = $("#forcedPanel");
 
   toggle.addEventListener("change", () => {
-    selectWrapper.style.display = toggle.checked ? "block" : "none";
+    panel.style.display = toggle.checked ? "block" : "none";
   });
 }
 
@@ -569,4 +549,3 @@ document.addEventListener("DOMContentLoaded", () => {
   initForcedMode();
   showPage(1);
 });
-
