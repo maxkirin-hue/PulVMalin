@@ -104,6 +104,10 @@ function populateFamilySelect() {
     populateForcedNozzleSelect();
   });
 
+  // ⚠️ ERREUR 1 CORRIGÉE : Appel initial de populateForcedNozzleSelect manquant
+  populateForcedNozzleSelect();
+}
+
 function populateForcedNozzleSelect() {
   const sel1 = $("#forcedNozzle1");
   const sel2 = $("#forcedNozzle2");
@@ -293,19 +297,9 @@ function validatePage2() {
     alert("Choisis une famille de buses.");
     return false;
   }
-  if (!state.familyKey) {
-    alert("Choisis une famille de pastilles.");
-    return false;
-  }
-
-  if (!state.modelKey) {
-    alert("Choisis un modèle de machine.");
-    return false;
-  }
-
-  return true;
-}
-
+  // ⚠️ ERREUR 2 CORRIGÉE : Vérification dupliquée supprimée
+  
+  // ⚠️ ERREUR 3 CORRIGÉE : Ces validations étaient en dehors de la fonction
   if (state.machineType === "arbo") {
     state.arboCount = num($("#arboCount").value);
     if (!state.arboCount || state.arboCount < 2 || state.arboCount % 2 !== 0) {
@@ -333,33 +327,37 @@ function validatePage2() {
   return true;
 }
 
-if (state.forced) {
+// ⚠️ ERREUR 4 CORRIGÉE : Fonction validatePage3 était manquante
+function validatePage3() {
+  state.forced = $("#forcedToggle").checked;
 
-  state.forcedNozzleValueGroup1 = $("#forcedNozzle1").value;
-  state.forcedNozzleValueGroup2 = $("#forcedNozzle2").value;
+  if (state.forced) {
+    state.forcedNozzleValueGroup1 = $("#forcedNozzle1").value;
+    state.forcedNozzleValueGroup2 = $("#forcedNozzle2").value;
 
-  if (!state.forcedNozzleValueGroup1) {
-    alert("Choisis la pastille forcée du groupe 1.");
-    return false;
+    if (!state.forcedNozzleValueGroup1) {
+      alert("Choisis la pastille forcée du groupe 1.");
+      return false;
+    }
+
+    const needsTwo =
+      state.modelKey === "3r_avec" ||
+      state.modelKey === "4r_avec";
+
+    if (needsTwo && !state.forcedNozzleValueGroup2) {
+      alert("Choisis la pastille forcée du groupe 2.");
+      return false;
+    }
+
+  } else {
+    state.forcedNozzleValueGroup1 = "";
+    state.forcedNozzleValueGroup2 = "";
   }
 
-  const needsTwo =
-    state.modelKey === "3r_avec" ||
-    state.modelKey === "4r_avec";
-
-  if (needsTwo && !state.forcedNozzleValueGroup2) {
-    alert("Choisis la pastille forcée du groupe 2.");
-    return false;
-  }
-
-} else {
-  state.forcedNozzleValueGroup1 = "";
-  state.forcedNozzleValueGroup2 = "";
+  return true;
 }
 
-return true;
-
-}/* ---------- CHOIX DE PASTILLE POUR PRESSION UNIQUE ---------- */
+/* ---------- CHOIX DE PASTILLE POUR PRESSION UNIQUE ---------- */
 function chooseVariantForPressureTarget(family, qTarget, pressureTarget) {
   const variants = listNozzleVariants(family);
 
@@ -427,7 +425,8 @@ function computeAll() {
 
   firstPass.forEach((r, idx) => {
     const qTarget = r.qTarget;
-    const group = model[idx].group;
+    // ⚠️ ERREUR 5 CORRIGÉE : Accès à model peut être undefined si machineType !== "viti"
+    const group = model ? model[idx].group : 1;
 
     let variant;
 
@@ -460,6 +459,7 @@ function computeAll() {
   renderSummary(modelLabel);
   renderTables();
 }
+
 /* ---------- RECALCUL POUR NOUVEL INTERLIGNE ---------- */
 
 function recomputePressureForNewInterligne() {
@@ -620,6 +620,7 @@ async function downloadPdf() {
     alert("Impossible de contacter le service PDF.");
   }
 }
+
 /* ---------- INIT BOUTONS MACHINE ---------- */
 
 function initMachineButtons() {
@@ -664,6 +665,7 @@ function initNav() {
 
   $("#forcedToggle").addEventListener("change", () => {
     const forced = $("#forcedToggle").checked;
+    state.forced = forced; // ⚠️ ERREUR 6 CORRIGÉE : Mise à jour de state.forced manquante
     $("#forcedPanel").style.display = forced ? "grid" : "none";
   });
 
@@ -678,12 +680,3 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
-
-
-
-
-
-
-
-
-
