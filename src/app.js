@@ -293,6 +293,18 @@ function validatePage2() {
     alert("Choisis une famille de buses.");
     return false;
   }
+  if (!state.familyKey) {
+    alert("Choisis une famille de pastilles.");
+    return false;
+  }
+
+  if (!state.modelKey) {
+    alert("Choisis un modèle de machine.");
+    return false;
+  }
+
+  return true;
+}
 
   if (state.machineType === "arbo") {
     state.arboCount = num($("#arboCount").value);
@@ -666,6 +678,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
