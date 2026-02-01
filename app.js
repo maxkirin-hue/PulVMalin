@@ -478,6 +478,24 @@ async function downloadPdf() {
 }
 
 /* ---------- INIT ---------- */
+function initMachineButtons() {
+  document.querySelectorAll(".card-btn[data-type]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.machineType = btn.dataset.type;
+      updateMachineBlocks();
+    });
+  });
+
+  $("#toPage2").addEventListener("click", () => {
+    state.machineName = $("#machineName").value.trim();
+    if (!state.machineType) {
+      alert("Choisis un type de machine.");
+      return;
+    }
+    populateFamilySelect();
+    showPage(2);
+  });
+}
 
 function initNav() {
   document.querySelectorAll("button[data-back]").forEach(btn => {
@@ -511,5 +529,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
