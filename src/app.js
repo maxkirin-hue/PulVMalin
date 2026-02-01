@@ -453,15 +453,11 @@ async function downloadPdf() {
         })),
   };
 
-  try {
-    const resp = await fetch("https://pulvmalinpdf-backend.onrender.com/api/pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!resp.ok) {
-      alert("Erreur lors de la génération du PDF.");
-      return;
+const resp = await fetch("/api/pdf", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload),
+});
     }
     const blob = await resp.blob();
     const url = URL.createObjectURL(blob);
@@ -529,6 +525,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
