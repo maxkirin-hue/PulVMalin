@@ -13,11 +13,9 @@ const state = {
   forced: false,
   forcedNozzleValue: "",
   results: [],
-  alternatives: [],
   qTotal: 0,
+  recommendedPressure: 0,
 };
-
-/* ---------- HELPERS ---------- */
 
 const $ = sel => document.querySelector(sel);
 const num = v => Number(v);
@@ -27,15 +25,18 @@ function showPage(n) {
   $(`#page${n}`).classList.add("active");
 }
 
-/* ---------- MACHINE SELECTION ---------- */
-
+function statusClass(s) {
+  const v = (s || "").toLowerCase();
+  if (v.includes("ok")) return "status-ok";
+  if (v.includes("limite")) return "status-limit";
+  if (v.includes("chang")) return "status-bad";
+  return "";
+}
 function updateMachineBlocks() {
   $("#arboBlock").style.display = state.machineType === "arbo" ? "block" : "none";
   $("#vitiBlock").style.display = state.machineType === "viti" ? "block" : "none";
   $("#rampeBlock").style.display = state.machineType === "rampe" ? "block" : "none";
 }
-
-/* ---------- FAMILY / NOZZLES ---------- */
 
 function populateFamilySelect() {
   const sel = $("#familySelect");
@@ -114,8 +115,7 @@ function populateForcedNozzleSelect() {
     sel.appendChild(o);
   });
 }
-
-/* ---------- OUTPUTS & COEFS ---------- */
+/* ---------- SORTIES & COEFS SELON MACHINE ---------- */
 
 function getOutputsAndCoefs() {
   if (state.machineType === "arbo") {
@@ -136,6 +136,7 @@ function getOutputsAndCoefs() {
     return { names, coefs, modelLabel: "Rampe désherbage — 1 rang (répartition uniforme)" };
   }
 
+  // Viti
   const modelKey = state.modelKey;
   let names, coefs, label;
 
@@ -148,7 +149,9 @@ function getOutputsAndCoefs() {
     label = modelKey === "3r_sans"
       ? "Viti — 3 rangs sans retour"
       : "Viti — 4 rangs sans retour";
-  } else if (modelKey === "3r_avec") {
+  }
+
+  else if (modelKey === "3r_avec") {
     names = [
       "Canon G1","Canon G2","Canon D2","Canon D1",
       "Main retour G","Main retour D",
@@ -156,7 +159,9 @@ function getOutputsAndCoefs() {
     ];
     coefs = [1.10,1.10,1.00,0.90,0.80,0.80,0.90,1.00,1.10,1.10];
     label = "Viti — 3 rangs avec retour";
-  } else if (modelKey === "4r_avec") {
+  }
+
+  else if (modelKey === "4r_avec") {
     names = [
       "Canon G1","Canon G2","Canon D2","Canon D1",
       "Main retour G","Main retour D",
@@ -164,7 +169,9 @@ function getOutputsAndCoefs() {
     ];
     coefs = [1.15,1.15,0.85,0.85,0.85,0.85,0.85,0.85,1.15,1.15];
     label = "Viti — 4 rangs avec retour";
-  } else {
+  }
+
+  else {
     names = [];
     coefs = [];
     label = "—";
@@ -173,7 +180,7 @@ function getOutputsAndCoefs() {
   return { names, coefs, modelLabel: label };
 }
 
-/* ---------- PRESSURE ---------- */
+/* ---------- PRESSION ---------- */
 
 function pressureForFlow(qTarget, qRef, pRef) {
   return pRef * Math.pow(qTarget / qRef, 2);
@@ -184,35 +191,6 @@ function pressureStatus(p, family) {
   if (p < family.limitRange[0] || p > family.limitRange[1]) return "Changer";
   if (p < family.optimalRange[0] || p > family.optimalRange[1]) return "Limite";
   return "OK";
-}
-
-function scorePressure(p, family) {
-  const center = (family.optimalRange[0] + family.optimalRange[1]) / 2;
-  if (p < family.limitRange[0] || p > family.limitRange[1])
-    return { ok: false, score: 1e9, why: "Hors plage" };
-
-  const dist = Math.abs(p - center);
-  const inOptimal = p >= family.optimalRange[0] && p <= family.optimalRange[1];
-  const penalty = inOptimal ? 0 : 50;
-
-  return { ok: true, score: dist + penalty, why: inOptimal ? "Dans l’optimum" : "Dans la limite" };
-}
-
-function chooseBestVariantForTargetFlow(family, qTarget) {
-  const variants = listNozzleVariants(family);
-  let best = null;
-  let bestScore = 1e9;
-
-  variants.forEach(v => {
-    const p = pressureForFlow(qTarget, v.qRef, family.refPressure);
-    const s = scorePressure(p, family);
-    if (s.score < bestScore) {
-      bestScore = s.score;
-      best = v;
-    }
-  });
-
-  return best || variants[0];
 }
 
 /* ---------- VALIDATION ---------- */
@@ -275,38 +253,33 @@ function validatePage3() {
   return true;
 }
 
-/* ---------- CALCUL ---------- */
+/* ---------- CALCUL PRINCIPAL (corrigé) ---------- */
 
 function computeAll() {
   const fam = nozzleFamilies[state.familyKey];
   const { names, coefs, modelLabel } = getOutputsAndCoefs();
 
-  /* --- CALCUL DU DÉBIT PAR RANG --- */
+  /* Débit par rang */
   const qParRang = (state.dose * state.largeur * state.vitesse) / 600;
 
-  /* --- NOMBRE DE RANGS TRAITÉS --- */
+  /* Nombre de rangs traités */
   let rangs = 1;
-
   if (state.machineType === "viti") {
     if (state.modelKey.includes("3r")) rangs = 3;
     if (state.modelKey.includes("4r")) rangs = 4;
   }
 
-  /* --- DÉBIT TOTAL MACHINE --- */
+  /* Débit total machine */
   const qTotal = qParRang * rangs;
   state.qTotal = qTotal;
 
   const forcedVariant = state.forced ? getVariantByValue(fam, state.forcedNozzleValue) : null;
 
   const results = [];
-  const alternatives = [];
-
   const sumCoef = coefs.reduce((a, b) => a + b, 0);
 
   names.forEach((name, idx) => {
     const coef = coefs[idx];
-
-    /* --- DÉBIT CIBLE PAR SORTIE --- */
     const qTarget = qTotal * (coef / sumCoef);
 
     const variant = forcedVariant || chooseBestVariantForTargetFlow(fam, qTarget);
@@ -321,50 +294,21 @@ function computeAll() {
       pressure: p,
       status,
     });
-
-    /* --- ALTERNATIVES --- */
-    if (!state.forced) {
-      const allVariants = listNozzleVariants(fam);
-      const scored = allVariants.map(v => {
-        const pp = pressureForFlow(qTarget, v.qRef, fam.refPressure);
-        const s = scorePressure(pp, fam);
-        return {
-          v,
-          p: pp,
-          status: pressureStatus(pp, fam),
-          score: s.score,
-          why: s.why,
-        };
-      }).sort((a, b) => a.score - b.score);
-
-      const best = scored[0];
-      const alts = scored.slice(1, 3);
-
-      alternatives.push(
-        {
-          outputName: name,
-          nozzleLabel: best.v.label,
-          pressure: best.p,
-          status: best.status,
-          why: "Meilleur compromis (optimum/limites)",
-        },
-        ...alts.map(x => ({
-          outputName: name,
-          nozzleLabel: x.v.label,
-          pressure: x.p,
-          status: x.status,
-          why: x.why === "Dans l’optimum" ? "Alternative dans l’optimum" : "Alternative dans la limite",
-        }))
-      );
-    }
   });
 
   state.results = results;
-  state.alternatives = alternatives;
+
+  /* Pression recommandée = médiane */
+  const pressures = results.map(r => r.pressure).sort((a,b)=>a-b);
+  const mid = Math.floor(pressures.length / 2);
+  state.recommendedPressure =
+    pressures.length % 2 ? pressures[mid] : (pressures[mid - 1] + pressures[mid]) / 2;
 
   renderSummary(modelLabel);
   renderTables();
 }
+/* ---------- RECALCUL PRESSION POUR NOUVEL INTERLIGNE ---------- */
+
 function recomputePressureForNewInterligne() {
   const newL = num($("#newInterligne").value);
   if (!newL || newL <= 0) {
@@ -375,7 +319,7 @@ function recomputePressureForNewInterligne() {
   // Débit par rang recalculé
   const qParRang = (state.dose * newL * state.vitesse) / 600;
 
-  // Nombre de rangs
+  // Nombre de rangs traités
   let rangs = 1;
   if (state.machineType === "viti") {
     if (state.modelKey.includes("3r")) rangs = 3;
@@ -385,7 +329,7 @@ function recomputePressureForNewInterligne() {
   const qTotal = qParRang * rangs;
 
   const fam = nozzleFamilies[state.familyKey];
-  const { names, coefs } = getOutputsAndCoefs();
+  const { coefs } = getOutputsAndCoefs();
   const sumCoef = coefs.reduce((a, b) => a + b, 0);
 
   const pressures = [];
@@ -396,27 +340,31 @@ function recomputePressureForNewInterligne() {
 
     // On garde la pastille déjà choisie
     const variant = listNozzleVariants(fam).find(v => v.label === r.nozzleLabel);
+    if (!variant) return;
 
     const p = pressureForFlow(qTarget, variant.qRef, fam.refPressure);
-    pressures.push(p);
 
-    // Mise à jour affichage
     r.qTarget = qTarget;
     r.pressure = p;
     r.status = pressureStatus(p, fam);
+
+    pressures.push(p);
   });
 
   // Pression recommandée = médiane
-  const sorted = pressures.slice().sort((a,b)=>a-b);
-  const mid = Math.floor(sorted.length/2);
-  const recommended = sorted.length % 2 ? sorted[mid] : (sorted[mid-1]+sorted[mid])/2;
+  const sorted = pressures.slice().sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  const recommended =
+    sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+
+  state.recommendedPressure = recommended;
 
   $("#sumPressure").textContent = recommended.toFixed(2) + " bar";
 
   renderTables();
 }
 
-/* ---------- RENDER ---------- */
+/* ---------- RENDER SUMMARY & TABLES ---------- */
 
 function renderSummary(modelLabel) {
   $("#sumMachine").textContent =
@@ -429,6 +377,8 @@ function renderSummary(modelLabel) {
   $("#sumModel").textContent = modelLabel || "—";
   $("#sumMode").textContent = state.forced ? "Pastilles forcées (validation)" : "Automatique (recommandé)";
   $("#sumQtotal").textContent = state.qTotal.toFixed(2);
+
+  $("#sumPressure").textContent = state.recommendedPressure.toFixed(2) + " bar";
 }
 
 function renderTables() {
@@ -447,39 +397,6 @@ function renderTables() {
     `;
     body.appendChild(tr);
   });
-
-  const altBody = $("#altBody");
-  altBody.innerHTML = "";
-
-  if (state.forced) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="5">Mode pastille forcée : alternatives non proposées.</td>`;
-    altBody.appendChild(tr);
-  } else if (!state.alternatives.length) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="5">Aucune alternative calculée.</td>`;
-    altBody.appendChild(tr);
-  } else {
-    state.alternatives.forEach(a => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${a.outputName}</td>
-        <td>${a.nozzleLabel}</td>
-        <td class="num">${a.pressure.toFixed(2)}</td>
-        <td class="${statusClass(a.status)}">${a.status}</td>
-        <td>${a.why}</td>
-      `;
-      altBody.appendChild(tr);
-    });
-  }
-}
-
-function statusClass(s) {
-  const v = (s || "").toLowerCase();
-  if (v.includes("ok")) return "status-ok";
-  if (v.includes("limite")) return "status-limit";
-  if (v.includes("chang")) return "status-bad";
-  return "";
 }
 
 /* ---------- PDF ---------- */
@@ -504,6 +421,7 @@ async function downloadPdf() {
       modelLabel: modelLabel || "—",
       modeLabel: state.forced ? "Pastilles forcées (validation)" : "Automatique (recommandé)",
       qTotal: state.qTotal.toFixed(2),
+      recommendedPressure: state.recommendedPressure.toFixed(2),
       generatedAt: new Date().toLocaleString("fr-FR"),
     },
     rows: state.results.map(r => ({
@@ -514,15 +432,6 @@ async function downloadPdf() {
       pressure: r.pressure.toFixed(2),
       status: r.status,
     })),
-    alternatives: state.forced
-      ? []
-      : state.alternatives.map(a => ({
-          outputName: a.outputName,
-          nozzleLabel: a.nozzleLabel,
-          pressure: a.pressure.toFixed(2),
-          status: a.status,
-          why: a.why,
-        })),
   };
 
   try {
@@ -572,18 +481,13 @@ function initMachineButtons() {
     showPage(2);
   });
 }
-// PARTIE FINALE CORRIGÉE DU FICHIER app.js
-// Remplacez la fin de votre fichier (à partir de la fonction initNav) par ce code
 
 function initNav() {
   document.querySelectorAll("button[data-back]").forEach(btn => {
     btn.addEventListener("click", () => {
       const target = Number(btn.dataset.back);
       showPage(target);
-        $("#btnRecalc").addEventListener("click", recomputePressureForNewInterligne);
-
     });
-  
   });
 
   $("#toPage3").addEventListener("click", () => {
@@ -597,26 +501,19 @@ function initNav() {
     showPage(4);
   });
 
-  // Bouton PDF - CORRIGÉ : c'est #btnPdf dans le HTML, pas #pdfBtn
+  $("#forcedToggle").addEventListener("change", () => {
+    const forced = $("#forcedToggle").checked;
+    $("#forcedPanel").style.display = forced ? "grid" : "none";
+  });
+
+  $("#btnRecalc").addEventListener("click", recomputePressureForNewInterligne);
   $("#btnPdf").addEventListener("click", downloadPdf);
 }
 
-function initForcedMode() {
-  const toggle = $("#forcedToggle");
-  // CORRIGÉ : c'est #forcedPanel dans le HTML, pas #forcedSelectWrapper
-  const panel = $("#forcedPanel");
+/* ---------- DOM READY ---------- */
 
-  toggle.addEventListener("change", () => {
-    panel.style.display = toggle.checked ? "block" : "none";
-  });
-}
-
-// Initialisation au chargement de la page
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", () => {
   initMachineButtons();
   initNav();
-  initForcedMode();
   showPage(1);
 });
-
-
