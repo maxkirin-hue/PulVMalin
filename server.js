@@ -1,6 +1,14 @@
 import express from "express";
 import puppeteer from "puppeteer";
-import { buildPdfHtml } from "./src/pdfTemplate.js"; // si tu l’as
+const buildPdfHtml = (data) => `
+  <html>
+    <body>
+      <h1>PULV MALIN – Résultats</h1>
+      <pre>${JSON.stringify(data, null, 2)}</pre>
+    </body>
+  </html>
+`;
+
 
 const app = express();
 app.use(express.json({ limit: "5mb" }));
