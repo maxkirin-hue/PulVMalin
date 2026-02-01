@@ -89,6 +89,7 @@ export const nozzleFamilies = {
     limitRange: [2, 50],
     nozzles: [
       { code: "AMT-007", faces: [{ side: "plate", label: "plate", qRef: 0.91 }, { side: "creuse", label: "creuse", qRef: 0.65 }] },
+      { code: "AMT-008", faces: [{ side: "plate", label: "plate", qRef: 1.39 }, { side: "creuse", label: "creuse", qRef: 1.16 }] },
       { code: "AMT-010", faces: [{ side: "plate", label: "plate", qRef: 1.89 }, { side: "creuse", label: "creuse", qRef: 1.42 }] },
       { code: "AMT-012", faces: [{ side: "plate", label: "plate", qRef: 2.51 }, { side: "creuse", label: "creuse", qRef: 2.07 }] },
       { code: "AMT-015", faces: [{ side: "plate", label: "plate", qRef: 3.99 }, { side: "creuse", label: "creuse", qRef: 3.15 }] },
