@@ -310,45 +310,94 @@ function validatePage3() {
   }
 
   return true;
+}/* ---------- CHOIX DE PASTILLE POUR PRESSION UNIQUE ---------- */
+/* Choisit la pastille qui donne une pression la plus proche de la pression cible */
+function chooseVariantForPressureTarget(family, qTarget, pressureTarget) {
+  const variants = listNozzleVariants(family);
+
+  let best = null;
+  let bestScore = Infinity;
+
+  variants.forEach(v => {
+    const p = pressureForFlow(qTarget, v.qRef, family.refPressure);
+    const score = Math.abs(p - pressureTarget);
+
+    // On ne garde que les pastilles dans la plage limite
+    if (p >= family.limitRange[0] && p <= family.limitRange[1]) {
+      if (score < bestScore) {
+        bestScore = score;
+        best = v;
+      }
+    }
+  });
+
+  return best || null;
 }
-/* ---------- CALCUL PRINCIPAL ---------- */
+
+/* ---------- CALCUL PRINCIPAL AVEC PRESSION UNIQUE ---------- */
 
 function computeAll() {
   const fam = nozzleFamilies[state.familyKey];
   const { names, coefs, modelLabel } = getOutputsAndCoefs();
 
-  // Débit par rang
+  /* Débit par rang */
   const qParRang = (state.dose * state.largeur * state.vitesse) / 600;
 
-  // Nombre de rangs traités
+  /* Nombre de rangs traités */
   let rangs = 1;
   if (state.machineType === "viti") {
     if (state.modelKey.includes("3r")) rangs = 3;
     if (state.modelKey.includes("4r")) rangs = 4;
   }
 
-  // Débit total machine
+  /* Débit total machine */
   const qTotal = qParRang * rangs;
   state.qTotal = qTotal;
 
-  const forcedVariant = state.forced
-    ? getVariantByValue(fam, state.forcedNozzleValue)
-    : null;
-
-  const results = [];
   const sumCoef = coefs.reduce((a, b) => a + b, 0);
+
+  /* 1) Première passe : calcul des pressions individuelles */
+  const firstPass = [];
 
   names.forEach((name, idx) => {
     const coef = coefs[idx];
     const qTarget = qTotal * (coef / sumCoef);
 
-    const variant = forcedVariant || chooseBestVariantForTargetFlow(fam, qTarget);
+    const variant = state.forced
+      ? getVariantByValue(fam, state.forcedNozzleValue)
+      : chooseBestVariantForTargetFlow(fam, qTarget);
+
+    const p = pressureForFlow(qTarget, variant.qRef, fam.refPressure);
+
+    firstPass.push({ name, coef, qTarget, variant, pressure: p });
+  });
+
+  /* 2) Détermination de la pression unique recommandée */
+  const pressures = firstPass.map(r => r.pressure).sort((a, b) => a - b);
+  const mid = Math.floor(pressures.length / 2);
+  const pressureTarget =
+    pressures.length % 2
+      ? pressures[mid]
+      : (pressures[mid - 1] + pressures[mid]) / 2;
+
+  state.recommendedPressure = pressureTarget;
+
+  /* 3) Deuxième passe : recalcul des pastilles pour respecter la pression unique */
+  const results = [];
+
+  firstPass.forEach((r, idx) => {
+    const qTarget = r.qTarget;
+
+    const variant = state.forced
+      ? r.variant
+      : chooseVariantForPressureTarget(fam, qTarget, pressureTarget);
+
     const p = pressureForFlow(qTarget, variant.qRef, fam.refPressure);
     const status = pressureStatus(p, fam);
 
     results.push({
-      outputName: name,
-      coef,
+      outputName: r.name,
+      coef: r.coef,
       qTarget,
       nozzleLabel: variant.label,
       pressure: p,
@@ -358,18 +407,9 @@ function computeAll() {
 
   state.results = results;
 
-  // Pression recommandée = médiane
-  const pressures = results.map(r => r.pressure).sort((a, b) => a - b);
-  const mid = Math.floor(pressures.length / 2);
-  state.recommendedPressure =
-    pressures.length % 2
-      ? pressures[mid]
-      : (pressures[mid - 1] + pressures[mid]) / 2;
-
   renderSummary(modelLabel);
   renderTables();
 }
-
 /* ---------- RECALCUL POUR NOUVEL INTERLIGNE ---------- */
 
 function recomputePressureForNewInterligne() {
@@ -588,3 +628,4 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
