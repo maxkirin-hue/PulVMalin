@@ -11,11 +11,19 @@ const state = {
   arboCount: null,
   rampeCount: null,
   forced: false,
+
+  // ANCIENNE VARIABLE (à garder pour compatibilité si tu veux)
   forcedNozzleValue: "",
+
+  // 👉 NOUVELLES VARIABLES (à mettre ici, PAS ailleurs)
+  forcedNozzleValueGroup1: "",
+  forcedNozzleValueGroup2: "",
+
   results: [],
   qTotal: 0,
   recommendedPressure: 0,
 };
+
 
 const $ = sel => document.querySelector(sel);
 const num = v => Number(v);
@@ -335,22 +343,16 @@ function validatePage2() {
   return true;
 }
 
-function validatePage3() {
-  state.forced = $("#forcedToggle").checked;
-
 if (state.forced) {
 
-  // Récupération des valeurs forcées
   state.forcedNozzleValueGroup1 = $("#forcedNozzle1").value;
   state.forcedNozzleValueGroup2 = $("#forcedNozzle2").value;
 
-  // Groupe 1 obligatoire
   if (!state.forcedNozzleValueGroup1) {
     alert("Choisis la pastille forcée du groupe 1.");
     return false;
   }
 
-  // Certains modèles nécessitent 2 groupes
   const needsTwo =
     state.modelKey === "3r_avec" ||
     state.modelKey === "4r_avec";
@@ -361,12 +363,12 @@ if (state.forced) {
   }
 
 } else {
-  // Si pas forcé, on vide les valeurs
   state.forcedNozzleValueGroup1 = "";
   state.forcedNozzleValueGroup2 = "";
 }
 
 return true;
+
 }/* ---------- CHOIX DE PASTILLE POUR PRESSION UNIQUE ---------- */
 function chooseVariantForPressureTarget(family, qTarget, pressureTarget) {
   const variants = listNozzleVariants(family);
@@ -686,6 +688,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
