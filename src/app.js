@@ -281,8 +281,19 @@ function computeAll() {
   const fam = nozzleFamilies[state.familyKey];
   const { names, coefs, modelLabel } = getOutputsAndCoefs();
 
-  const sumCoef = coefs.reduce((a, b) => a + b, 0);
-  const qTotal = (state.dose * state.largeur * state.vitesse) / 600;
+  /* --- CALCUL DU DÉBIT PAR RANG --- */
+  const qParRang = (state.dose * state.largeur * state.vitesse) / 600;
+
+  /* --- NOMBRE DE RANGS TRAITÉS --- */
+  let rangs = 1;
+
+  if (state.machineType === "viti") {
+    if (state.modelKey.includes("3r")) rangs = 3;
+    if (state.modelKey.includes("4r")) rangs = 4;
+  }
+
+  /* --- DÉBIT TOTAL MACHINE --- */
+  const qTotal = qParRang * rangs;
   state.qTotal = qTotal;
 
   const forcedVariant = state.forced ? getVariantByValue(fam, state.forcedNozzleValue) : null;
@@ -290,8 +301,12 @@ function computeAll() {
   const results = [];
   const alternatives = [];
 
+  const sumCoef = coefs.reduce((a, b) => a + b, 0);
+
   names.forEach((name, idx) => {
     const coef = coefs[idx];
+
+    /* --- DÉBIT CIBLE PAR SORTIE --- */
     const qTarget = qTotal * (coef / sumCoef);
 
     const variant = forcedVariant || chooseBestVariantForTargetFlow(fam, qTarget);
@@ -307,6 +322,7 @@ function computeAll() {
       status,
     });
 
+    /* --- ALTERNATIVES --- */
     if (!state.forced) {
       const allVariants = listNozzleVariants(fam);
       const scored = allVariants.map(v => {
@@ -549,3 +565,4 @@ document.addEventListener("DOMContentLoaded", () => {
   initForcedMode();
   showPage(1);
 });
+
