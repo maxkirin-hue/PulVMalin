@@ -32,36 +32,16 @@ function statusClass(s) {
   if (v.includes("chang")) return "status-bad";
   return "";
 }
+
+/* ---------- BLOCS MACHINE ---------- */
+
 function updateMachineBlocks() {
   $("#arboBlock").style.display = state.machineType === "arbo" ? "block" : "none";
   $("#vitiBlock").style.display = state.machineType === "viti" ? "block" : "none";
   $("#rampeBlock").style.display = state.machineType === "rampe" ? "block" : "none";
 }
 
-function populateFamilySelect() {
-  const sel = $("#familySelect");
-  sel.innerHTML = "";
-
-  const entries = Object.entries(nozzleFamilies).filter(([k, f]) =>
-    !f.machines || f.machines.includes(state.machineType)
-  );
-
-  entries.forEach(([key, fam]) => {
-    const opt = document.createElement("option");
-    opt.value = key;
-    opt.textContent = fam.label;
-    sel.appendChild(opt);
-  });
-
-  if (entries.length) state.familyKey = entries[0][0];
-
-  sel.addEventListener("change", () => {
-    state.familyKey = sel.value;
-    populateForcedNozzleSelect();
-  });
-
-  populateForcedNozzleSelect();
-}
+/* ---------- FAMILLES & PASTILLES ---------- */
 
 function listNozzleVariants(family) {
   const variants = [];
@@ -94,6 +74,31 @@ function getVariantByValue(family, value) {
   return listNozzleVariants(family).find(v => v.value === value) || null;
 }
 
+function populateFamilySelect() {
+  const sel = $("#familySelect");
+  sel.innerHTML = "";
+
+  const entries = Object.entries(nozzleFamilies).filter(([k, f]) =>
+    !f.machines || f.machines.includes(state.machineType)
+  );
+
+  entries.forEach(([key, fam]) => {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = fam.label;
+    sel.appendChild(opt);
+  });
+
+  if (entries.length) state.familyKey = entries[0][0];
+
+  sel.addEventListener("change", () => {
+    state.familyKey = sel.value;
+    populateForcedNozzleSelect();
+  });
+
+  populateForcedNozzleSelect();
+}
+
 function populateForcedNozzleSelect() {
   const sel = $("#forcedNozzleSelect");
   sel.innerHTML = "";
@@ -115,7 +120,9 @@ function populateForcedNozzleSelect() {
     sel.appendChild(o);
   });
 }
-/* ---------- SORTIES & COEFS SELON MACHINE ---------- */
+
+/* ---------- MODÈLES VITI (complète / moitié) ---------- */
+
 const vitiModels = {
   "3r_avec": [
     { name: "Canon G1", role: "moitie" },
@@ -162,13 +169,16 @@ const vitiModels = {
     { name: "Main D2", role: "moitie" },
   ],
 };
+
+/* ---------- SORTIES & COEFS SELON MACHINE ---------- */
+
 function getOutputsAndCoefs() {
   if (state.machineType === "viti") {
     const model = vitiModels[state.modelKey];
     if (!model) return { names: [], coefs: [], modelLabel: "—" };
 
     const names = model.map(o => o.name);
-    const coefs = model.map(o => o.role === "complete" ? 1 : 0.5);
+    const coefs = model.map(o => (o.role === "complete" ? 1 : 0.5));
 
     const label =
       state.modelKey === "3r_avec" ? "Viti — 3 rangs avec retour" :
@@ -179,7 +189,6 @@ function getOutputsAndCoefs() {
     return { names, coefs, modelLabel: label };
   }
 
-  // Arbo
   if (state.machineType === "arbo") {
     const total = state.arboCount;
     const half = total / 2;
@@ -190,7 +199,6 @@ function getOutputsAndCoefs() {
     return { names, coefs, modelLabel: "Arbo — 2 rangs (répartition uniforme)" };
   }
 
-  // Rampe
   if (state.machineType === "rampe") {
     const n = state.rampeCount;
     const names = [];
@@ -202,59 +210,7 @@ function getOutputsAndCoefs() {
   return { names: [], coefs: [], modelLabel: "—" };
 }
 
-  if (state.machineType === "rampe") {
-    const n = state.rampeCount;
-    const names = [];
-    for (let i = 1; i <= n; i++) names.push(`Buse ${i}`);
-    const coefs = Array(n).fill(1);
-    return { names, coefs, modelLabel: "Rampe désherbage — 1 rang (répartition uniforme)" };
-  }
-
-  // Viti
-  const modelKey = state.modelKey;
-  let names, coefs, label;
-
-  if (modelKey === "3r_sans" || modelKey === "4r_sans") {
-    names = [
-      "Canon G1","Canon G2","Canon D2","Canon D1",
-      "Main G1","Main G2","Main D2","Main D1"
-    ];
-    coefs = Array(8).fill(1);
-    label = modelKey === "3r_sans"
-      ? "Viti — 3 rangs sans retour"
-      : "Viti — 4 rangs sans retour";
-  }
-
-  else if (modelKey === "3r_avec") {
-    names = [
-      "Canon G1","Canon G2","Canon D2","Canon D1",
-      "Main retour G","Main retour D",
-      "Main G1","Main G2","Main D2","Main D1"
-    ];
-    coefs = [1.10,1.10,1.00,0.90,0.80,0.80,0.90,1.00,1.10,1.10];
-    label = "Viti — 3 rangs avec retour";
-  }
-
-  else if (modelKey === "4r_avec") {
-    names = [
-      "Canon G1","Canon G2","Canon D2","Canon D1",
-      "Main retour G","Main retour D",
-      "Main G1","Main G2","Main D2","Main D1"
-    ];
-    coefs = [1.15,1.15,0.85,0.85,0.85,0.85,0.85,0.85,1.15,1.15];
-    label = "Viti — 4 rangs avec retour";
-  }
-
-  else {
-    names = [];
-    coefs = [];
-    label = "—";
-  }
-
-  return { names, coefs, modelLabel: label };
-}
-
-/* ---------- PRESSION ---------- */
+/* ---------- PRESSION & CHOIX DE PASTILLE ---------- */
 
 function pressureForFlow(qTarget, qRef, pRef) {
   return pRef * Math.pow(qTarget / qRef, 2);
@@ -265,6 +221,35 @@ function pressureStatus(p, family) {
   if (p < family.limitRange[0] || p > family.limitRange[1]) return "Changer";
   if (p < family.optimalRange[0] || p > family.optimalRange[1]) return "Limite";
   return "OK";
+}
+
+function chooseBestVariantForTargetFlow(family, qTarget) {
+  const variants = listNozzleVariants(family);
+  let best = null;
+  let bestScore = 1e9;
+
+  variants.forEach(v => {
+    const p = pressureForFlow(qTarget, v.qRef, family.refPressure);
+
+    const center = (family.optimalRange[0] + family.optimalRange[1]) / 2;
+    let score;
+
+    if (p < family.limitRange[0] || p > family.limitRange[1]) {
+      score = 1e9;
+    } else {
+      const dist = Math.abs(p - center);
+      const penalty =
+        p >= family.optimalRange[0] && p <= family.optimalRange[1] ? 0 : 50;
+      score = dist + penalty;
+    }
+
+    if (score < bestScore) {
+      bestScore = score;
+      best = v;
+    }
+  });
+
+  return best || variants[0];
 }
 
 /* ---------- VALIDATION ---------- */
@@ -326,28 +311,29 @@ function validatePage3() {
 
   return true;
 }
-
-/* ---------- CALCUL PRINCIPAL (corrigé) ---------- */
+/* ---------- CALCUL PRINCIPAL ---------- */
 
 function computeAll() {
   const fam = nozzleFamilies[state.familyKey];
   const { names, coefs, modelLabel } = getOutputsAndCoefs();
 
-  /* Débit par rang */
+  // Débit par rang
   const qParRang = (state.dose * state.largeur * state.vitesse) / 600;
 
-  /* Nombre de rangs traités */
+  // Nombre de rangs traités
   let rangs = 1;
   if (state.machineType === "viti") {
     if (state.modelKey.includes("3r")) rangs = 3;
     if (state.modelKey.includes("4r")) rangs = 4;
   }
 
-  /* Débit total machine */
+  // Débit total machine
   const qTotal = qParRang * rangs;
   state.qTotal = qTotal;
 
-  const forcedVariant = state.forced ? getVariantByValue(fam, state.forcedNozzleValue) : null;
+  const forcedVariant = state.forced
+    ? getVariantByValue(fam, state.forcedNozzleValue)
+    : null;
 
   const results = [];
   const sumCoef = coefs.reduce((a, b) => a + b, 0);
@@ -372,16 +358,19 @@ function computeAll() {
 
   state.results = results;
 
-  /* Pression recommandée = médiane */
-  const pressures = results.map(r => r.pressure).sort((a,b)=>a-b);
+  // Pression recommandée = médiane
+  const pressures = results.map(r => r.pressure).sort((a, b) => a - b);
   const mid = Math.floor(pressures.length / 2);
   state.recommendedPressure =
-    pressures.length % 2 ? pressures[mid] : (pressures[mid - 1] + pressures[mid]) / 2;
+    pressures.length % 2
+      ? pressures[mid]
+      : (pressures[mid - 1] + pressures[mid]) / 2;
 
   renderSummary(modelLabel);
   renderTables();
 }
-/* ---------- RECALCUL PRESSION POUR NOUVEL INTERLIGNE ---------- */
+
+/* ---------- RECALCUL POUR NOUVEL INTERLIGNE ---------- */
 
 function recomputePressureForNewInterligne() {
   const newL = num($("#newInterligne").value);
@@ -390,10 +379,8 @@ function recomputePressureForNewInterligne() {
     return;
   }
 
-  // Débit par rang recalculé
   const qParRang = (state.dose * newL * state.vitesse) / 600;
 
-  // Nombre de rangs traités
   let rangs = 1;
   if (state.machineType === "viti") {
     if (state.modelKey.includes("3r")) rangs = 3;
@@ -412,7 +399,6 @@ function recomputePressureForNewInterligne() {
     const coef = coefs[idx];
     const qTarget = qTotal * (coef / sumCoef);
 
-    // On garde la pastille déjà choisie
     const variant = listNozzleVariants(fam).find(v => v.label === r.nozzleLabel);
     if (!variant) return;
 
@@ -425,14 +411,14 @@ function recomputePressureForNewInterligne() {
     pressures.push(p);
   });
 
-  // Pression recommandée = médiane
   const sorted = pressures.slice().sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   const recommended =
-    sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    sorted.length % 2
+      ? sorted[mid]
+      : (sorted[mid - 1] + sorted[mid]) / 2;
 
   state.recommendedPressure = recommended;
-
   $("#sumPressure").textContent = recommended.toFixed(2) + " bar";
 
   renderTables();
@@ -442,16 +428,21 @@ function recomputePressureForNewInterligne() {
 
 function renderSummary(modelLabel) {
   $("#sumMachine").textContent =
-    state.machineType === "arbo" ? "Arbo (2 rangs)" :
-    state.machineType === "viti" ? "Viti" :
-    state.machineType === "rampe" ? "Rampe désherbage" : "—";
+    state.machineType === "arbo"
+      ? "Arbo (2 rangs)"
+      : state.machineType === "viti"
+      ? "Viti"
+      : state.machineType === "rampe"
+      ? "Rampe désherbage"
+      : "—";
 
   $("#sumName").textContent = state.machineName || "—";
   $("#sumFamily").textContent = nozzleFamilies[state.familyKey]?.label || "—";
   $("#sumModel").textContent = modelLabel || "—";
-  $("#sumMode").textContent = state.forced ? "Pastilles forcées (validation)" : "Automatique (recommandé)";
+  $("#sumMode").textContent = state.forced
+    ? "Pastilles forcées (validation)"
+    : "Automatique (recommandé)";
   $("#sumQtotal").textContent = state.qTotal.toFixed(2);
-
   $("#sumPressure").textContent = state.recommendedPressure.toFixed(2) + " bar";
 }
 
@@ -487,13 +478,19 @@ async function downloadPdf() {
   const payload = {
     meta: {
       machineLabel:
-        state.machineType === "arbo" ? "Arbo (2 rangs)" :
-        state.machineType === "viti" ? "Viti" :
-        state.machineType === "rampe" ? "Rampe désherbage" : "—",
+        state.machineType === "arbo"
+          ? "Arbo (2 rangs)"
+          : state.machineType === "viti"
+          ? "Viti"
+          : state.machineType === "rampe"
+          ? "Rampe désherbage"
+          : "—",
       machineName: state.machineName || "—",
       familyLabel: fam?.label || "—",
       modelLabel: modelLabel || "—",
-      modeLabel: state.forced ? "Pastilles forcées (validation)" : "Automatique (recommandé)",
+      modeLabel: state.forced
+        ? "Pastilles forcées (validation)"
+        : "Automatique (recommandé)",
       qTotal: state.qTotal.toFixed(2),
       recommendedPressure: state.recommendedPressure.toFixed(2),
       generatedAt: new Date().toLocaleString("fr-FR"),
@@ -529,13 +526,11 @@ async function downloadPdf() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-
   } catch (e) {
     alert("Impossible de contacter le service PDF.");
   }
 }
-
-/* ---------- INIT ---------- */
+/* ---------- INIT BOUTONS MACHINE ---------- */
 
 function initMachineButtons() {
   document.querySelectorAll(".card-btn[data-type]").forEach(btn => {
@@ -555,6 +550,8 @@ function initMachineButtons() {
     showPage(2);
   });
 }
+
+/* ---------- NAVIGATION ---------- */
 
 function initNav() {
   document.querySelectorAll("button[data-back]").forEach(btn => {
@@ -591,4 +588,3 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
-
