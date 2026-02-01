@@ -349,7 +349,9 @@ function computeAll() {
     if (state.modelKey.includes("3r")) rangs = 3;
     if (state.modelKey.includes("4r")) rangs = 4;
   }
-
+if (state.machineType === "arbo") {
+  rangs = 2;
+}
   /* Débit total machine */
   const qTotal = qParRang * rangs;
   state.qTotal = qTotal;
@@ -628,5 +630,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
