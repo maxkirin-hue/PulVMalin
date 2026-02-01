@@ -432,8 +432,6 @@ function computeAll() {
   renderSummary(modelLabel);
   renderTables();
 }
-
-}
 /* ---------- RECALCUL POUR NOUVEL INTERLIGNE ---------- */
 
 function recomputePressureForNewInterligne() {
@@ -652,6 +650,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
