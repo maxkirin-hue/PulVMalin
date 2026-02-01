@@ -85,7 +85,7 @@ export const nozzleFamilies = {
     label: "AMT ALBUZ – Céramique double face",
     machines: ["viti"], // CORRIGÉ : "vigne" → "viti"
     refPressure: 10,
-    optimalRange: [5, 20],
+    optimalRange: [2, 6],
     limitRange: [2, 50],
     nozzles: [
       { code: "AMT-007", faces: [{ side: "plate", label: "plate", qRef: 0.91 }, { side: "creuse", label: "creuse", qRef: 0.65 }] },
@@ -105,8 +105,8 @@ export const nozzleFamilies = {
     label: "TXR ConeJet – Cône creux",
     machines: ["viti", "arbo"], // CORRIGÉ : "vigne", "aero" → "viti", "arbo"
     refPressure: 10,
-    optimalRange: [6, 15],
-    limitRange: [2, 25],
+    optimalRange: [4, 15],
+    limitRange: [3, 18],
     nozzles: [
       { code: "TXR800053", color: "violet", qRef: 0.367 },
       { code: "TXR800071", color: "bleu", qRef: 0.497 },
@@ -130,8 +130,8 @@ export const nozzleFamilies = {
     label: "IDK 90 – Injection d'air",
     machines: ["arbo"], // CORRIGÉ : "aero" → "arbo"
     refPressure: 10,
-    optimalRange: [6, 14],
-    limitRange: [2, 20],
+    optimalRange: [5, 14],
+    limitRange: [4, 20],
     nozzles: [
       { code: "IDK90-0067", color: "vert clair", qRef: 0.49 },
       { code: "IDK90-01", color: "vert", qRef: 0.72 },
