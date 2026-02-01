@@ -418,8 +418,22 @@ function computeAll() {
     pressures.length % 2
       ? pressures[mid]
       : (pressures[mid - 1] + pressures[mid]) / 2;
+// --- PRESSION CIBLE PAR FAMILLE ---
+const familyTargetPressures = {
+  "CP4916": 3,
+  "AMT": 2.5,
+  "ATR": 5,
+  "IDK": 5,
+  "TXR": 5
+};
 
-  state.recommendedPressure = pressureTarget;
+// Si la famille a une pression cible définie, on l'utilise
+if (familyTargetPressures[state.familyKey]) {
+  state.recommendedPressure = familyTargetPressures[state.familyKey];
+} else {
+  state.recommendedPressure = pressureTarget; // médiane par défaut
+}
+
 
   const results = [];
 
@@ -768,6 +782,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
