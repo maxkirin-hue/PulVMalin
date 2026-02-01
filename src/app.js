@@ -596,7 +596,7 @@ async function downloadPdf() {
   };
 
   try {
-    const resp = await fetch("/api/pdf", {
+   const resp = await fetch("https://pulvmalinpdf-backend.onrender.com/api/pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -680,3 +680,4 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
