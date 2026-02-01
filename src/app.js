@@ -409,7 +409,6 @@ function statusClass(s) {
   if (v.includes("chang")) return "status-bad";
   return "";
 }
-
 /* ---------- PDF ---------- */
 
 async function downloadPdf() {
@@ -451,14 +450,20 @@ async function downloadPdf() {
           status: a.status,
           why: a.why,
         })),
-  };
+  };  // ← ACCOLADE FERMANTE CORRECTE
 
-const resp = await fetch("/api/pdf", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload),
-});
+  try {
+    const resp = await fetch("/api/pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!resp.ok) {
+      alert("Erreur lors de la génération du PDF.");
+      return;
     }
+
     const blob = await resp.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -468,9 +473,11 @@ const resp = await fetch("/api/pdf", {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+
   } catch (e) {
     alert("Impossible de contacter le service PDF.");
   }
+}
 
 /* ---------- INIT ---------- */
 function initMachineButtons() {
@@ -524,6 +531,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
