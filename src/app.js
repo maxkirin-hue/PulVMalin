@@ -636,7 +636,7 @@ async function downloadPdf() {
   <body>
 
   <header>
-    <img src="https://i.imgur.com/2JYyqYp.png" alt="Logo" />
+   <img src="https://raw.githubusercontent.com/<TON-USER>/<TON-REPO>/main/assets/logo-pulvmalin.svg" height="60" />
     <div>
       <h1>Réglage PulvMalin</h1>
       <div class="info">
@@ -768,6 +768,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
