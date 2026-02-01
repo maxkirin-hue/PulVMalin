@@ -116,8 +116,70 @@ function populateForcedNozzleSelect() {
   });
 }
 /* ---------- SORTIES & COEFS SELON MACHINE ---------- */
-
+const vitiModels = {
+  "3r_avec": [
+    { name: "Canon G1", role: "moitie" },
+    { name: "Canon G2", role: "moitie" },
+    { name: "Canon D2", role: "moitie" },
+    { name: "Canon D1", role: "moitie" },
+    { name: "Main retour G", role: "complete" },
+    { name: "Main retour D", role: "complete" },
+    { name: "Main G1", role: "moitie" },
+    { name: "Main G2", role: "moitie" },
+    { name: "Main D2", role: "moitie" },
+    { name: "Main D1", role: "moitie" },
+  ],
+  "4r_avec": [
+    { name: "Canon G1", role: "complete" },
+    { name: "Canon G2", role: "complete" },
+    { name: "Main retour G", role: "complete" },
+    { name: "Main G1", role: "moitie" },
+    { name: "Main G2", role: "moitie" },
+    { name: "Canon D1", role: "complete" },
+    { name: "Canon D2", role: "complete" },
+    { name: "Main retour D", role: "complete" },
+    { name: "Main D1", role: "moitie" },
+    { name: "Main D2", role: "moitie" },
+  ],
+  "3r_sans": [
+    { name: "Canon G1", role: "moitie" },
+    { name: "Canon G2", role: "moitie" },
+    { name: "Canon D2", role: "moitie" },
+    { name: "Canon D1", role: "moitie" },
+    { name: "Main G1", role: "moitie" },
+    { name: "Main G2", role: "moitie" },
+    { name: "Main D2", role: "moitie" },
+    { name: "Main D1", role: "moitie" },
+  ],
+  "4r_sans": [
+    { name: "Canon G1", role: "complete" },
+    { name: "Canon G2", role: "complete" },
+    { name: "Main G1", role: "moitie" },
+    { name: "Main G2", role: "moitie" },
+    { name: "Canon D1", role: "complete" },
+    { name: "Canon D2", role: "complete" },
+    { name: "Main D1", role: "moitie" },
+    { name: "Main D2", role: "moitie" },
+  ],
+};
 function getOutputsAndCoefs() {
+  if (state.machineType === "viti") {
+    const model = vitiModels[state.modelKey];
+    if (!model) return { names: [], coefs: [], modelLabel: "—" };
+
+    const names = model.map(o => o.name);
+    const coefs = model.map(o => o.role === "complete" ? 1 : 0.5);
+
+    const label =
+      state.modelKey === "3r_avec" ? "Viti — 3 rangs avec retour" :
+      state.modelKey === "4r_avec" ? "Viti — 4 rangs avec retour" :
+      state.modelKey === "3r_sans" ? "Viti — 3 rangs sans retour" :
+      state.modelKey === "4r_sans" ? "Viti — 4 rangs sans retour" : "Viti";
+
+    return { names, coefs, modelLabel: label };
+  }
+
+  // Arbo
   if (state.machineType === "arbo") {
     const total = state.arboCount;
     const half = total / 2;
@@ -127,6 +189,18 @@ function getOutputsAndCoefs() {
     const coefs = Array(total).fill(1);
     return { names, coefs, modelLabel: "Arbo — 2 rangs (répartition uniforme)" };
   }
+
+  // Rampe
+  if (state.machineType === "rampe") {
+    const n = state.rampeCount;
+    const names = [];
+    for (let i = 1; i <= n; i++) names.push(`Buse ${i}`);
+    const coefs = Array(n).fill(1);
+    return { names, coefs, modelLabel: "Rampe désherbage — 1 rang (répartition uniforme)" };
+  }
+
+  return { names: [], coefs: [], modelLabel: "—" };
+}
 
   if (state.machineType === "rampe") {
     const n = state.rampeCount;
@@ -517,3 +591,4 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
