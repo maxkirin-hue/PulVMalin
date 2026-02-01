@@ -1,10 +1,10 @@
 import { nozzleFamilies } from "./data/nozzles.js";
 
 const state = {
-  machineType: null,   // "arbo" | "viti" | "rampe"
+  machineType: null,
   machineName: "",
   familyKey: null,
-  modelKey: null,      // viti only
+  modelKey: null,
   dose: null,
   largeur: null,
   vitesse: null,
@@ -17,12 +17,14 @@ const state = {
   qTotal: 0,
 };
 
-const $ = id => document.getElementById(id);
+/* ---------- HELPERS ---------- */
+
+const $ = sel => document.querySelector(sel);
 const num = v => Number(v);
 
 function showPage(n) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  $(`page${n}`).classList.add("active");
+  $(`#page${n}`).classList.add("active");
 }
 
 /* ---------- MACHINE SELECTION ---------- */
@@ -38,29 +40,32 @@ function updateMachineBlocks() {
 function populateFamilySelect() {
   const sel = $("#familySelect");
   sel.innerHTML = "";
+
   const entries = Object.entries(nozzleFamilies).filter(([k, f]) =>
     !f.machines || f.machines.includes(state.machineType)
   );
+
   entries.forEach(([key, fam]) => {
     const opt = document.createElement("option");
     opt.value = key;
     opt.textContent = fam.label;
     sel.appendChild(opt);
   });
-  if (entries.length) {
-    state.familyKey = entries[0][0];
-  }
+
+  if (entries.length) state.familyKey = entries[0][0];
+
   sel.addEventListener("change", () => {
     state.familyKey = sel.value;
     populateForcedNozzleSelect();
   });
+
   populateForcedNozzleSelect();
 }
 
 function listNozzleVariants(family) {
   const variants = [];
   family.nozzles.forEach(n => {
-    if (n.faces && Array.isArray(n.faces)) {
+    if (n.faces) {
       n.faces.forEach(face => {
         variants.push({
           value: `${n.code}|${face.side}`,
@@ -91,13 +96,17 @@ function getVariantByValue(family, value) {
 function populateForcedNozzleSelect() {
   const sel = $("#forcedNozzleSelect");
   sel.innerHTML = "";
+
   const fam = nozzleFamilies[state.familyKey];
   if (!fam) return;
+
   const variants = listNozzleVariants(fam);
+
   const opt0 = document.createElement("option");
   opt0.value = "";
   opt0.textContent = "Choisir…";
   sel.appendChild(opt0);
+
   variants.forEach(v => {
     const o = document.createElement("option");
     o.value = v.value;
@@ -106,7 +115,7 @@ function populateForcedNozzleSelect() {
   });
 }
 
-/* ---------- COEFS & OUTPUT NAMES ---------- */
+/* ---------- OUTPUTS & COEFS ---------- */
 
 function getOutputsAndCoefs() {
   if (state.machineType === "arbo") {
@@ -127,9 +136,9 @@ function getOutputsAndCoefs() {
     return { names, coefs, modelLabel: "Rampe désherbage — 1 rang (répartition uniforme)" };
   }
 
-  // Viti
   const modelKey = state.modelKey;
   let names, coefs, label;
+
   if (modelKey === "3r_sans" || modelKey === "4r_sans") {
     names = [
       "Canon G1","Canon G2","Canon D2","Canon D1",
@@ -160,10 +169,11 @@ function getOutputsAndCoefs() {
     coefs = [];
     label = "—";
   }
+
   return { names, coefs, modelLabel: label };
 }
 
-/* ---------- PRESSURE / STATUS ---------- */
+/* ---------- PRESSURE ---------- */
 
 function pressureForFlow(qTarget, qRef, pRef) {
   return pRef * Math.pow(qTarget / qRef, 2);
@@ -178,10 +188,13 @@ function pressureStatus(p, family) {
 
 function scorePressure(p, family) {
   const center = (family.optimalRange[0] + family.optimalRange[1]) / 2;
-  if (p < family.limitRange[0] || p > family.limitRange[1]) return { ok: false, score: 1e9, why: "Hors plage" };
+  if (p < family.limitRange[0] || p > family.limitRange[1])
+    return { ok: false, score: 1e9, why: "Hors plage" };
+
   const dist = Math.abs(p - center);
   const inOptimal = p >= family.optimalRange[0] && p <= family.optimalRange[1];
   const penalty = inOptimal ? 0 : 50;
+
   return { ok: true, score: dist + penalty, why: inOptimal ? "Dans l’optimum" : "Dans la limite" };
 }
 
@@ -189,6 +202,7 @@ function chooseBestVariantForTargetFlow(family, qTarget) {
   const variants = listNozzleVariants(family);
   let best = null;
   let bestScore = 1e9;
+
   variants.forEach(v => {
     const p = pressureForFlow(qTarget, v.qRef, family.refPressure);
     const s = scorePressure(p, family);
@@ -197,10 +211,11 @@ function chooseBestVariantForTargetFlow(family, qTarget) {
       best = v;
     }
   });
+
   return best || variants[0];
 }
 
-/* ---------- VALIDATION & CALCUL ---------- */
+/* ---------- VALIDATION ---------- */
 
 function validatePage2() {
   state.dose = num($("#dose").value);
@@ -246,6 +261,7 @@ function validatePage2() {
 
 function validatePage3() {
   state.forced = $("#forcedToggle").checked;
+
   if (state.forced) {
     state.forcedNozzleValue = $("#forcedNozzleSelect").value;
     if (!state.forcedNozzleValue) {
@@ -255,17 +271,22 @@ function validatePage3() {
   } else {
     state.forcedNozzleValue = "";
   }
+
   return true;
 }
+
+/* ---------- CALCUL ---------- */
 
 function computeAll() {
   const fam = nozzleFamilies[state.familyKey];
   const { names, coefs, modelLabel } = getOutputsAndCoefs();
+
   const sumCoef = coefs.reduce((a, b) => a + b, 0);
   const qTotal = (state.dose * state.largeur * state.vitesse) / 600;
   state.qTotal = qTotal;
 
   const forcedVariant = state.forced ? getVariantByValue(fam, state.forcedNozzleValue) : null;
+
   const results = [];
   const alternatives = [];
 
@@ -302,6 +323,7 @@ function computeAll() {
 
       const best = scored[0];
       const alts = scored.slice(1, 3);
+
       alternatives.push(
         {
           outputName: name,
@@ -310,7 +332,7 @@ function computeAll() {
           status: best.status,
           why: "Meilleur compromis (optimum/limites)",
         },
-        ...alts.map((x, i) => ({
+        ...alts.map(x => ({
           outputName: name,
           nozzleLabel: x.v.label,
           pressure: x.p,
@@ -323,6 +345,7 @@ function computeAll() {
 
   state.results = results;
   state.alternatives = alternatives;
+
   renderSummary(modelLabel);
   renderTables();
 }
@@ -345,6 +368,7 @@ function renderSummary(modelLabel) {
 function renderTables() {
   const body = $("#resultBody");
   body.innerHTML = "";
+
   state.results.forEach(r => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -360,9 +384,10 @@ function renderTables() {
 
   const altBody = $("#altBody");
   altBody.innerHTML = "";
+
   if (state.forced) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="5">Mode pastille forcée : alternatives non proposées (validation uniquement).</td>`;
+    tr.innerHTML = `<td colspan="5">Mode pastille forcée : alternatives non proposées.</td>`;
     altBody.appendChild(tr);
   } else if (!state.alternatives.length) {
     const tr = document.createElement("tr");
@@ -390,6 +415,7 @@ function statusClass(s) {
   if (v.includes("chang")) return "status-bad";
   return "";
 }
+
 /* ---------- PDF ---------- */
 
 async function downloadPdf() {
@@ -431,7 +457,7 @@ async function downloadPdf() {
           status: a.status,
           why: a.why,
         })),
-  };  // ← ACCOLADE FERMANTE CORRECTE
+  };
 
   try {
     const resp = await fetch("/api/pdf", {
@@ -461,6 +487,7 @@ async function downloadPdf() {
 }
 
 /* ---------- INIT ---------- */
+
 function initMachineButtons() {
   document.querySelectorAll(".card-btn[data-type]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -484,38 +511,4 @@ function initNav() {
   document.querySelectorAll("button[data-back]").forEach(btn => {
     btn.addEventListener("click", () => {
       const target = Number(btn.dataset.back);
-      showPage(target);
-    });
-  });
-
-  $("#toPage3").addEventListener("click", () => {
-    if (!validatePage2()) return;
-    showPage(3);
-  });
-
-  $("#toPage4").addEventListener("click", () => {
-    if (!validatePage3()) return;
-    computeAll();
-    showPage(4);
-  });
-
-  $("#forcedToggle").addEventListener("change", () => {
-    const forced = $("#forcedToggle").checked;
-    $("#forcedPanel").style.display = forced ? "grid" : "none";
-  });
-
-  $("#btnPdf").addEventListener("click", downloadPdf);
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  initMachineButtons();
-  initNav();
-  showPage(1);
-});
-
-
-
-
-
-
-
+      show
