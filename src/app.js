@@ -561,7 +561,6 @@ async function downloadPdf() {
     return;
   }
 
-  // Construction du HTML pour le PDF
   const html = `
   <html>
   <head>
@@ -769,6 +768,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
