@@ -172,25 +172,17 @@
         Les résultats fournis n’excluent pas un contrôle des débits réels sur la machine.
       </p>
     </div>
+<div class="card">
+  <label class="field">
+    <span>Nouvel interligne (m)</span>
+    <input id="newInterligne" type="number" step="0.01" placeholder="Ex : 2.2" />
+  </label>
+  <button class="primary" id="btnRecalc">Recalculer la pression</button>
+</div>
 
-    <h2>Alternatives proposées</h2>
-    <div class="table-wrapper">
-      <table class="result-table">
-        <thead>
-          <tr>
-            <th>Sortie</th>
-            <th>Pastille</th>
-            <th>Pression (bar)</th>
-            <th>Statut</th>
-            <th>Pourquoi</th>
-          </tr>
-        </thead>
-        <tbody id="altBody"></tbody>
-      </table>
-      <p class="disclaimer">
-        Les résultats fournis n’excluent pas un contrôle des débits réels sur la machine.
-      </p>
-    </div>
+<div class="summary card">
+  <div><strong>Pression recommandée :</strong> <span id="sumPressure"></span></div>
+</div>
 
     <div class="nav-row">
       <button class="secondary" data-back="3">Modifier</button>
@@ -205,6 +197,7 @@
   
 </body>
 </html>
+
 
 
 
