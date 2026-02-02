@@ -383,11 +383,15 @@ function chooseVariantForPressureTarget(family, qTarget, pressureTarget) {
 
 function computeAll() {
   const fam = nozzleFamilies[state.familyKey];
+  if (!fam) return;
+
   const { names, coefs, modelLabel } = getOutputsAndCoefs();
   const model = vitiModels[state.modelKey];
 
+  // Débit par rang
   const qParRang = (state.dose * state.largeur * state.vitesse) / 600;
 
+  // Nombre de rangs selon modèle
   let rangs = 1;
   if (state.machineType === "viti") {
     if (state.modelKey.includes("3r")) rangs = 3;
@@ -395,85 +399,124 @@ function computeAll() {
   }
   if (state.machineType === "arbo") rangs = 2;
 
+  // Débit total machine
   const qTotal = qParRang * rangs;
   state.qTotal = qTotal;
 
+  // Débits cibles par sortie
   const sumCoef = coefs.reduce((a, b) => a + b, 0);
+  const targets = coefs.map(c => qTotal * (c / sumCoef));
 
-  const firstPass = [];
+  // --- OPTIMISATION GLOBALE ---
+  const opt = optimizePressureAndNozzlesForFamily(fam, targets, state.familyKey);
 
-  names.forEach((name, idx) => {
-    const coef = coefs[idx];
-    const qTarget = qTotal * (coef / sumCoef);
+  // Pression retenue
+  state.recommendedPressure = opt.P;
 
-    const variant = chooseBestVariantForTargetFlow(fam, qTarget);
-    const p = pressureForFlow(qTarget, variant.qRef, fam.refPressure);
-
-    firstPass.push({ name, coef, qTarget, variant, pressure: p });
+  // Résultats par sortie
+  state.results = names.map((name, idx) => {
+    const r = opt.results[idx];
+    return {
+      outputName: name,
+      coef: coefs[idx],
+      qTarget: r.qTarget,
+      nozzleLabel: r.nozzle.code,
+      pressure: opt.P,
+      qReal: r.q,
+      relError: r.relErr,
+      status: pressureStatus(opt.P, fam)
+    };
   });
-
-  const pressures = firstPass.map(r => r.pressure).sort((a, b) => a - b);
-  const mid = Math.floor(pressures.length / 2);
-  const pressureTarget =
-    pressures.length % 2
-      ? pressures[mid]
-      : (pressures[mid - 1] + pressures[mid]) / 2;
-// --- PRESSION CIBLE PAR FAMILLE ---
-const familyTargetPressures = {
-  CP4916: 3,
-  AMT: 2.5,
-  ATR80: 5,
-  IDK90: 5,
-  TXR: 5
-};
-
-// Si la famille a une pression cible définie, on l'utilise
-if (familyTargetPressures[state.familyKey]) {
-  state.recommendedPressure = familyTargetPressures[state.familyKey];
-} else {
-  state.recommendedPressure = pressureTarget; // médiane par défaut
-}
-
-
-  const results = [];
-
-  firstPass.forEach((r, idx) => {
-    const qTarget = r.qTarget;
-    // ⚠️ ERREUR 5 CORRIGÉE : Accès à model peut être undefined si machineType !== "viti"
-    const group = model ? model[idx].group : 1;
-
-    let variant;
-
-    if (state.forced) {
-      const forcedValue =
-        group === 1
-          ? state.forcedNozzleValueGroup1
-          : state.forcedNozzleValueGroup2;
-
-      variant = getVariantByValue(fam, forcedValue);
-    } else {
-      variant = chooseVariantForPressureTarget(fam, qTarget, pressureTarget);
-    }
-
-    const p = pressureForFlow(qTarget, variant.qRef, fam.refPressure);
-    const status = pressureStatus(p, fam);
-
-    results.push({
-      outputName: r.name,
-      coef: r.coef,
-      qTarget,
-      nozzleLabel: variant.label,
-      pressure: p,
-      status,
-    });
-  });
-
-  state.results = results;
 
   renderSummary(modelLabel);
   renderTables();
 }
+function flowAtPressure(qRef, P, pref) {
+  return qRef * Math.sqrt(P / pref);
+}
 
+function optimizePressureAndNozzlesForFamily(fam, targets, familyKey) {
+  const refP = fam.refPressure || 3;
+
+  // Pressions idéales par famille (alignées avec nozzleFamilies)
+  const familyTargetPressures = {
+    CP4916: 3,
+    AMT: 2.5,
+    ATR80: 5,
+    IDK90: 5,
+    TXR: 5,
+    XR: 3
+  };
+
+  const preferredP = familyTargetPressures[familyKey] || refP;
+
+  // Plage de recherche autour de la pression idéale
+  const Pmin = Math.max(fam.limitRange[0], preferredP - 1.5);
+  const Pmax = Math.min(fam.limitRange[1], preferredP + 1.5);
+  const step = 0.1;
+
+  let best = null;
+
+  for (let P = Pmin; P <= Pmax + 1e-6; P += step) {
+    const results = [];
+    let Qtot = 0;
+    let sumErr2 = 0;
+
+    // Choix de la meilleure pastille pour chaque sortie
+    for (let i = 0; i < targets.length; i++) {
+      const qTarget = targets[i];
+      let bestNozzle = null;
+      let bestErr = null;
+      let bestQ = null;
+
+      fam.nozzles.forEach(nz => {
+        const q = flowAtPressure(nz.qRef, P, refP);
+        const err = Math.abs(q - qTarget);
+
+        if (bestErr === null || err < bestErr) {
+          bestErr = err;
+          bestNozzle = nz;
+          bestQ = q;
+        }
+      });
+
+      const relErr = qTarget > 0 ? (bestQ - qTarget) / qTarget : 0;
+      sumErr2 += relErr * relErr;
+      Qtot += bestQ;
+
+      results.push({
+        nozzle: bestNozzle,
+        q: bestQ,
+        qTarget,
+        relErr
+      });
+    }
+    const QtargetTot = targets.reduce((a, b) => a + b, 0);
+    const relErrTot = QtargetTot > 0 ? (Qtot - QtargetTot) / QtargetTot : 0;
+
+    // Fonction de coût globale
+    const w1 = 1;   // répartition par sortie
+    const w2 = 2;   // débit total
+    const w3 = 0.5; // proximité pression idéale
+
+    const cost =
+      w1 * sumErr2 +
+      w2 * (relErrTot * relErrTot) +
+      w3 * Math.pow((P - preferredP) / preferredP, 2);
+
+    if (!best || cost < best.cost) {
+      best = {
+        P,
+        results,
+        Qtot,
+        relErrTot,
+        cost
+      };
+    }
+  }
+
+  return best;
+}
 /* ---------- RECALCUL POUR NOUVEL INTERLIGNE ---------- */
 
 function recomputePressureForNewInterligne() {
@@ -778,6 +821,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
