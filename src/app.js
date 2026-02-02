@@ -221,6 +221,8 @@ function getOutputsAndCoefs() {
   }
 
   if (state.machineType === "arbo") {
+  state.arboMode = $("#arboMode").value; // "1r", "2r", "tangent"
+}
     const total = state.arboCount;
     const half = total / 2;
     const names = [];
@@ -284,10 +286,11 @@ function chooseBestVariantForTargetFlow(family, qTarget) {
 }
 
 /* ---------- VALIDATION ---------- */
+/* ---------- VALIDATION ---------- */
 
 function validatePage2() {
   state.dose = num($("#dose").value);
-  state.largeur = num($("#largeur").value);
+  state.largeur = num($("#largeur").value);   // en Arbo : c’est l’interligne saisie
   state.vitesse = num($("#vitesse").value);
   state.familyKey = $("#familySelect").value;
 
@@ -295,14 +298,27 @@ function validatePage2() {
     alert("Dose, largeur et vitesse doivent être renseignées.");
     return false;
   }
-  if (!state.familyKey) {
-    alert("Choisis une famille de buses.");
-    return false;
-  }
-  // ⚠️ ERREUR 2 CORRIGÉE : Vérification dupliquée supprimée
-  
-  // ⚠️ ERREUR 3 CORRIGÉE : Ces validations étaient en dehors de la fonction
+
+  /* ---------- LOGIQUE ARBO ---------- */
   if (state.machineType === "arbo") {
+
+    // Lecture du mode Arbo
+    state.arboMode = $("#arboMode").value; // "1r", "2r", "tangent"
+
+    const interligne = state.largeur; // l’utilisateur saisit l’interligne
+
+    switch (state.arboMode) {
+      case "1r":
+        state.largeur = interligne;       // largeur = interligne
+        break;
+
+      case "2r":
+      case "tangent":
+        state.largeur = interligne * 2;   // largeur = interligne × 2
+        break;
+    }
+
+    // Validation du nombre de buses Arbo
     state.arboCount = num($("#arboCount").value);
     if (!state.arboCount || state.arboCount < 2 || state.arboCount % 2 !== 0) {
       alert("Le nombre de buses Arbo doit être pair et ≥ 2.");
@@ -310,6 +326,13 @@ function validatePage2() {
     }
   }
 
+  /* ---------- VALIDATION FAMILLE ---------- */
+  if (!state.familyKey) {
+    alert("Choisis une famille de buses.");
+    return false;
+  }
+
+  /* ---------- VALIDATION VITI ---------- */
   if (state.machineType === "viti") {
     state.modelKey = $("#vitiModel").value;
     if (!state.modelKey) {
@@ -318,6 +341,7 @@ function validatePage2() {
     }
   }
 
+  /* ---------- VALIDATION RAMPE ---------- */
   if (state.machineType === "rampe") {
     state.rampeCount = num($("#rampeCount").value);
     if (!state.rampeCount || state.rampeCount < 1) {
@@ -328,8 +352,6 @@ function validatePage2() {
 
   return true;
 }
-
-// ⚠️ ERREUR 4 CORRIGÉE : Fonction validatePage3 était manquante
 function validatePage3() {
   state.forced = $("#forcedToggle").checked;
 
@@ -727,6 +749,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
