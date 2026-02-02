@@ -15,6 +15,12 @@ function renderHeader() {
         <div class="subtitle">Diagnostic et réglage optimisé de votre pulvérisateur</div>
       </div>
     </div>
+    <!-- Infos machine + date -->
+      <div style="text-align:right; font-size:11px; color:#555;">
+        <div><strong>Date :</strong> ${today}</div>
+        <div><strong>Machine :</strong> ${state.machineType}</div>
+        <div><strong>Modèle :</strong> ${state.modelKey}</div>
+      </div>
   `;
 }
 
