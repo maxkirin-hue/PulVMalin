@@ -595,10 +595,15 @@ function renderSummary(modelLabel) {
   $("#sumMode").textContent = state.forced
     ? "Pastilles forcées (validation)"
     : "Automatique (recommandé)";
+
+  // 🔥 AJOUT DES PARAMÈTRES DE BASE
+  $("#sumLargeur").textContent = state.largeur + " m";
+  $("#sumDose").textContent = state.dose + " L/ha";
+  $("#sumVitesse").textContent = state.vitesse + " km/h";
+
   $("#sumQtotal").textContent = state.qTotal.toFixed(2);
   $("#sumPressure").textContent = state.recommendedPressure.toFixed(2) + " bar";
 }
-
 function renderTables() {
   const body = $("#resultBody");
   body.innerHTML = "";
@@ -609,7 +614,7 @@ function renderTables() {
       <td>${r.outputName}</td>
       <td class="num">${r.coef.toFixed(2)}</td>
       <td class="num">${r.qTarget.toFixed(2)}</td>
-      <td>${r.nozzleLabel}</td>
+      <td>${r.nozzleLabel}${r.face ? ` (${r.face})` : ""}</td>
       <td class="num">${r.pressure.toFixed(2)}</td>
       <td class="${statusClass(r.status)}">${r.status}</td>
     `;
@@ -722,6 +727,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
