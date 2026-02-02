@@ -1,20 +1,38 @@
 // pdftemplate.js
 function renderHeader() {
+  const logoBase64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjEyOCIg
+aGVpZ2h0PSIxMjgiIGZpbGw9IiMwMDc3Y2MiIHJ4PSIxNiIvPgogIDx0ZXh0IHg9IjY0IiB5PSI3MiIg
+Zm9udC1zaXplPSI0MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1BPC90ZXh0Pgo8
+L3N2Zz4=";
+
+  const qrBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAIAAAD+...";
+
   return `
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
 
       <!-- Logo PulvMalin -->
       <div style="display:flex; align-items:center;">
-        <img src="https://pulvmalin-2.onrender.com/assets/logo-pulvmalin.svg" style="height:60px; margin-right:12px;" />
+        <img 
+          src="${logoBase64}" 
+          style="height:60px; margin-right:12px;" 
+        />
         <div>
           <h1 style="margin:0; font-size:22px;">PulvMalin – Fiche de réglage</h1>
           <div class="subtitle">Diagnostic et réglage optimisé de votre pulvérisateur</div>
         </div>
       </div>
+
+      <!-- QR Code -->
+      <div>
+        <img 
+          src="${qrBase64}" 
+          style="height:80px; width:80px;"
+        />
+      </div>
+
+    </div>
   `;
 }
-
-
 // Mapping pression idéale par famille
 const familyTargetPressures = {
   CP4916: 3,
