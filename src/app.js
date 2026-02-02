@@ -44,9 +44,12 @@ function statusClass(s) {
 }
 
 /* ---------- BLOCS MACHINE ---------- */
-
 function updateMachineBlocks() {
-  $("#arboBlock").style.display = state.machineType === "arbo" ? "block" : "none";
+  const isArbo = state.machineType === "arbo";
+
+  $("#arboBlock").style.display = isArbo ? "block" : "none";
+  $("#arboModeBlock").style.display = isArbo ? "block" : "none";
+
   $("#vitiBlock").style.display = state.machineType === "viti" ? "block" : "none";
   $("#rampeBlock").style.display = state.machineType === "rampe" ? "block" : "none";
 }
@@ -750,6 +753,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
