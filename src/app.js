@@ -420,11 +420,11 @@ function computeAll() {
       : (pressures[mid - 1] + pressures[mid]) / 2;
 // --- PRESSION CIBLE PAR FAMILLE ---
 const familyTargetPressures = {
-  "CP4916": 3,
-  "AMT": 2.5,
-  "ATR": 5,
-  "IDK": 5,
-  "TXR": 5
+  CP4916: 3,
+  AMT: 2.5,
+  ATR80: 5,
+  IDK90: 5,
+  TXR: 5
 };
 
 // Si la famille a une pression cible définie, on l'utilise
@@ -778,6 +778,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
