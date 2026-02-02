@@ -1,9 +1,7 @@
 // pdftemplate.js
 function renderHeader() {
-  const logoBase64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjEyOCIg
-aGVpZ2h0PSIxMjgiIGZpbGw9IiMwMDc3Y2MiIHJ4PSIxNiIvPgogIDx0ZXh0IHg9IjY0IiB5PSI3MiIg
-Zm9udC1zaXplPSI0MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1BPC90ZXh0Pgo8
-L3N2Zz4=";
+  const logoBase64 =data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIGZpbGw9IiMwMDc3Y2MiIHJ4PSIxNiIvPjx0ZXh0IHg9IjY0IiB5PSI3MiIgZm9udC1zaXplPSI0MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1BPC90ZXh0Pjwvc3ZnPg==
+
 
   const qrBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAIAAAD+...";
 
