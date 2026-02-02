@@ -202,7 +202,6 @@ const vitiModels = {
 };
 
 /* ---------- SORTIES & COEFS SELON MACHINE ---------- */
-
 function getOutputsAndCoefs() {
   if (state.machineType === "viti") {
     const model = vitiModels[state.modelKey];
@@ -221,15 +220,18 @@ function getOutputsAndCoefs() {
   }
 
   if (state.machineType === "arbo") {
-  state.arboMode = $("#arboMode").value; // "1r", "2r", "tangent"
-}
+    state.arboMode = $("#arboMode").value;
+
     const total = state.arboCount;
     const half = total / 2;
+
     const names = [];
     for (let i = 1; i <= half; i++) names.push(`Sortie G${i}`);
     for (let i = 1; i <= half; i++) names.push(`Sortie D${i}`);
+
     const coefs = Array(total).fill(1);
-    return { names, coefs, modelLabel: "Arbo — 2 rangs (répartition uniforme)" };
+
+    return { names, coefs, modelLabel: "Arbo" };
   }
 
   if (state.machineType === "rampe") {
@@ -237,12 +239,11 @@ function getOutputsAndCoefs() {
     const names = [];
     for (let i = 1; i <= n; i++) names.push(`Buse ${i}`);
     const coefs = Array(n).fill(1);
-    return { names, coefs, modelLabel: "Rampe désherbage — 1 rang (répartition uniforme)" };
+    return { names, coefs, modelLabel: "Rampe désherbage" };
   }
 
   return { names: [], coefs: [], modelLabel: "—" };
 }
-
 /* ---------- PRESSION & CHOIX DE PASTILLE ---------- */
 
 function pressureForFlow(qTarget, qRef, pRef) {
@@ -749,6 +750,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
