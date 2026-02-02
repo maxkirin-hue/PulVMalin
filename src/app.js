@@ -526,51 +526,55 @@ function recomputePressureForNewInterligne() {
     return;
   }
 
+  const fam = nozzleFamilies[state.familyKey];
+  if (!fam) return;
+
+  const { names, coefs } = getOutputsAndCoefs();
+  const model = vitiModels[state.modelKey];
+
+  // Nouveau débit par rang
   const qParRang = (state.dose * newL * state.vitesse) / 600;
 
+  // Nombre de rangs selon modèle
   let rangs = 1;
   if (state.machineType === "viti") {
     if (state.modelKey.includes("3r")) rangs = 3;
     if (state.modelKey.includes("4r")) rangs = 4;
   }
+  if (state.machineType === "arbo") rangs = 2;
 
+  // Nouveau débit total
   const qTotal = qParRang * rangs;
+  state.qTotal = qTotal;
 
-  const fam = nozzleFamilies[state.familyKey];
-  const { coefs } = getOutputsAndCoefs();
+  // Débits cibles par sortie
   const sumCoef = coefs.reduce((a, b) => a + b, 0);
+  const targets = coefs.map(c => qTotal * (c / sumCoef));
 
-  const pressures = [];
+  // --- OPTIMISATION GLOBALE (même moteur que computeAll) ---
+  const opt = optimizePressureAndNozzlesForFamily(fam, targets, state.familyKey);
 
-  state.results.forEach((r, idx) => {
-    const coef = coefs[idx];
-    const qTarget = qTotal * (coef / sumCoef);
+  // Nouvelle pression recommandée
+  state.recommendedPressure = opt.P;
+  $("#sumPressure").textContent = opt.P.toFixed(2) + " bar";
 
-    const variant = listNozzleVariants(fam).find(v => v.label === r.nozzleLabel);
-    if (!variant) return;
-
-    const p = pressureForFlow(qTarget, variant.qRef, fam.refPressure);
-
-    r.qTarget = qTarget;
-    r.pressure = p;
-    r.status = pressureStatus(p, fam);
-
-    pressures.push(p);
+  // Mise à jour des résultats par sortie
+  state.results = names.map((name, idx) => {
+    const r = opt.results[idx];
+    return {
+      outputName: name,
+      coef: coefs[idx],
+      qTarget: r.qTarget,
+      nozzleLabel: r.nozzle.code,
+      pressure: opt.P,
+      qReal: r.q,
+      relError: r.relErr,
+      status: pressureStatus(opt.P, fam)
+    };
   });
-
-  const sorted = pressures.slice().sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  const recommended =
-    sorted.length % 2
-      ? sorted[mid]
-      : (sorted[mid - 1] + sorted[mid]) / 2;
-
-  state.recommendedPressure = recommended;
-  $("#sumPressure").textContent = recommended.toFixed(2) + " bar";
 
   renderTables();
 }
-
 /* ---------- RENDER SUMMARY & TABLES ---------- */
 
 function renderSummary(modelLabel) {
@@ -821,6 +825,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
