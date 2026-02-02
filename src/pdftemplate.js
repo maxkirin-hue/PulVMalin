@@ -5,7 +5,7 @@ function renderHeader() {
 
       <!-- Logo PulvMalin -->
       <div style="display:flex; align-items:center;">
-        <img src="/assets/logo-pulvmalin.svg" style="height:60px; margin-right:12px;" />
+        <img src="https://pulvmalin-2.onrender.com/assets/logo-pulvmalin.svg" style="height:60px; margin-right:12px;" />
         <div>
           <h1 style="margin:0; font-size:22px;">PulvMalin – Fiche de réglage</h1>
           <div class="subtitle">Diagnostic et réglage optimisé de votre pulvérisateur</div>
