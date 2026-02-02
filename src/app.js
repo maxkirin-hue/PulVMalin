@@ -1,4 +1,6 @@
 import { nozzleFamilies } from "./data/nozzles.js";
+import { generatePdfHtml } from "./pdftemplate.js";
+
 
 const state = {
   machineType: null,
@@ -622,119 +624,15 @@ async function downloadPdf() {
     return;
   }
 
-  // Récupérer les éléments du loader et du bouton
   const loader = document.getElementById('pdfLoader');
   const btnPdf = document.getElementById('btnPdf');
 
   try {
-    // AFFICHER le loader et désactiver le bouton
     loader.style.display = 'block';
     btnPdf.disabled = true;
 
-    const html = `
-    <html>
-    <head>
-      <meta charset="utf-8" />
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          font-size: 12px;
-          margin: 0;
-          padding: 20px;
-        }
-        header {
-          display: flex;
-          align-items: center;
-          margin-bottom: 20px;
-          border-bottom: 2px solid #444;
-          padding-bottom: 10px;
-        }
-        header img {
-          height: 60px;
-          margin-right: 15px;
-        }
-        h1 {
-          margin: 0;
-          font-size: 22px;
-        }
-        .info {
-          margin-top: 10px;
-          font-size: 13px;
-        }
-        .pressure-box {
-          margin-top: 20px;
-          padding: 12px;
-          border: 2px solid #0077cc;
-          background: #e8f4ff;
-          font-size: 16px;
-          font-weight: bold;
-          text-align: center;
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 20px;
-          font-size: 12px;
-        }
-        th, td {
-          border: 1px solid #ccc;
-          padding: 6px;
-        }
-        th {
-          background: #f0f0f0;
-        }
-        footer {
-          margin-top: 40px;
-          font-size: 10px;
-          color: #666;
-          border-top: 1px solid #ccc;
-          padding-top: 10px;
-          text-align: center;
-        }
-      </style>
-    </head>
-    <body>
-    <header>
-     <img src="https://github.com/maxkirin-hue/PulVMalin/blob/b17ec5f3049be7af53092543bb9706d93e794586/public/assets/logo-pulvmalin.svg" height="60" />
-      <div>
-        <h1>Réglage PulvMalin</h1>
-        <div class="info">
-          Machine : <strong>${state.machineName || "—"}</strong><br>
-          Type : <strong>${state.machineType}</strong><br>
-          Date : <strong>${new Date().toLocaleString("fr-FR")}</strong>
-        </div>
-      </div>
-    </header>
-    <div class="pressure-box">
-      Pression recommandée : ${state.recommendedPressure.toFixed(2)} bar
-    </div>
-    <table>
-      <tr>
-        <th>Sortie</th>
-        <th>Coef</th>
-        <th>Débit (L/min)</th>
-        <th>Pastille</th>
-        <th>Pression (bar)</th>
-        <th>Statut</th>
-      </tr>
-      ${state.results.map(r => `
-        <tr>
-          <td>${r.outputName}</td>
-          <td>${r.coef.toFixed(2)}</td>
-          <td>${r.qTarget.toFixed(2)}</td>
-          <td>${r.nozzleLabel}</td>
-          <td>${r.pressure.toFixed(2)}</td>
-          <td>${r.status}</td>
-        </tr>
-      `).join("")}
-    </table>
-    <footer>
-      Les réglages proposés sont des estimations automatiques.  
-      Toujours vérifier la cohérence du résultat sur la machine réelle avant utilisation.
-    </footer>
-    </body>
-    </html>
-    `;
+    // 🔥 Utilisation du template PDF
+    const html = generatePdfHtml(state);
 
     const resp = await fetch("https://pulvmalinpdf-backend.onrender.com/pdf", {
       method: "POST",
@@ -761,11 +659,11 @@ async function downloadPdf() {
     alert("Impossible de contacter le service PDF.");
     console.error(e);
   } finally {
-    // TOUJOURS masquer le loader et réactiver le bouton (même en cas d'erreur)
     loader.style.display = 'none';
     btnPdf.disabled = false;
   }
 }
+
 /* ---------- INIT BOUTONS MACHINE ---------- */
 
 function initMachineButtons() {
@@ -786,7 +684,6 @@ function initMachineButtons() {
     showPage(2);
   });
 }
-
 /* ---------- NAVIGATION ---------- */
 
 function initNav() {
@@ -825,6 +722,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
