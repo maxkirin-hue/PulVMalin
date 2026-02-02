@@ -1,4 +1,19 @@
 // pdftemplate.js
+function renderHeader() {
+  return `
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+
+      <!-- Logo PulvMalin -->
+      <div style="display:flex; align-items:center;">
+        <img src="/assets/logo-pulvmalin.svg" style="height:60px; margin-right:12px;" />
+        <div>
+          <h1 style="margin:0; font-size:22px;">PulvMalin – Fiche de réglage</h1>
+          <div class="subtitle">Diagnostic et réglage optimisé de votre pulvérisateur</div>
+        </div>
+      </div>
+  `;
+}
+
 
 // Mapping pression idéale par famille
 const familyTargetPressures = {
