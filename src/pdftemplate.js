@@ -1,5 +1,7 @@
-
 // pdftemplate.js
+
+// --------- HEADER ---------
+
 function renderHeader() {
   // Logo PulvMalin en SVG base64 (propre, une seule ligne)
   const logoBase64 =
@@ -8,35 +10,16 @@ function renderHeader() {
   return `
     <div style="display:flex; align-items:center; justify-content:flex-start; margin-bottom:20px;">
       <img src="${logoBase64}" alt="Logo PulvMalin" style="height:60px;" />
+      <div style="margin-left:12px;">
+        <h1 style="margin:0; font-size:22px;">PulvMalin – Fiche de réglage</h1>
+        <div class="subtitle">Diagnostic et réglage optimisé de votre pulvérisateur</div>
+      </div>
     </div>
   `;
 }
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
 
-      <!-- Logo PulvMalin -->
-      <div style="display:flex; align-items:center;">
-        <img 
-          src="${logoBase64}" 
-          style="height:60px; margin-right:12px;" 
-        />
-        <div>
-          <h1 style="margin:0; font-size:22px;">PulvMalin – Fiche de réglage</h1>
-          <div class="subtitle">Diagnostic et réglage optimisé de votre pulvérisateur</div>
-        </div>
-      </div>
+// --------- CONFIG PRESSIONS ---------
 
-      <!-- QR Code -->
-      <div>
-        <img 
-          src="${qrBase64}" 
-          style="height:80px; width:80px;"
-        />
-      </div>
-
-    </div>
-  `;
-}
-// Mapping pression idéale par famille
 const familyTargetPressures = {
   CP4916: 3,
   AMT: 2.5,
@@ -45,6 +28,8 @@ const familyTargetPressures = {
   TXR: 5,
   XR: 3
 };
+
+// --------- STYLES PDF ---------
 
 const pdfStyles = `
   body {
@@ -198,7 +183,7 @@ const pdfStyles = `
     margin-top: 3px;
   }
 
-  /* VITI SVG container */
+  /* VITI */
   .viti-svg-container {
     width: 420px;
     margin: 0 auto;
@@ -211,16 +196,14 @@ const pdfStyles = `
   }
 `;
 
-// --------- Entrée principale : HTML complet du PDF ---------
+// --------- HTML COMPLET ---------
 
 export function generatePdfHtml(state) {
   const html = `
   <html>
   <head>
     <meta charset="utf-8" />
-    <style>
-      ${pdfStyles}
-    </style>
+    <style>${pdfStyles}</style>
   </head>
   <body>
     ${renderHeader()}
@@ -235,14 +218,7 @@ export function generatePdfHtml(state) {
   return html;
 }
 
-// --------- Blocs de rendu ---------
-
-function renderHeader() {
-  return `
-    <h1>PulvMalin – Fiche de réglage</h1>
-    <div class="subtitle">Diagnostic et réglage optimisé de votre pulvérisateur</div>
-  `;
-}
+// --------- BLOCS DE RENDU ---------
 
 function renderSettings(state) {
   return `
