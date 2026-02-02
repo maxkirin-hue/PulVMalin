@@ -1,5 +1,5 @@
 import { nozzleFamilies } from "./data/nozzles.js";
-import { generatePdfHtml } from "./pdftemplate.js";
+import { generatePdfHtml } from "./src/pdftemplate.js";
 
 
 const state = {
@@ -722,6 +722,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initNav();
   showPage(1);
 });
+
 
 
 
