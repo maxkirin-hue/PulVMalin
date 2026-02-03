@@ -142,7 +142,24 @@ export const nozzleFamilies = {
       { code: "IDK90-03", color: "bleu", qRef: 2.17 }
     ]
   },
-
+     /* =====================================================
+     Ad90 —
+  ===================================================== */
+AD90: {
+  label: "AD 90 – Jet plat désherbage",
+  machines: ["rampe"],
+  refPressure: 3,
+  optimalRange: [2, 4],
+  limitRange: [1.5, 6],
+  nozzles: [
+    { code: "AD 90-0067", color: "gris", qRef: 0.27 },
+    { code: "AD 90-01", color: "orange", qRef: 0.39 },
+    { code: "AD 90-015", color: "bleu", qRef: 0.59 },
+    { code: "AD 90-02", color: "rouge", qRef: 0.80 },
+    { code: "AD 90-03", color: "jaune", qRef: 1.19 },
+    { code: "AD 90-04", color: "vert", qRef: 1.58 },
+  ]
+},
   /* =====================================================
      ATR 80 — Cône creux céramique (arbo)
   ===================================================== */
