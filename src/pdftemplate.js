@@ -430,49 +430,6 @@ function renderArboDiagram(state) {
     </div>
   </div>`;
 }
-
-  // MODE 1 RANG & 2 RANGS → demi-lune
-  const outputs = [...left, ...right];
-  const count = outputs.length;
-  const angleStep = 180 / (count - 1);
-
-  const items = outputs.map((r, i) => `
-    <div style="
-      position:absolute;
-      left:50%;
-      top:100%;
-      transform-origin:bottom center;
-      transform:rotate(${i * angleStep - 90}deg);
-    ">
-      <div style="
-        background:#ecf0f1;
-        padding:3px 6px;
-        border-radius:4px;
-        border:1px solid #bdc3c7;
-        font-size:10px;
-        transform:rotate(${90 - i * angleStep}deg);
-      ">${r.outputName}</div>
-    </div>
-  `).join("");
-
-  return `
-  <div class="section">
-    <div class="section-title">Schéma machine – Arbo (${state.arboMode === "1r" ? "1 rang" : "2 rangs"})</div>
-
-    <div style="
-      position:relative;
-      width:320px;
-      height:160px;
-      margin:20px auto;
-      border-top-left-radius:320px;
-      border-top-right-radius:320px;
-      border:2px solid #2c3e50;
-      border-bottom:none;
-    ">
-      ${items}
-    </div>
-  </div>`;
-}
 // --------- Schéma RAMPE ---------
 
 function renderRampeDiagram(state) {
