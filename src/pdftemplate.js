@@ -35,7 +35,6 @@ const familyTargetPressures = {
   IDK90: 5,
   TXR: 5,
   XR: 3
-  AD90: 3
 };
 const isoColors = {
   "0067": "#cccccc", // gris
