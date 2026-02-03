@@ -308,27 +308,96 @@ function renderArboDiagram(state) {
   const left = state.results.filter(r => r.outputName.toLowerCase().includes("g"));
   const right = state.results.filter(r => r.outputName.toLowerCase().includes("d"));
 
+  // MODE TANGENTIEL → deux colonnes verticales
+  if (state.arboMode === "tangent") {
+    return `
+    <div class="section">
+      <div class="section-title">Schéma machine – Arbo tangentiel</div>
+      <div style="display:flex; justify-content:center; align-items:center; gap:40px; margin-top:10px;">
+
+        <div style="display:flex; flex-direction:column; gap:6px; text-align:right;">
+          ${left.map(r => `
+            <div style="
+              background:#ecf0f1;
+              padding:4px 8px;
+              border-radius:4px;
+              border:1px solid #bdc3c7;
+              font-size:10px;
+            ">${r.outputName}</div>
+          `).join("")}
+        </div>
+
+        <div style="
+          width:60px;
+          height:100px;
+          background:#f1c40f;
+          border-radius:8px;
+          border:2px solid #d4ac0d;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:11px;
+          font-weight:bold;
+        ">Machine</div>
+
+        <div style="display:flex; flex-direction:column; gap:6px; text-align:left;">
+          ${right.map(r => `
+            <div style="
+              background:#ecf0f1;
+              padding:4px 8px;
+              border-radius:4px;
+              border:1px solid #bdc3c7;
+              font-size:10px;
+            ">${r.outputName}</div>
+          `).join("")}
+        </div>
+
+      </div>
+    </div>`;
+  }
+
+  // MODE 1 RANG & 2 RANGS → demi-lune
+  const outputs = [...left, ...right];
+  const count = outputs.length;
+  const angleStep = 180 / (count - 1);
+
+  const items = outputs.map((r, i) => `
+    <div style="
+      position:absolute;
+      left:50%;
+      top:100%;
+      transform-origin:bottom center;
+      transform:rotate(${i * angleStep - 90}deg);
+    ">
+      <div style="
+        background:#ecf0f1;
+        padding:3px 6px;
+        border-radius:4px;
+        border:1px solid #bdc3c7;
+        font-size:10px;
+        transform:rotate(${90 - i * angleStep}deg);
+      ">${r.outputName}</div>
+    </div>
+  `).join("");
+
   return `
   <div class="section">
-    <div class="section-title">Schéma machine – Arbo</div>
-    <div class="machine-wrapper">
-      <div class="arbo-machine">
-        <div class="arbo-column">
-          ${left.map((r, i) => `
-            <div class="arbo-nozzle" style="top:${i * 32}px;">${r.nozzleLabel}</div>
-          `).join("")}
-        </div>
-        <div class="arbo-body"></div>
-        <div class="arbo-column">
-          ${right.map((r, i) => `
-            <div class="arbo-nozzle" style="top:${i * 32}px;">${r.nozzleLabel}</div>
-          `).join("")}
-        </div>
-      </div>
+    <div class="section-title">Schéma machine – Arbo (${state.arboMode === "1r" ? "1 rang" : "2 rangs"})</div>
+
+    <div style="
+      position:relative;
+      width:320px;
+      height:160px;
+      margin:20px auto;
+      border-top-left-radius:320px;
+      border-top-right-radius:320px;
+      border:2px solid #2c3e50;
+      border-bottom:none;
+    ">
+      ${items}
     </div>
   </div>`;
 }
-
 // --------- Schéma RAMPE ---------
 
 function renderRampeDiagram(state) {
@@ -353,67 +422,94 @@ function renderRampeDiagram(state) {
 }
 
 // --------- Schéma VITI ---------
+// --------- Schéma VITI (nouvelle version claire) ---------
 
 function renderVitiDiagram(state) {
-  const r = state.results;
+  const left = state.results.filter(r =>
+    r.outputName.toLowerCase().includes("g")
+  );
+  const right = state.results.filter(r =>
+    r.outputName.toLowerCase().includes("d")
+  );
 
-  const getLabel = (idx) => (r[idx] ? r[idx].nozzleLabel : "");
+  const leftHtml = left
+    .map(
+      r => `
+      <div style="
+        background:#ecf0f1;
+        padding:4px 8px;
+        border-radius:4px;
+        border:1px solid #bdc3c7;
+        font-size:10px;
+        margin:2px 0;
+        text-align:right;
+      ">
+        ${r.outputName}
+      </div>`
+    )
+    .join("");
+
+  const rightHtml = right
+    .map(
+      r => `
+      <div style="
+        background:#ecf0f1;
+        padding:4px 8px;
+        border-radius:4px;
+        border:1px solid #bdc3c7;
+        font-size:10px;
+        margin:2px 0;
+        text-align:left;
+      ">
+        ${r.outputName}
+      </div>`
+    )
+    .join("");
 
   return `
   <div class="section">
     <div class="section-title">Schéma machine – Vigne</div>
-    <div class="machine-wrapper">
-      <div class="viti-svg-container">
-        <svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
 
-          <rect x="0" y="0" width="420" height="260" fill="#f0f0f0" rx="10"/>
+    <div style="
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:40px;
+      margin-top:10px;
+    ">
 
-          <rect x="170" y="60" width="80" height="120" rx="16" fill="#f1c40f" stroke="#d4ac0d" stroke-width="2"/>
-          <rect x="185" y="75" width="50" height="90" rx="10" fill="#fcf3cf"/>
-          <rect x="195" y="155" width="30" height="20" rx="4" fill="#bdc3c7"/>
-
-          <rect x="150" y="190" width="120" height="10" fill="#7f8c8d"/>
-          <circle cx="170" cy="210" r="12" fill="#34495e"/>
-          <circle cx="250" cy="210" r="12" fill="#34495e"/>
-
-          <rect x="60" y="90" width="90" height="6" fill="#27ae60"/>
-          <rect x="60" y="140" width="90" height="6" fill="#27ae60"/>
-          <rect x="60" y="180" width="90" height="6" fill="#27ae60"/>
-
-          <rect x="270" y="90" width="90" height="6" fill="#27ae60"/>
-          <rect x="270" y="140" width="90" height="6" fill="#27ae60"/>
-          <rect x="270" y="180" width="90" height="6" fill="#27ae60"/>
-
-          <circle cx="60" cy="90" r="7" fill="#27ae60"/>
-          <circle cx="60" cy="140" r="7" fill="#27ae60"/>
-
-          <circle cx="150" cy="90" r="5" fill="#2ecc71"/>
-          <circle cx="150" cy="140" r="5" fill="#2ecc71"/>
-          <circle cx="150" cy="180" r="5" fill="#2ecc71"/>
-
-          <circle cx="360" cy="90" r="7" fill="#27ae60"/>
-          <circle cx="360" cy="140" r="7" fill="#27ae60"/>
-
-          <circle cx="270" cy="90" r="5" fill="#2ecc71"/>
-          <circle cx="270" cy="140" r="5" fill="#2ecc71"/>
-          <circle cx="270" cy="180" r="5" fill="#2ecc71"/>
-
-          <text x="20" y="80" font-size="9" fill="#2c3e50">${getLabel(0)}</text>
-          <text x="20" y="135" font-size="9" fill="#2c3e50">${getLabel(1)}</text>
-
-          <text x="80" y="80" font-size="9" fill="#2c3e50">${getLabel(2)}</text>
-          <text x="80" y="135" font-size="9" fill="#2c3e50">${getLabel(3)}</text>
-          <text x="80" y="175" font-size="9" fill="#2c3e50">${getLabel(4)}</text>
-
-          <text x="300" y="80" font-size="9" fill="#2c3e50">${getLabel(5)}</text>
-          <text x="300" y="135" font-size="9" fill="#2c3e50">${getLabel(6)}</text>
-
-          <text x="320" y="80" font-size="9" fill="#2c3e50">${getLabel(7)}</text>
-          <text x="320" y="135" font-size="9" fill="#2c3e50">${getLabel(8)}</text>
-          <text x="320" y="175" font-size="9" fill="#2c3e50">${getLabel(9)}</text>
-
-        </svg>
+      <!-- Colonne Gauche -->
+      <div style="
+        display:flex;
+        flex-direction:column;
+        align-items:flex-end;
+      ">
+        ${leftHtml}
       </div>
-    </div>
+
+      <!-- Machine -->
+      <div style="
+        width:80px;
+        height:80px;
+        background:#f1c40f;
+        border-radius:10px;
+        border:2px solid #d4ac0d;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:bold;
+        font-size:11px;
+      ">
+        Machine
+      </div>
+
+      <!-- Colonne Droite -->
+      <div style="
+        display:flex;
+        flex-direction:column;
+        align-items:flex-start;
+      ">
+        ${rightHtml}
+      </div>
   </div>`;
 }
