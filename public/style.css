@@ -105,7 +105,16 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
-
+.intro-text {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #555;
+  max-width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.4;
+}
 .machine-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
