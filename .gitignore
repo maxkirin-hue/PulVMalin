@@ -9,6 +9,9 @@ dist/
 build/
 out/
 
+# TypeScript
+*.tsbuildinfo
+
 # System files
 .DS_Store
 Thumbs.db
@@ -23,3 +26,6 @@ Thumbs.db
 
 # Puppeteer cache
 .puppeteer/
+
+# Vite
+.vite/
