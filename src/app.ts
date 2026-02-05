@@ -45,6 +45,13 @@ type AppState = {
 
   qTotal: number;
   recommendedPressure: number;
+  
+const btnContinue = document.getElementById("btnContinue");
+if (btnContinue) {
+  btnContinue.addEventListener("click", () => {
+    computeAll();
+  });
+}
 };
 
 /* ============================================================
