@@ -1,11 +1,7 @@
 import { state } from "../state/state";
 import { showPage } from "./navigation";
-
-/* =========================================================
-   OUTILS DOM
-========================================================= */
-
-const $ = (sel: string): HTMLElement => document.querySelector(sel)!;
+import { populateFamilySelect } from "./forms";
+import { $ } from "../utils/dom";
 
 /* =========================================================
    AFFICHAGE DES BLOCS SELON MACHINE
@@ -38,15 +34,18 @@ export function initMachineButtons(): void {
       });
     });
 
-  $("#toPage2").addEventListener("click", () => {
-    state.machineName = ($("#machineName") as HTMLInputElement).value.trim();
+  const btnToPage2 = $("#toPage2");
+  if (btnToPage2) {
+    btnToPage2.addEventListener("click", () => {
+      state.machineName = ($("#machineName") as HTMLInputElement).value.trim();
 
-    if (!state.machineType) {
-      alert("Choisis un type de machine.");
-      return;
-    }
+      if (!state.machineType) {
+        alert("Choisis un type de machine.");
+        return;
+      }
 
-    showPage(2);
-  });
+      populateFamilySelect();
+      showPage(2);
+    });
+  }
 }
-
