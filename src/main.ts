@@ -1,8 +1,7 @@
 import { initMachineButtons } from "./ui/machine";
-import { initNav, showPage } from "./ui/navigation";
+import { initNavigation } from "./ui/navigation";
 
-window.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
+  initNavigation();
   initMachineButtons();
-  initNav();
-  showPage(1);
 });
