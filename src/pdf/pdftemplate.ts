@@ -1,6 +1,7 @@
-import { state as AppState } from "../state/state";
+import { state as appstate } from "../state/state";
 
-type PdfState = typeof AppState;
+
+type PdfState = typeof appstate;
 
 /* =========================================================
    CONFIG
