@@ -1,51 +1,38 @@
 import { state } from "../state/state";
+import { $ } from "../utils/dom";
 import { showPage } from "./navigation";
 import { populateFamilySelect } from "./forms";
-import { $ } from "../utils/dom";
 
 /* =========================================================
-   AFFICHAGE DES BLOCS SELON MACHINE
+   SÉLECTION TYPE DE MACHINE
 ========================================================= */
 
-function updateMachineBlocks(): void {
-  const isArbo = state.machineType === "arbo";
+const machineButtons = document.querySelectorAll("[data-machine]");
 
-  ($("#arboBlock") as HTMLElement).style.display = isArbo ? "block" : "none";
-  ($("#arboModeBlock") as HTMLElement).style.display = isArbo ? "block" : "none";
+machineButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const type = (btn as HTMLElement).dataset.machine;
 
-  ($("#vitiBlock") as HTMLElement).style.display =
-    state.machineType === "viti" ? "block" : "none";
+    if (!type) return;
 
-  ($("#rampeBlock") as HTMLElement).style.display =
-    state.machineType === "rampe" ? "block" : "none";
-}
+    // 1️⃣ Enregistre le type de machine
+    state.machineType = type as any;
+
+    // 2️⃣ Initialise les familles de buses compatibles
+    populateFamilySelect();
+
+    // 3️⃣ Navigation vers la page paramètres
+    showPage(2);
+  });
+});
 
 /* =========================================================
-   INITIALISATION DES BOUTONS MACHINE
+   RETOUR ACCUEIL
 ========================================================= */
 
-export function initMachineButtons(): void {
-  document
-    .querySelectorAll<HTMLButtonElement>(".card-btn[data-type]")
-    .forEach(btn => {
-      btn.addEventListener("click", () => {
-        state.machineType = btn.dataset.type as any;
-        updateMachineBlocks();
-      });
-    });
-
-  const btnToPage2 = $("#toPage2");
-  if (btnToPage2) {
-    btnToPage2.addEventListener("click", () => {
-      state.machineName = ($("#machineName") as HTMLInputElement).value.trim();
-
-      if (!state.machineType) {
-        alert("Choisis un type de machine.");
-        return;
-      }
-
-      populateFamilySelect();
-      showPage(2);
-    });
-  }
+const backToHome = $("#backToHome");
+if (backToHome) {
+  backToHome.addEventListener("click", () => {
+    showPage(1);
+  });
 }
