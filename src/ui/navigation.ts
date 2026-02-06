@@ -1,21 +1,14 @@
-/* =========================================================
-   NAVIGATION ENTRE PAGES
-========================================================= */
+import { $ } from "../utils/dom";
 
 export function showPage(n: number): void {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.querySelector(`#page${n}`)?.classList.add("active");
+  document.querySelectorAll<HTMLElement>(".page").forEach(p => {
+    p.style.display = "none";
+  });
+
+  const target = $(`#page${n}`);
+  if (target) target.style.display = "block";
 }
 
-/* =========================================================
-   INITIALISATION NAVIGATION
-========================================================= */
-
-export function initNav(): void {
-  document.querySelectorAll<HTMLButtonElement>("button[data-back]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const target = Number(btn.dataset.back);
-      showPage(target);
-    });
-  });
+export function initNavigation(): void {
+  showPage(1);
 }
