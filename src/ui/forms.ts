@@ -2,6 +2,9 @@ import { nozzleFamilies } from "../data/nozzles";
 import { state } from "../state/state";
 import { showPage } from "./navigation";
 import { computeAll, recomputePressureOnly } from "../core/optimizer";
+import { generatePdfHtml } from "../pdf/pdfTemplate"; 
+import { formatName, formatVitiModel } from "../utils/format";
+declare const html2pdf: any;
 /* =========================================================
    PAGE 1 → PAGE 2
 ========================================================= */
@@ -229,52 +232,26 @@ function renderResultsTable() {
   });
 }
 
-/* =========================================================
-   RÉSUMÉ PAGE 4
-========================================================= */
-function formatVitiModel(key: string | null): string {
-  if (!key) return "";
-  const map: Record<string, string> = {
-    "3r_sans": "3 rangs — sans retour",
-    "3r_avec": "3 rangs — avec retour",
-    "4r_sans": "4 rangs — sans retour",
-    "4r_avec": "4 rangs — avec retour",
-  };
-  return map[key] ?? key;
-}
-function fillSummary() {
-  (document.getElementById("sumMachine") as HTMLElement).textContent =
-    state.machineType ?? "";
+  /* =========================================================
+    RÉSUMÉ PAGE 4
+  ========================================================= */
 
-  (document.getElementById("sumName") as HTMLElement).textContent =
-    state.userName ?? "";
+  function fillSummary() {
+    // Nom utilisateur
+    const sumName = document.getElementById("sumName") as HTMLElement;
+    sumName.textContent = formatName(state.userName ?? "");
 
-  (document.getElementById("sumModel") as HTMLElement).textContent =
-    state.machineType === "viti"
-      ? formatVitiModel(state.modelKey)
-      : state.machineName ?? "";
+    // Type de machine
+    const sumMachine = document.getElementById("sumMachine") as HTMLElement;
+    sumMachine.textContent = state.machineType ?? "";
 
-  (document.getElementById("sumFamily") as HTMLElement).textContent =
-    state.familyKey ?? "";
-
-  (document.getElementById("sumMode") as HTMLElement).textContent =
-    state.familyKey ?? "";
-
-  (document.getElementById("sumLargeur") as HTMLElement).textContent =
-    state.interligne?.toString() ?? "";
-
-  (document.getElementById("sumDose") as HTMLElement).textContent =
-    state.dose?.toString() ?? "";
-
-  (document.getElementById("sumVitesse") as HTMLElement).textContent =
-    state.speed?.toString() ?? "";
-
-  (document.getElementById("sumPressure") as HTMLElement).textContent =
-    state.recommendedPressure?.toFixed(1) ?? "";
-
-  (document.getElementById("sumQtotal") as HTMLElement).textContent =
-    state.qTotal?.toFixed(2) ?? "";
-}
+    // Modèle machine (VITI ou autre)
+    const sumModel = document.getElementById("sumModel") as HTMLElement;
+    sumModel.textContent =
+      state.machineType === "viti"
+        ? formatVitiModel(state.modelKey)
+        : state.machineName ?? "";
+  }
 
 /* =========================================================
    RE-CALCUL PRESSION (PAGE 4)
@@ -291,4 +268,24 @@ document.getElementById("btnRecalc")?.addEventListener("click", () => {
 
   // 🔥 on met à jour uniquement la pression affichée
   fillSummary();
+});
+/* =========================================================
+   EXPORT PDF
+========================================================= */  
+
+document.getElementById("btnPdf")?.addEventListener("click", () => {
+  const html = generatePdfHtml(state);
+
+  const element = document.createElement("div");
+  element.innerHTML = html;
+
+  html2pdf()
+    .from(element)
+    .set({
+      margin: 10,
+      filename: "pulvmalin.pdf",
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    })
+    .save();
 });
