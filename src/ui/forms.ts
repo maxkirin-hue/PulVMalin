@@ -2,7 +2,7 @@ import { nozzleFamilies } from "../data/nozzles";
 import { state } from "../state/state";
 import { showPage } from "./navigation";
 import { computeAll, recomputePressureOnly } from "../core/optimizer";
-import { generatePdfHtml } from "../pdf/pdfTemplate.ts"; 
+import { generatePdfHtml } from "../pdf/pdfTemplate"; 
 import { formatName, formatVitiModel } from "../utils/format";
 declare const html2pdf: any;
 /* =========================================================
