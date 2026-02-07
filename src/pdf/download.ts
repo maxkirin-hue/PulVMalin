@@ -1,4 +1,4 @@
-import { generatePdfHtml } from "./pdfTemplate.ts";
+import { generatePdfHtml } from "./pdfTemplate";
 import { state } from "../state/state";
 
 declare const html2pdf: any;
