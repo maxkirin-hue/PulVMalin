@@ -61,7 +61,7 @@ function getNozzleVariants(fam: any): NozzleVariant[] {
    DÉTECTION NOMBRE DE RANGS / SORTIES
 ========================================================= */
 
-function detectRangs(): number {
+export function detectRangs(): number {
   let rangs = 1;
 
   if (state.machineType === "viti") {
