@@ -20,47 +20,38 @@
 <main class="app-main">
 
   <!-- PAGE 1 : TYPE MACHINE + NOM -->
-  <section id="page1" class="page active">
-    <h1>1. Type de machine</h1>
-    <p class="hint">Choisis le type de machine et donne-lui un nom. Ce nom apparaîtra dans le PDF.</p>
+ <section id="page1" class="page">
+  <h1>1. Informations</h1>
 
-    <div class="machine-grid">
-      <button class="card-btn" data-type="arbo">
-        <div class="card-title">Arbo</div>
-        <div class="card-sub">2 rangs, sorties symétriques G/D</div>
-      </button>
-      <!-- Choix du mode Arbo -->
-<div id="arboModeBlock" style="display:none;">
-  <label for="arboMode"><strong>Mode Arbo :</strong></label>
-  <select id="arboMode">
-    <option value="1r">1 rang</option>
-    <option value="2r" selected>2 rangs</option>
-    <option value="tangent">Tangentiel 2 rangs</option>
-  </select>
-</div>
-      <button class="card-btn" data-type="viti">
-        <div class="card-title">Viti</div>
-        <div class="card-sub">3 ou 4 rangs, avec/sans retour</div>
-      </button>
-      <button class="card-btn" data-type="rampe">
-        <div class="card-title">Rampe désherbage</div>
-        <div class="card-sub">1 rang, nombre de buses libre</div>
-      </button>
-    </div>
+  <div class="card">
 
     <label class="field">
-      <span>Nom de la machine</span>
-      <input id="machineName" type="text" placeholder="Ex : Marque modèle config" />
+      <span>Votre nom</span>
+      <input id="userName" type="text" placeholder="Ex : Tarte Ampion" required />
     </label>
 
-    <div class="nav-row">
-      <button class="primary" id="toPage2">Continuer</button>
-      <p class="intro-text">
-  PulV malin vous accompagne dans la calibration de votre pulvérisateur. Cette application est en version "Work in progress". Les réglages proposés sont théoriques et doivent être vérifiés sur la machine. 
-</p>
+    <label class="field">
+      <span>Modèle de machine</span>
+      <input id="machineName" type="text" placeholder="Ex : Calvet  1000l" required />
+    </label>
 
-    </div>
-  </section>
+    <label class="field">
+      <span>Type de machine</span>
+      <select id="machineType">
+        <option value="">Choisir…</option>
+        <option value="viti">Vigne</option>
+        <option value="tangentiel">Tangentiel</option>
+        <option value="arbo">Arboriculture</option>
+        <option value="rampe">Rampe</option>
+      </select>
+    </label>
+
+  </div>
+
+  <div class="nav-row">
+    <button class="primary" id="toPage2">Continuer</button>
+  </div>
+</section>
 
   <!-- PAGE 2 : RÉGLAGES + FAMILLE + NB BUSES -->
   <section id="page2" class="page">
@@ -91,6 +82,13 @@
       <label class="field">
         <span>Nombre total de buses</span>
         <input id="arboCount" type="number" min="2" step="2" placeholder="Ex : 12" />
+        <label class="field">
+  <span>Nombre de rangs</span>
+  <select id="arboRangs">
+    <option value="1">1 rang</option>
+    <option value="2">2 rangs</option>
+  </select>
+</label>
       </label>
     </div>
 
@@ -116,6 +114,14 @@
         <input id="rampeCount" type="number" min="1" step="1" placeholder="Ex : 18" />
       </label>
     </div>
+    <div id="tangentielBlock" class="card subtle">
+  <div class="card-title">Tangentiel</div>
+  <p class="hint">Nombre total de buses tangentielles.</p>
+  <label class="field">
+    <span>Nombre total de buses</span>
+    <input id="tangentielCount" type="number" min="2" step="2" placeholder="Ex : 10" />
+  </label>
+</div>
 
     <div class="nav-row">
       <button class="secondary" data-back="1">Retour</button>
@@ -163,67 +169,73 @@
   </div>
 </section>
 
+<!-- PAGE 4 : RÉSULTATS -->
+<section id="page4" class="page">
+  <h1>4. Résultats</h1>
 
-  <!-- PAGE 4 : RÉSULTATS -->
-  <section id="page4" class="page">
-<h1>4. Résultats</h1>
+  <div class="summary card">
+    <div><strong>Machine :</strong> <span id="sumMachine"></span></div>
+    <div><strong>Nom :</strong> <span id="sumName"></span></div>
+    <div><strong>Famille :</strong> <span id="sumFamily"></span></div>
+    <div><strong>Modèle :</strong> <span id="sumModel"></span></div>
+    <div><strong>Type pastille ou buse :</strong> <span id="sumMode"></span></div>
 
-<div class="summary card">
-  <div><strong>Machine :</strong> <span id="sumMachine"></span></div>
-  <div><strong>Nom :</strong> <span id="sumName"></span></div>
-  <div><strong>Famille :</strong> <span id="sumFamily"></span></div>
-  <div><strong>Modèle :</strong> <span id="sumModel"></span></div>
-  <div><strong>Mode pastille :</strong> <span id="sumMode"></span></div>
+    <div><strong>Largeur :</strong> <span id="sumLargeur"></span></div>
+    <div><strong>Dose :</strong> <span id="sumDose"></span></div>
+    <div><strong>Vitesse :</strong> <span id="sumVitesse"></span></div>
 
-  <!-- 🔥 AJOUT DES PARAMÈTRES DE BASE -->
-  <div><strong>Largeur :</strong> <span id="sumLargeur"></span></div>
-  <div><strong>Dose :</strong> <span id="sumDose"></span></div>
-  <div><strong>Vitesse :</strong> <span id="sumVitesse"></span></div>
+    <div><strong>Débit total cible :</strong> <span id="sumQtotal"></span> L/min</div>
+  </div>
 
-  <div><strong>Débit total cible :</strong> <span id="sumQtotal"></span> L/min</div>
-</div>
-    <h2>Réglage par sortie</h2>
-    <div class="table-wrapper">
-      <table class="result-table">
-        <thead>
-          <tr>
-            <th>Sortie</th>
-            <th>Coef</th>
-            <th>Débit cible (L/min)</th>
-            <th>Pastille</th>
-            <th>Pression (bar)</th>
-            <th>Statut</th>
-          </tr>
-        </thead>
-        <tbody id="resultBody"></tbody>
-      </table>
-      <p class="disclaimer">
-        Les résultats fournis n’excluent pas un contrôle des débits réels sur la machine.
-      </p>
+  <h2>Réglage par sortie</h2>
+
+  <div class="table-wrapper">
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th>Sortie</th>
+          <th>Débit cible (L/min)</th>
+          <th>Pastille</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+
+    <p class="disclaimer">
+      Les résultats fournis n’excluent pas un contrôle des débits réels sur la machine.
+    </p>
+  </div>
+
+  <div class="summary card">
+    <div><strong>Pression de travail recommandée :</strong> 
+      <span id="sumPressure"></span> bar
     </div>
+  </div>
+
 <div class="card">
   <label class="field">
     <span>Nouvel interligne (m)</span>
     <input id="newInterligne" type="number" step="0.01" placeholder="Ex : 2.2" />
   </label>
+
+  <label class="field">
+    <span>Nouvelle dose (L/ha)</span>
+    <input id="newDose" type="number" step="1" placeholder="Ex : 150" />
+  </label>
+
   <button class="primary" id="btnRecalc">Recalculer la pression</button>
 </div>
 
-<div class="summary card">
-  <div><strong>Pression recommandée :</strong> <span id="sumPressure"></span></div>
-</div>
+  <div class="nav-row">
+    <button class="secondary" data-back="3">Modifier</button>
+    <button class="secondary" data-back="1">Recommencer</button>
+    <button class="primary" id="btnPdf">Télécharger le PDF</button>
+  </div>
 
-    <div class="nav-row">
-      <button class="secondary" data-back="3">Modifier</button>
-      <button class="secondary" data-back="1">Recommencer</button>
-      <button class="primary" id="btnPdf">Télécharger le PDF</button> 
-</div>
-   <div id="pdfLoader" style="display:none; text-align:center; margin-top:20px;">
-  <p>📄 Génération du PDF en cours…</p>
-     </div>
-  </section>
-
-</main>
+  <div id="pdfLoader" style="display:none; text-align:center; margin-top:20px;">
+    <p>📄 Génération du PDF en cours…</p>
+  </div>
+</section>
   
   <script type="module" src="/src/main.ts"></script>
   
