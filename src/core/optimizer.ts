@@ -10,6 +10,7 @@ import { flowAtPressure, pressureStatus } from "./hydraulics";
 type NozzleVariant = {
   code: string;
   qRef: number;
+  color?: string;
 };
 
 interface OptimizationResult {
@@ -17,6 +18,8 @@ interface OptimizationResult {
   q: number;
   qTarget: number;
   relErr: number;
+
+ 
 }
 
 interface OptimizationOutput {
@@ -26,12 +29,6 @@ interface OptimizationOutput {
   relErrTot: number;
   cost: number;
 }
-
-/* =========================================================
-   NORMALISATION DONNÉES BUSES
-   - transforme "nozzles" (avec faces possibles) en liste plate de variantes
-========================================================= */
-
 function getNozzleVariants(fam: any): NozzleVariant[] {
   const variants: NozzleVariant[] = [];
 
@@ -52,6 +49,7 @@ function getNozzleVariants(fam: any): NozzleVariant[] {
       variants.push({
         code: n.code,
         qRef: n.qRef,
+        color: n.color,
       });
     }
   });
@@ -60,7 +58,28 @@ function getNozzleVariants(fam: any): NozzleVariant[] {
 }
 
 /* =========================================================
-   OPTIMISATION PRESSION + PASTILLES
+   DÉTECTION NOMBRE DE RANGS / SORTIES
+========================================================= */
+
+function detectRangs(): number {
+  let rangs = 1;
+
+  if (state.machineType === "viti") {
+    if (state.modelKey?.includes("3r")) rangs = 3;
+    if (state.modelKey?.includes("4r")) rangs = 4;
+  }
+
+  if (state.machineType === "arbo") {
+  rangs = state.arboRangs ?? 2;
+}
+  
+if (state.machineType === "tangentiel") {
+  rangs = 2; // gauche + droite
+} 
+  return rangs;
+}
+/* =========================================================
+   OPTIMISATION PRESSION + PASTILLES (MODE COMPLET)
 ========================================================= */
 
 export function optimizePressureAndNozzlesForFamily(
@@ -72,11 +91,11 @@ export function optimizePressureAndNozzlesForFamily(
 
   const familyTargetPressures: Record<string, number> = {
     CP4916: 3,
-    AMT: 2.5,
-    ATR80: 5,
+    AMT: 2,
+    ATR80: 10,
     IDK90: 5,
-    TXR: 5,
-    XR: 3,
+    TXR: 10,
+    XR: 2,
     AD90: 3,
   };
 
@@ -88,7 +107,6 @@ export function optimizePressureAndNozzlesForFamily(
 
   const variants = getNozzleVariants(fam);
   if (!variants.length) {
-    // fallback dur : évite un crash/NaN si base de données incomplète
     return {
       P: preferredP,
       results: targets.map(t => ({
@@ -160,7 +178,7 @@ export function optimizePressureAndNozzlesForFamily(
 }
 
 /* =========================================================
-   CALCUL GLOBAL
+   CALCUL GLOBAL COMPLET (PASTILLES + PRESSION)
 ========================================================= */
 
 export function computeAll(): void {
@@ -169,20 +187,13 @@ export function computeAll(): void {
   const fam = nozzleFamilies[state.familyKey];
   if (!fam) return;
 
-  const { names, coefs, modelLabel } = getOutputsAndCoefs();
+  const { names, coefs } = getOutputsAndCoefs();
+  if (!names.length || !coefs.length) return;
 
-  const qParRang = (state.dose! * state.largeur! * state.vitesse!) / 600;
+  const rangs = detectRangs();
+  const largeurTotale = state.interligne! * rangs;
 
-  let rangs = 1;
-
-  if (state.machineType === "viti") {
-    if (state.modelKey?.includes("3r")) rangs = 3;
-    if (state.modelKey?.includes("4r")) rangs = 4;
-  }
-
-  if (state.machineType === "arbo") rangs = 2;
-
-  const qTotal = qParRang * rangs;
+  const qTotal = (state.dose! * largeurTotale * state.speed!) / 600;
   state.qTotal = qTotal;
 
   const sumCoef = coefs.reduce((a, b) => a + b, 0);
@@ -200,6 +211,7 @@ export function computeAll(): void {
       coef: coefs[idx],
       qTarget: r.qTarget,
       nozzleLabel: r.nozzle.code,
+      nozzleColor: r.nozzle.color,
       pressure: opt.P,
       qReal: r.q,
       relError: r.relErr,
@@ -207,5 +219,73 @@ export function computeAll(): void {
     };
   });
 
+  // on fige le choix des pastilles pour les recalculs ultérieurs
+  (state as any).fixedNozzles = state.results.map(r => r.nozzleLabel);
 }
 
+/* =========================================================
+   OUTILS POUR LE RECALCUL PRESSION SEULEMENT
+========================================================= */
+
+function findNozzleVariantByLabel(fam: any, label: string): NozzleVariant {
+  const variants = getNozzleVariants(fam);
+  const found = variants.find(v => v.code === label);
+  return found ?? variants[0];
+}
+
+/* =========================================================
+   RECALCUL PRESSION EN FIXANT LES PASTILLES
+   - on peut changer dose et/ou interligne AVANT d’appeler cette fonction
+   - les pastilles restent celles de state.fixedNozzles
+========================================================= */
+
+export function recomputePressureOnly(): void {
+  if (!state.familyKey) return;
+
+  const fam = nozzleFamilies[state.familyKey];
+  if (!fam) return;
+
+  const { coefs } = getOutputsAndCoefs();
+  if (!coefs.length) return;
+
+  const fixedNozzles: string[] = (state as any).fixedNozzles ?? [];
+  if (!fixedNozzles.length) return;
+
+  const rangs = detectRangs();
+  const largeurTotale = state.interligne! * rangs;
+
+  const qTotal = (state.dose! * largeurTotale * state.speed!) / 600;
+  state.qTotal = qTotal;
+
+  const sumCoef = coefs.reduce((a, b) => a + b, 0);
+  const targets = coefs.map(c => qTotal * (c / sumCoef));
+
+  const refP = fam?.refPressure ?? 3;
+  const Pmin = fam.limitRange[0];
+  const Pmax = fam.limitRange[1];
+  const step = 0.1;
+
+  let bestP = refP;
+  let bestCost = Infinity;
+
+  for (let P = Pmin; P <= Pmax + 1e-6; P += step) {
+    let sumErr2 = 0;
+
+    for (let i = 0; i < targets.length; i++) {
+      const nozzleLabel = fixedNozzles[i];
+      const nozzle = findNozzleVariantByLabel(fam, nozzleLabel);
+      const q = flowAtPressure(nozzle.qRef, P, refP);
+      const qTarget = targets[i];
+
+      const relErr = qTarget > 0 ? (q - qTarget) / qTarget : 0;
+      sumErr2 += relErr * relErr;
+    }
+
+    if (sumErr2 < bestCost) {
+      bestCost = sumErr2;
+      bestP = P;
+    }
+  }
+
+  state.recommendedPressure = bestP;
+}
