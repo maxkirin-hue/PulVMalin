@@ -1,38 +1,42 @@
 import { state } from "../state/state";
-import { $ } from "../utils/dom";
 import { showPage } from "./navigation";
 import { populateFamilySelect } from "./forms";
 
-/* =========================================================
-   SÉLECTION TYPE DE MACHINE
-========================================================= */
+export function initMachineButtons() {
+  const buttons = document.querySelectorAll("[data-type]");
 
-const machineButtons = document.querySelectorAll("[data-machine]");
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const type = (btn as HTMLElement).dataset.type;
+      if (!type) return;
 
-machineButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const type = (btn as HTMLElement).dataset.machine;
+      state.machineType = type as any;
 
-    if (!type) return;
+      // 1️⃣ Masquer tous les blocs
+      hideAllMachineBlocks();
 
-    // 1️⃣ Enregistre le type de machine
-    state.machineType = type as any;
+      // 2️⃣ Afficher le bon bloc
+      if (type === "arbo") {
+        document.getElementById("arboBlock")!.style.display = "block";
+      }
+      if (type === "viti") {
+        document.getElementById("vitiBlock")!.style.display = "block";
+      }
+      if (type === "rampe") {
+        document.getElementById("rampeBlock")!.style.display = "block";
+      }
 
-    // 2️⃣ Initialise les familles de buses compatibles
-    populateFamilySelect();
+      // 3️⃣ Charger les familles compatibles
+      populateFamilySelect();
 
-    // 3️⃣ Navigation vers la page paramètres
-    showPage(2);
+      // 4️⃣ Aller à la page 2
+      showPage(2);
+    });
   });
-});
+}
 
-/* =========================================================
-   RETOUR ACCUEIL
-========================================================= */
-
-const backToHome = $("#backToHome");
-if (backToHome) {
-  backToHome.addEventListener("click", () => {
-    showPage(1);
-  });
+function hideAllMachineBlocks() {
+  document.getElementById("arboBlock")!.style.display = "none";
+  document.getElementById("vitiBlock")!.style.display = "none";
+  document.getElementById("rampeBlock")!.style.display = "none";
 }
