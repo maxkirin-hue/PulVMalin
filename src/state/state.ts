@@ -1,27 +1,54 @@
-export const state = {
-  // Page 1
-  machineType: null as string | null,
-  machineName: "",
+export interface AppState {
+  userName: string | null;
 
-  // Page 2
-  dose: 0,
-  interligne: 0,
-  speed: 0,
-  familyKey: null as string | null,
+  machineType: string | null;
+  machineName: string | null;
 
-  // Modèle de répartition (viti/arbo)
-  modelKey: null as string | null,
+  dose: number | null;
+  interligne: number | null;
+  speed: number | null;
 
-  // Largeur / vitesse (rampe)
-  largeur: 0,
-  vitesse: 0,
+  familyKey: string | null;
 
-  // Résultats du calcul
-  results: [] as any[],
+  // Viti
+  modelKey: string | null;
 
-  // Débit total machine
-  qTotal: 0,
+  // Arbo
+  arboCount: number | null;
+  arboRangs: number | null;
 
-  // Pression recommandée
-  recommendedPressure: 0,
+  // Rampe
+  rampeCount: number | null;
+
+  // Résultats
+  qTotal: number | null;
+  recommendedPressure: number | null;
+
+  results: any[];
+
+  // Pastilles figées pour recalcul pression
+  fixedNozzles?: string[];
+}
+
+export const state: AppState = {
+  userName: null,
+
+  machineType: null,
+  machineName: null,
+
+  dose: null,
+  interligne: null,
+  speed: null,
+
+  familyKey: null,
+
+  modelKey: null,
+  arboCount: null,
+  rampeCount: null,
+arboRangs: null,
+  qTotal: null,
+  recommendedPressure: null,
+
+  results: [],
+  fixedNozzles: [],
 };
