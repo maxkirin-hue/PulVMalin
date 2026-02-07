@@ -1,5 +1,6 @@
 import { state as appstate } from "../state/state";
-
+import { detectRangs } from "src/core/optimizer";
+import { formatVitiModel } from "src/ui/forms";
 
 type PdfState = typeof appstate;
 
@@ -60,6 +61,11 @@ const pdfStyles = `
 function renderHeader(state: PdfState): string {
   const today = new Date().toLocaleDateString("fr-FR");
 
+  const model =
+    state.machineType === "viti"
+      ? formatVitiModel(state.modelKey)
+      : state.machineName;
+
   return `
     <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
       <div>
@@ -68,15 +74,44 @@ function renderHeader(state: PdfState): string {
       </div>
       <div style="text-align:right; font-size:11px;">
         <div><strong>Date :</strong> ${today}</div>
+        <div><strong>Nom :</strong> ${state.userName}</div>
         <div><strong>Machine :</strong> ${state.machineType}</div>
-        <div><strong>Modèle :</strong> ${state.modelKey}</div>
+        <div><strong>Modèle :</strong> ${model}</div>
+        <div><strong>Famille :</strong> ${state.familyKey}</div>
       </div>
     </div>
   `;
 }
 
 /* =========================================================
-   BLOCS
+   SYNTHÈSE
+========================================================= */
+
+function renderSummary(state: PdfState): string {
+  const rangs = detectRangs();
+  const nbBuses = state.results.length;
+
+  const model =
+    state.machineType === "viti"
+      ? formatVitiModel(state.modelKey)
+      : state.machineName;
+
+  return `
+    <div class="section">
+      <div class="section-title">Synthèse</div>
+      <table>
+        <tr><td>Type de machine</td><td>${state.machineType}</td></tr>
+        <tr><td>Modèle</td><td>${model}</td></tr>
+        <tr><td>Famille de buses</td><td>${state.familyKey}</td></tr>
+        <tr><td>Nombre de rangs</td><td>${rangs}</td></tr>
+        <tr><td>Nombre total de buses</td><td>${nbBuses}</td></tr>
+      </table>
+    </div>
+  `;
+}
+
+/* =========================================================
+   PARAMÈTRES DE TRAVAIL
 ========================================================= */
 
 function renderSettings(state: PdfState): string {
@@ -84,14 +119,18 @@ function renderSettings(state: PdfState): string {
     <div class="section">
       <div class="section-title">Paramètres de travail</div>
       <table>
-        <tr><td>Largeur</td><td>${state.largeur} m</td></tr>
+        <tr><td>Largeur / interligne</td><td>${state.interligne} m</td></tr>
         <tr><td>Dose</td><td>${state.dose} L/ha</td></tr>
-        <tr><td>Vitesse</td><td>${state.vitesse} km/h</td></tr>
+        <tr><td>Vitesse</td><td>${state.speed} km/h</td></tr>
         <tr><td>Débit total</td><td>${state.qTotal.toFixed(2)} L/min</td></tr>
       </table>
     </div>
   `;
 }
+
+/* =========================================================
+   PRESSION
+========================================================= */
 
 function renderPressure(state: PdfState): string {
   const ideal = familyTargetPressures[state.familyKey!] ?? state.recommendedPressure;
@@ -103,6 +142,10 @@ function renderPressure(state: PdfState): string {
     </div>
   `;
 }
+
+/* =========================================================
+   TABLEAU DES SORTIES
+========================================================= */
 
 function renderTable(state: PdfState): string {
   return `
@@ -117,7 +160,9 @@ function renderTable(state: PdfState): string {
           <th>Débit réel</th>
           <th>Écart</th>
         </tr>
-        ${state.results.map(r => `
+        ${state.results
+          .map(
+            r => `
           <tr>
             <td>${r.outputName}</td>
             <td>${r.coef}</td>
@@ -130,11 +175,17 @@ function renderTable(state: PdfState): string {
             <td>${r.qReal.toFixed(2)}</td>
             <td>${(r.relError * 100).toFixed(1)}%</td>
           </tr>
-        `).join("")}
+        `
+          )
+          .join("")}
       </table>
     </div>
   `;
 }
+
+/* =========================================================
+   FOOTER
+========================================================= */
 
 function renderFooter(): string {
   return `
@@ -145,7 +196,7 @@ function renderFooter(): string {
 }
 
 /* =========================================================
-   EXPORT
+   EXPORT FINAL
 ========================================================= */
 
 export function generatePdfHtml(state: PdfState): string {
@@ -157,6 +208,7 @@ export function generatePdfHtml(state: PdfState): string {
       </head>
       <body>
         ${renderHeader(state)}
+        ${renderSummary(state)}
         ${renderSettings(state)}
         ${renderPressure(state)}
         ${renderTable(state)}
