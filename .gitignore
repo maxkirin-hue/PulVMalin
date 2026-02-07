@@ -30,3 +30,4 @@ Thumbs.db
 # Vite
 .vite/
 grok_logs.csv
+src/pdf/pdftemplate.ts
