@@ -9,13 +9,13 @@ export function updateResults() {
   // 1) Calcul complet
   computeAll();
 
-  // 2) Helpers
+  // 2) Helper
   const set = (id: string, value: any) => {
     const el = document.getElementById(id);
     if (el) el.textContent = value ?? "";
   };
 
-  // 3) Résumé
+  // 3) Résumé haut de page
   set("sumMachine", state.machineName || "—");
   set("sumName", state.userName || "—");
 
@@ -24,14 +24,14 @@ export function updateResults() {
 
   set("sumMode", state.forcedToggle ? "Mode forcé" : "Automatique");
 
-  set("sumLargeur", state.largeur);
-  set("sumDose", state.dose);
-  set("sumVitesse", state.vitesse);
+  set("sumLargeur", state.largeur ?? "—");
+  set("sumDose", state.dose ?? "—");
+  set("sumVitesse", state.vitesse ?? "—");
 
   set("sumQtotal", state.qTotal.toFixed(2));
   set("sumPressure", state.recommendedPressure.toFixed(2));
 
-  // 4) Tableau des sorties
+  // 4) Tableau simplifié (3 colonnes)
   fillResultsTable();
 }
 
@@ -46,12 +46,8 @@ function fillResultsTable() {
 
     tr.innerHTML = `
       <td>${r.outputName}</td>
-      <td class="num">${r.coef.toFixed(2)}</td>
       <td class="num">${r.qTarget.toFixed(2)}</td>
       <td>${r.nozzleLabel}</td>
-      <td class="num">${r.pressure.toFixed(2)}</td>
-      <td class="num">${r.qReal.toFixed(2)}</td>
-      <td>${r.status}</td>
     `;
 
     body.appendChild(tr);
