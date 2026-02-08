@@ -18,8 +18,6 @@ interface OptimizationResult {
   q: number;
   qTarget: number;
   relErr: number;
-
- 
 }
 
 interface OptimizationOutput {
@@ -29,6 +27,11 @@ interface OptimizationOutput {
   relErrTot: number;
   cost: number;
 }
+
+/* =========================================================
+   VARIANTS DE BUSES
+========================================================= */
+
 function getNozzleVariants(fam: any): NozzleVariant[] {
   const variants: NozzleVariant[] = [];
 
@@ -70,14 +73,20 @@ export function detectRangs(): number {
   }
 
   if (state.machineType === "arbo") {
-  rangs = state.arboRangs ?? 2;
-}
-  
-if (state.machineType === "tangentiel") {
-  rangs = 2; // gauche + droite
-} 
+    rangs = state.arboRangs ?? 2;
+  }
+
+  if (state.machineType === "tangentiel") {
+    rangs = 2; // gauche + droite
+  }
+
+  if (state.machineType === "rampe") {
+    return 1; // une rampe = 1 "rang"
+  }
+
   return rangs;
 }
+
 /* =========================================================
    OPTIMISATION PRESSION + PASTILLES (MODE COMPLET)
 ========================================================= */
@@ -190,6 +199,40 @@ export function computeAll(): void {
   const { names, coefs } = getOutputsAndCoefs();
   if (!names.length || !coefs.length) return;
 
+  /* ======== MODE RAMPE ======== */
+  if (state.machineType === "rampe") {
+    const largeurTotale = state.largeur!; // largeur en mètres
+    const qTotal = (state.dose! * largeurTotale * state.vitesse!) / 600;
+    state.qTotal = qTotal;
+
+    const sumCoef = coefs.reduce((a, b) => a + b, 0);
+    const targets = coefs.map(c => qTotal * (c / sumCoef));
+
+    const opt = optimizePressureAndNozzlesForFamily(fam, targets, state.familyKey);
+
+    state.recommendedPressure = opt.P;
+
+    state.results = names.map((name, idx) => {
+      const r = opt.results[idx];
+      return {
+        outputName: name,
+        coef: coefs[idx],
+        qTarget: r.qTarget,
+        nozzleLabel: r.nozzle.code,
+        nozzleColor: r.nozzle.color,
+        pressure: opt.P,
+        qReal: r.q,
+        relError: r.relErr,
+        status: pressureStatus(opt.P, fam),
+      };
+    });
+
+    (state as any).fixedNozzles = state.results.map(r => r.nozzleLabel);
+    return;
+  }
+
+  /* ======== AUTRES MODES (viti, arbo, tangentiel) ======== */
+
   const rangs = detectRangs();
   const largeurTotale = state.interligne! * rangs;
 
@@ -205,7 +248,6 @@ export function computeAll(): void {
 
   state.results = names.map((name, idx) => {
     const r = opt.results[idx];
-
     return {
       outputName: name,
       coef: coefs[idx],
@@ -215,11 +257,10 @@ export function computeAll(): void {
       pressure: opt.P,
       qReal: r.q,
       relError: r.relErr,
-      status: pressureStatus(opt.P, fam as any),
+      status: pressureStatus(opt.P, fam),
     };
   });
 
-  // on fige le choix des pastilles pour les recalculs ultérieurs
   (state as any).fixedNozzles = state.results.map(r => r.nozzleLabel);
 }
 
@@ -235,8 +276,6 @@ function findNozzleVariantByLabel(fam: any, label: string): NozzleVariant {
 
 /* =========================================================
    RECALCUL PRESSION EN FIXANT LES PASTILLES
-   - on peut changer dose et/ou interligne AVANT d’appeler cette fonction
-   - les pastilles restent celles de state.fixedNozzles
 ========================================================= */
 
 export function recomputePressureOnly(): void {
