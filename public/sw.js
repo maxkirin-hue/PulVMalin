@@ -9,8 +9,8 @@ const ASSETS = [
   "/index.html",
   "/style.css",
   "/manifest.webmanifest",
-  "/icon-192.png",
-  "/icon-512.png"
+ "/icons/icon-192.png",
+"/icons/icon-512.png"
 ];
 
 // Installation : mise en cache des fichiers essentiels
