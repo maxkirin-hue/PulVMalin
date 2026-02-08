@@ -384,12 +384,14 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     element.innerHTML = html;
 
     html2pdf()
-      .from(element)
-      .set({
-        margin: 10,
-        filename: "pulvmalin.pdf",
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-      })
-      .save();
+  .set({
+    margin: 0,
+    filename: "pulvmalin.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+  })
+  .from(html)
+  .save();
+
   });
