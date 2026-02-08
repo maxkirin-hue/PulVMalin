@@ -7,6 +7,25 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="/manifest.webmanifest" />
 <meta name="theme-color" content="#2ecc71" />
+<div id="iosInstallBanner" style="
+  display:none;
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  right:20px;
+  background:#2ecc71;
+  color:white;
+  padding:15px;
+  border-radius:10px;
+  font-size:14px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  z-index:9999;
+">
+  📱 <strong>Installer PulvMalin</strong><br>
+  Sur iPhone : touche <strong>Partager</strong> → <strong>Ajouter à l’écran d’accueil</strong>.
+  <span style="float:right; cursor:pointer;" onclick="this.parentElement.style.display='none'">✖</span>
+</div>
+
 </head>
 <body>
 <header class="app-header">
@@ -52,6 +71,9 @@
 
   <div class="nav-row">
     <button class="primary" id="toPage2">Continuer</button>
+    <button id="btnInstall" style="display:none; margin:20px;">
+  📲 Installer PulvMalin
+</button> 
   </div>
 </section>
 
