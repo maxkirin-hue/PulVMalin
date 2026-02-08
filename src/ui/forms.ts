@@ -66,36 +66,46 @@
   ========================================================= */
 
   export function populateFamilySelect() {
-    const sel = document.getElementById("familySelect") as HTMLSelectElement;
-    if (!sel) return;
+  const sel = document.getElementById("familySelect") as HTMLSelectElement;
+  if (!sel) return;
 
-    sel.innerHTML = "";
+  sel.innerHTML = "";
 
-    const entries = Object.entries(nozzleFamilies).filter(
-      ([_, fam]: any) =>
-        !fam.machines || fam.machines.includes(state.machineType)
-    );
+  // 🔥 Règles de familles autorisées par type de machine
+  const allowedByMachine: Record<string, string[]> = {
+    viti: ["ATR80", "CP4916", "AMT", "AD90"],
+    arbo: ["TXR", "IDK", "XR"],
+    tangentiel: ["ATR80", "TXR", "IDK"],   // ❌ pas de CP4916 ici
+    rampe: ["XR", "IDK90", "AD90"],
+  };
 
-    entries.forEach(([key, fam]: any) => {
-      const opt = document.createElement("option");
-      opt.value = key;
-      opt.textContent = fam.label ?? key;
-      sel.appendChild(opt);
-    });
+  const allowed = allowedByMachine[state.machineType] ?? [];
 
-    if (entries.length) {
-      state.familyKey = entries[0][0];
-      sel.value = state.familyKey;
-    }
+  const entries = Object.entries(nozzleFamilies).filter(
+    ([key, fam]: any) =>
+      allowed.includes(key) &&
+      (!fam.machines || fam.machines.includes(state.machineType))
+  );
 
-    sel.addEventListener("change", () => {
-      state.familyKey = sel.value;
-      populateForcedNozzleSelect();
-    });
+  entries.forEach(([key, fam]: any) => {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = fam.label ?? key;
+    sel.appendChild(opt);
+  });
 
-    populateForcedNozzleSelect();
+  if (entries.length) {
+    state.familyKey = entries[0][0];
+    sel.value = state.familyKey;
   }
 
+  sel.addEventListener("change", () => {
+    state.familyKey = sel.value;
+    populateForcedNozzleSelect();
+  });
+
+  populateForcedNozzleSelect();
+}
   /* =========================================================
     PASTILLES
   ========================================================= */
