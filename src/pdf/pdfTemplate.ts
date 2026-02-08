@@ -122,13 +122,11 @@ export function generatePdfHtml(state: any): string {
       `).join("")}
     </table>
 
-    <h3>Pression de travail recommandée</h3>
-    <div style="border:2px solid #2ecc71; padding:10px; border-radius:6px;">
-      <strong>${(state.recommendedPressure ?? 0).toFixed(1)} bar</strong><br>
-(Pression idéale famille : ${state.familyPressure ?? "?"} bar)
-      (Pression idéale famille : ${state.familyPressure ?? "?"} bar)
-    </div>
-
+   <h3>Pression de travail recommandée</h3>
+<div style="border:2px solid #2ecc71; padding:10px; border-radius:6px;">
+  <strong>${(state.recommendedPressure ?? 0).toFixed(1)} bar</strong><br>
+  (Pression idéale famille : ${state.familyPressure ?? "?"} bar)
+</div>
     <h3>Schéma machine</h3>
     <div>${schema()}</div>
 
