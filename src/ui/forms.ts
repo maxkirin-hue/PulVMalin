@@ -263,40 +263,45 @@ export function updateFamilyOptions() {
   populateForcedNozzleSelect();
 }
 
-  /* =========================================================
+ /* =========================================================
     PAGE 2 → PAGE 3
-  ========================================================= */
-  document.getElementById("toPage3")?.addEventListener("click", () => {
-    state.dose = Number((document.getElementById("dose") as HTMLInputElement).value);
-    state.interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
-    state.speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
-    state.machineName = (document.getElementById("machineName") as HTMLInputElement).value;
+========================================================= */
+document.getElementById("toPage3")?.addEventListener("click", () => {
+  state.dose = Number((document.getElementById("dose") as HTMLInputElement).value);
+  state.interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
+  state.speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
+  state.machineName = (document.getElementById("machineName") as HTMLInputElement).value;
 
-    if (state.machineType === "viti") {
-      const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
-      state.modelKey = modelSel.value;
-    }
+  if (state.machineType === "viti") {
+    const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
+    state.modelKey = modelSel.value;        // ✔ VITI a des modèles
+  }
 
-    if (state.machineType === "arbo") {
-      const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
-  state.arboRangs = Number(arboRangs.value);
-    }
+  if (state.machineType === "arbo") {
+    const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
+    state.arboRangs = Number(arboRangs.value);
+    state.modelKey = null;                  // 🔥 ARBO n’a PAS de modèle
+  }
 
-    if (state.machineType === "rampe") {
-      const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
-      state.rampeCount = Number(rampeCount.value);
-    }
+  if (state.machineType === "rampe") {
+    const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
+    state.rampeCount = Number(rampeCount.value);
+    state.modelKey = null;                  // ✔ RAMPE n’a pas de modèle
+  }
+
   if (state.machineType === "tangentiel") {
     const tangCount = document.getElementById("tangentielCount") as HTMLInputElement;
-    state.arboRangs = Number(tangCount.value); // même logique que arbo
+    state.arboRangs = Number(tangCount.value);
+    state.modelKey = null;                  // 🔥 TANGENTIEL n’a PAS de modèle
   }
-    if (!state.dose || !state.interligne || !state.speed) {
-      alert("Merci de remplir tous les champs.");
-      return;
-    }
 
-    showPage(3);
-  });
+  if (!state.dose || !state.interligne || !state.speed) {
+    alert("Merci de remplir tous les champs.");
+    return;
+  }
+
+  showPage(3);
+});
   /* =========================================================
     PAGE 3 → PAGE 4
   ========================================================= */
