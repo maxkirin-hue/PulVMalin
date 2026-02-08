@@ -10,7 +10,7 @@
 
   export interface Nozzle {
     code: string;
-    qRef?: number;
+    qRef: number;
     color?: string;
     faces?: NozzleFace[];
   }
@@ -92,22 +92,78 @@
     },
 
     AMT: {
-      label: "AMT ALBUZ – Céramique double face",
-      machines: ["viti"],
-      refPressure: 10,
-      optimalRange: [2, 6],
-      limitRange: [2, 50],
-      nozzles: [
-        { code: "AMT-007", faces: [{ side: "plate", label: "plate", qRef: 0.91 }, { side: "creuse", label: "creuse", qRef: 0.65 }] },
-        { code: "AMT-008", faces: [{ side: "plate", label: "plate", qRef: 1.39 }, { side: "creuse", label: "creuse", qRef: 1.16 }] },
-        { code: "AMT-010", faces: [{ side: "plate", label: "plate", qRef: 1.89 }, { side: "creuse", label: "creuse", qRef: 1.42 }] },
-        { code: "AMT-012", faces: [{ side: "plate", label: "plate", qRef: 2.51 }, { side: "creuse", label: "creuse", qRef: 2.07 }] },
-        { code: "AMT-015", faces: [{ side: "plate", label: "plate", qRef: 3.99 }, { side: "creuse", label: "creuse", qRef: 3.15 }] },
-        { code: "AMT-018", faces: [{ side: "plate", label: "plate", qRef: 5.70 }, { side: "creuse", label: "creuse", qRef: 4.43 }] },
-        { code: "AMT-020", faces: [{ side: "plate", label: "plate", qRef: 6.85 }, { side: "creuse", label: "creuse", qRef: 5.58 }] },
-        { code: "AMT-023", faces: [{ side: "plate", label: "plate", qRef: 9.17 }, { side: "creuse", label: "creuse", qRef: 7.12 }] }
+  label: "AMT ALBUZ – Céramique double face",
+  machines: ["viti"],
+  refPressure: 10,
+  optimalRange: [2, 6],
+  limitRange: [2, 50],
+  nozzles: [
+    {
+      code: "AMT-007",
+      qRef: 0.91, // 👈 ajouté
+      faces: [
+        { side: "plate", label: "plate", qRef: 0.91 },
+        { side: "creuse", label: "creuse", qRef: 0.65 }
       ]
     },
+    {
+      code: "AMT-008",
+      qRef: 1.39,
+      faces: [
+        { side: "plate", label: "plate", qRef: 1.39 },
+        { side: "creuse", label: "creuse", qRef: 1.16 }
+      ]
+    },
+    {
+      code: "AMT-010",
+      qRef: 1.89,
+      faces: [
+        { side: "plate", label: "plate", qRef: 1.89 },
+        { side: "creuse", label: "creuse", qRef: 1.42 }
+      ]
+    },
+    {
+      code: "AMT-012",
+      qRef: 2.51,
+      faces: [
+        { side: "plate", label: "plate", qRef: 2.51 },
+        { side: "creuse", label: "creuse", qRef: 2.07 }
+      ]
+    },
+    {
+      code: "AMT-015",
+      qRef: 3.99,
+      faces: [
+        { side: "plate", label: "plate", qRef: 3.99 },
+        { side: "creuse", label: "creuse", qRef: 3.15 }
+      ]
+    },
+    {
+      code: "AMT-018",
+      qRef: 5.70,
+      faces: [
+        { side: "plate", label: "plate", qRef: 5.70 },
+        { side: "creuse", label: "creuse", qRef: 4.43 }
+      ]
+    },
+    {
+      code: "AMT-020",
+      qRef: 6.85,
+      faces: [
+        { side: "plate", label: "plate", qRef: 6.85 },
+        { side: "creuse", label: "creuse", qRef: 5.58 }
+      ]
+    },
+    {
+      code: "AMT-023",
+      qRef: 9.17,
+      faces: [
+        { side: "plate", label: "plate", qRef: 9.17 },
+        { side: "creuse", label: "creuse", qRef: 7.12 }
+      ]
+    }
+  ]
+},
 
     TXR: {
       label: "TXR ConeJet – Cône creux",
