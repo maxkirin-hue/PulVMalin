@@ -6,52 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="/manifest.webmanifest" />
-<meta name="theme-color" content="#2ecc71" />
-<div id="iosInstallBanner" style="
-  display:none;
-  position:fixed;
-  bottom:20px;
-  left:20px;
-  right:20px;
-  background:#2ecc71;
-  color:white;
-  padding:15px;
-  border-radius:10px;
-  font-size:14px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.2);
-  z-index:9999;
-">
-  📱 <strong>Installer PulvMalin</strong><br>
-  Sur iPhone : touche <strong>Partager</strong> → <strong>Ajouter à l’écran d’accueil</strong>.
-  <span style="float:right; cursor:pointer;" onclick="this.parentElement.style.display='none'">✖</span>
-</div>
-<div id="updateBanner" style="
-  display:none;
-  position:fixed;
-  bottom:20px;
-  left:20px;
-  right:20px;
-  background:#2ecc71;
-  color:white;
-  padding:15px;
-  border-radius:10px;
-  font-size:14px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.2);
-  z-index:9999;
-">
-  🔄 Nouvelle version de PulvMalin disponible  
-  <button id="btnUpdateNow" style="
-    margin-left:10px;
-    background:white;
-    color:#2ecc71;
-    border:none;
-    padding:6px 10px;
-    border-radius:6px;
-    cursor:pointer;
-  ">Mettre à jour</button>
-</div>
+  <meta name="theme-color" content="#2ecc71" />
 </head>
+
 <body>
+
 <header class="app-header">
   <div class="brand">
     <div class="logo-circle">PM</div>
@@ -64,44 +23,42 @@
 
 <main class="app-main">
 
-  <!-- PAGE 1 : TYPE MACHINE + NOM -->
- <section id="page1" class="page">
-  <h1>1. Informations</h1>
+  <!-- PAGE 1 -->
+  <section id="page1" class="page">
+    <h1>1. Informations</h1>
 
-  <div class="card">
+    <div class="card">
+      <label class="field">
+        <span>Votre nom</span>
+        <input id="userName" type="text" placeholder="Ex : Tarte Ampion" required />
+      </label>
 
-    <label class="field">
-      <span>Votre nom</span>
-      <input id="userName" type="text" placeholder="Ex : Tarte Ampion" required />
-    </label>
+      <label class="field">
+        <span>Modèle de machine</span>
+        <input id="machineName" type="text" placeholder="Ex : Calvet 1000L" required />
+      </label>
 
-    <label class="field">
-      <span>Modèle de machine</span>
-      <input id="machineName" type="text" placeholder="Ex : Calvet  1000l" required />
-    </label>
+      <label class="field">
+        <span>Type de machine</span>
+        <select id="machineType">
+          <option value="">Choisir…</option>
+          <option value="viti">Vigne</option>
+          <option value="tangentiel">Tangentiel</option>
+          <option value="arbo">Arboriculture</option>
+          <option value="rampe">Rampe</option>
+        </select>
+      </label>
+    </div>
 
-    <label class="field">
-      <span>Type de machine</span>
-      <select id="machineType">
-        <option value="">Choisir…</option>
-        <option value="viti">Vigne</option>
-        <option value="tangentiel">Tangentiel</option>
-        <option value="arbo">Arboriculture</option>
-        <option value="rampe">Rampe</option>
-      </select>
-    </label>
+    <div class="nav-row">
+      <button class="primary" id="toPage2">Continuer</button>
+      <button id="btnInstall" style="display:none; margin:20px;">
+        📲 Installer PulvMalin
+      </button>
+    </div>
+  </section>
 
-  </div>
-
-  <div class="nav-row">
-    <button class="primary" id="toPage2">Continuer</button>
-    <button id="btnInstall" style="display:none; margin:20px;">
-  📲 Installer PulvMalin
-</button> 
-  </div>
-</section>
-
-  <!-- PAGE 2 : RÉGLAGES + FAMILLE + NB BUSES -->
+  <!-- PAGE 2 -->
   <section id="page2" class="page">
     <h1>2. Réglages & buses</h1>
 
@@ -110,14 +67,17 @@
         <span>Dose (L/ha)</span>
         <input id="dose" type="number" inputmode="decimal" placeholder="Ex : 150" />
       </label>
+
       <label class="field">
         <span>Largeur / interligne (m)</span>
         <input id="largeur" type="number" inputmode="decimal" step="0.01" placeholder="Ex : 2.5" />
       </label>
+
       <label class="field">
         <span>Vitesse (km/h)</span>
         <input id="vitesse" type="number" inputmode="decimal" step="0.1" placeholder="Ex : 6" />
       </label>
+
       <label class="field">
         <span>Famille de buses / pastilles</span>
         <select id="familySelect"></select>
@@ -125,18 +85,20 @@
     </div>
 
     <div id="arboBlock" class="card subtle">
-      <div class="card-title">Arbo / Tangentiel </div>
-      <p class="hint">Nombre total de buses (pair). Elles seront réparties moitié gauche, moitié droite.</p>
+      <div class="card-title">Arbo / Tangentiel</div>
+      <p class="hint">Nombre total de buses (pair).</p>
+
       <label class="field">
         <span>Nombre total de buses</span>
         <input id="arboCount" type="number" min="2" step="2" placeholder="Ex : 12" />
-        <label class="field">
-  <span>Nombre de rangs</span>
-  <select id="arboRangs">
-    <option value="1">1 rang</option>
-    <option value="2">2 rangs</option>
-  </select>
-</label>
+      </label>
+
+      <label class="field">
+        <span>Nombre de rangs</span>
+        <select id="arboRangs">
+          <option value="1">1 rang</option>
+          <option value="2">2 rangs</option>
+        </select>
       </label>
     </div>
 
@@ -156,20 +118,19 @@
 
     <div id="rampeBlock" class="card subtle">
       <div class="card-title">Rampe désherbage — 1 rang</div>
-      <p class="hint">Nombre total de buses sur la rampe.</p>
       <label class="field">
         <span>Nombre de buses</span>
         <input id="rampeCount" type="number" min="1" step="1" placeholder="Ex : 18" />
       </label>
     </div>
+
     <div id="tangentielBlock" class="card subtle">
-  <div class="card-title">Tangentiel</div>
-  <p class="hint">Nombre total de buses tangentielles.</p>
-  <label class="field">
-    <span>Nombre total de buses</span>
-    <input id="tangentielCount" type="number" min="2" step="2" placeholder="Ex : 10" />
-  </label>
-</div>
+      <div class="card-title">Tangentiel</div>
+      <label class="field">
+        <span>Nombre total de buses</span>
+        <input id="tangentielCount" type="number" min="2" step="2" placeholder="Ex : 10" />
+      </label>
+    </div>
 
     <div class="nav-row">
       <button class="secondary" data-back="1">Retour</button>
@@ -177,136 +138,157 @@
     </div>
   </section>
 
-  <!-- PAGE 3 : MODE PASTILLE -->
- <!-- PAGE 3 : MODE PASTILLE -->
-<section id="page3" class="page">
-  <h1>3. Mode pastille</h1>
+  <!-- PAGE 3 -->
+  <section id="page3" class="page">
+    <h1>3. Mode pastille</h1>
 
-  <div class="card">
+    <div class="card">
+      <label class="field checkbox">
+        <input id="forcedToggle" type="checkbox" />
+        <span>Je veux valider un réglage existant</span>
+      </label>
 
-    <label class="field checkbox">
-      <input id="forcedToggle" type="checkbox" />
-      <span>Je veux valider un réglage existant (pastilles déjà montées)</span>
-    </label>
+      <p class="hint">Sans cocher, PULV MALIN choisit automatiquement la pastille.</p>
 
-    <p class="hint">
-      Sans cocher, PULV MALIN choisit automatiquement la pastille la plus adaptée pour chaque sortie.
-    </p>
+      <div id="forcedPanel" style="display:none; margin-top:1rem;">
+        <label>Pastille forcée – Groupe 1</label>
+        <select id="forcedNozzle1"></select>
 
-    <!-- PANEL DES PASTILLES FORCÉES -->
-    <div id="forcedPanel" style="display:none; margin-top:1rem;">
-
-      <label>Pastille forcée – Groupe 1</label>
-      <select id="forcedNozzle1"></select>
-
-      <label>Pastille forcée – Groupe 2</label>
-      <select id="forcedNozzle2"></select>
-
+        <label>Pastille forcée – Groupe 2</label>
+        <select id="forcedNozzle2"></select>
+      </div>
     </div>
 
-    <p class="hint">
-      En mode forcé, les pastilles choisies sont imposées pour les groupes correspondants.
-      La pression est calculée et signalée si hors plage.
-    </p>
-
-  </div>
-
-  <div class="nav-row">
-    <button class="secondary" data-back="2">Retour</button>
-    <button class="primary" id="toPage4">Calculer</button>
-  </div>
-</section>
-
-<!-- PAGE 4 : RÉSULTATS -->
-<section id="page4" class="page">
-  <h1>4. Résultats</h1>
-
-  <div class="summary card">
-    <div><strong>Machine :</strong> <span id="sumMachine"></span></div>
-    <div><strong>Nom :</strong> <span id="sumName"></span></div>
-    <div><strong>Famille :</strong> <span id="sumFamily"></span></div>
-    <div><strong>Modèle :</strong> <span id="sumModel"></span></div>
-    <div><strong>Type pastille ou buse :</strong> <span id="sumMode"></span></div>
-
-    <div><strong>Largeur :</strong> <span id="sumLargeur"></span></div>
-    <div><strong>Dose :</strong> <span id="sumDose"></span></div>
-    <div><strong>Vitesse :</strong> <span id="sumVitesse"></span></div>
-
-    <div><strong>Débit total cible :</strong> <span id="sumQtotal"></span> L/min</div>
-  </div>
-
-  <h2>Réglage par sortie</h2>
-
-  <div class="table-wrapper">
-    <table class="result-table">
-      <thead>
-        <tr>
-          <th>Sortie</th>
-          <th>Débit cible (L/min)</th>
-          <th>Pastille</th>
-        </tr>
-      </thead>
-      <tbody id="resultBody"></tbody>
-    </table>
-
-    <p class="disclaimer">
-      Les résultats fournis n’excluent pas un contrôle des débits réels sur la machine.
-    </p>
-  </div>
-
-  <div class="summary card">
-    <div><strong>Pression de travail recommandée :</strong> 
-      <span id="sumPressure"></span> bar
+    <div class="nav-row">
+      <button class="secondary" data-back="2">Retour</button>
+      <button class="primary" id="toPage4">Calculer</button>
     </div>
-  </div>
+  </section>
 
-<div class="card">
-  <label class="field">
-    <span>Nouvel interligne (m)</span>
-    <input id="newInterligne" type="number" step="0.01" placeholder="Ex : 2.2" />
-  </label>
+  <!-- PAGE 4 -->
+  <section id="page4" class="page">
+    <h1>4. Résultats</h1>
 
-  <label class="field">
-    <span>Nouvelle dose (L/ha)</span>
-    <input id="newDose" type="number" step="1" placeholder="Ex : 150" />
-  </label>
+    <div class="summary card">
+      <div><strong>Machine :</strong> <span id="sumMachine"></span></div>
+      <div><strong>Nom :</strong> <span id="sumName"></span></div>
+      <div><strong>Famille :</strong> <span id="sumFamily"></span></div>
+      <div><strong>Modèle :</strong> <span id="sumModel"></span></div>
+      <div><strong>Type pastille ou buse :</strong> <span id="sumMode"></span></div>
+      <div><strong>Largeur :</strong> <span id="sumLargeur"></span></div>
+      <div><strong>Dose :</strong> <span id="sumDose"></span></div>
+      <div><strong>Vitesse :</strong> <span id="sumVitesse"></span></div>
+      <div><strong>Débit total cible :</strong> <span id="sumQtotal"></span> L/min</div>
+    </div>
 
-  <button class="primary" id="btnRecalc">Recalculer la pression</button>
+    <h2>Réglage par sortie</h2>
+
+    <div class="table-wrapper">
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th>Sortie</th>
+            <th>Débit cible (L/min)</th>
+            <th>Pastille</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+
+      <p class="disclaimer">
+        Les résultats fournis n’excluent pas un contrôle réel.
+      </p>
+    </div>
+
+    <div class="summary card">
+      <div><strong>Pression de travail recommandée :</strong>
+        <span id="sumPressure"></span> bar
+      </div>
+    </div>
+
+    <div class="card">
+      <label class="field">
+        <span>Nouvel interligne (m)</span>
+        <input id="newInterligne" type="number" step="0.01" placeholder="Ex : 2.2" />
+      </label>
+
+      <label class="field">
+        <span>Nouvelle dose (L/ha)</span>
+        <input id="newDose" type="number" step="1" placeholder="Ex : 150" />
+      </label>
+
+      <button class="primary" id="btnRecalc">Recalculer la pression</button>
+    </div>
+
+    <div class="nav-row">
+      <button class="secondary" data-back="3">Modifier</button>
+      <button class="secondary" data-back="1">Recommencer</button>
+      <button id="btnPdf" class="btn primary">Télécharger PDF</button>
+    </div>
+
+    <div id="pdfLoader" style="display:none; text-align:center; margin-top:20px;">
+      <p>📄 Génération du PDF en cours…</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- Bannière iOS -->
+<div id="iosInstallBanner" style="
+  display:none;
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  right:20px;
+  background:#2ecc71;
+  color:white;
+  padding:15px;
+  border-radius:10px;
+  font-size:14px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  z-index:9999;
+">
+  📱 <strong>Installer PulvMalin</strong><br>
+  Sur iPhone : touche <strong>Partager</strong> → <strong>Ajouter à l’écran d’accueil</strong>.
+  <span style="float:right; cursor:pointer;" onclick="this.parentElement.style.display='none'">✖</span>
 </div>
 
-  <div class="nav-row">
-    <button class="secondary" data-back="3">Modifier</button>
-    <button class="secondary" data-back="1">Recommencer</button>
-    <button id="btnPdf" class="btn primary">Télécharger PDF</button>
-  </div>
+<!-- Bannière mise à jour -->
+<div id="updateBanner" style="
+  display:none;
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  right:20px;
+  background:#2ecc71;
+  color:white;
+  padding:15px;
+  border-radius:10px;
+  font-size:14px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  z-index:9999;
+">
+  🔄 Nouvelle version de PulvMalin disponible
+  <button id="btnUpdateNow" style="
+    margin-left:10px;
+    background:white;
+    color:#2ecc71;
+    border:none;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+  ">Mettre à jour</button>
+</div>
 
-  <div id="pdfLoader" style="display:none; text-align:center; margin-top:20px;">
-    <p>📄 Génération du PDF en cours…</p>
-  </div>
-</section>
-  
-  <script type="module" src="/src/main.ts"></script>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script type="module" src="/src/main.ts"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  
+<!-- Enregistrement du service worker -->
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js");
+  }
+</script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
