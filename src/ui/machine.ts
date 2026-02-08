@@ -1,6 +1,14 @@
 import { state } from "../state/state";
 import { showPage } from "./navigation";
-import { populateFamilySelect } from "./forms";
+import { 
+  populateFamilySelect, 
+  updateModelOptions, 
+  updateFamilyOptions 
+} from "./forms";
+
+/* =========================================================
+   INITIALISATION DES BOUTONS MACHINE
+========================================================= */
 
 export function initMachineButtons() {
   const buttons = document.querySelectorAll("[data-type]");
@@ -10,33 +18,58 @@ export function initMachineButtons() {
       const type = (btn as HTMLElement).dataset.type;
       if (!type) return;
 
+      // 1) Définir le type de machine
       state.machineType = type as any;
 
-      // 1️⃣ Masquer tous les blocs
+      // 2) Reset automatique
+      state.modelKey = null;
+      state.familyKey = null;
+      state.results = [];
+
+      // 3) Masquer tous les blocs
       hideAllMachineBlocks();
 
-      // 2️⃣ Afficher le bon bloc
-      if (type === "arbo") {
-        document.getElementById("arboBlock")!.style.display = "block";
-      }
-      if (type === "viti") {
-        document.getElementById("vitiBlock")!.style.display = "block";
-      }
-      if (type === "rampe") {
-        document.getElementById("rampeBlock")!.style.display = "block";
-      }
+      // 4) Afficher le bon bloc
+      if (type === "arbo") document.getElementById("arboBlock")!.style.display = "block";
+      if (type === "viti") document.getElementById("vitiBlock")!.style.display = "block";
+      if (type === "rampe") document.getElementById("rampeBlock")!.style.display = "block";
+      if (type === "tangentiel") document.getElementById("tangentielBlock")!.style.display = "block";
 
-      // 3️⃣ Charger les familles compatibles
-      populateFamilySelect();
+      // 5) Mettre à jour modèles + familles
+      updateModelOptions();
+      updateFamilyOptions();
 
-      // 4️⃣ Aller à la page 2
+      // 6) Aller à la page 2
       showPage(2);
     });
   });
+
+  /* Bouton "Page 2" (si utilisé ailleurs dans ton HTML) */
+  const toPage2 = document.getElementById("toPage2");
+  if (toPage2) {
+    toPage2.addEventListener("click", () => {
+      state.machineName = (document.getElementById("machineName") as HTMLInputElement)
+        .value
+        .trim();
+
+      if (!state.machineType) {
+        alert("Choisis un type de machine.");
+        return;
+      }
+
+      populateFamilySelect();
+      showPage(2);
+    });
+  }
 }
+
+/* =========================================================
+   MASQUER TOUS LES BLOCS MACHINE
+========================================================= */
 
 function hideAllMachineBlocks() {
   document.getElementById("arboBlock")!.style.display = "none";
   document.getElementById("vitiBlock")!.style.display = "none";
   document.getElementById("rampeBlock")!.style.display = "none";
+  document.getElementById("tangentielBlock")!.style.display = "none";
 }
