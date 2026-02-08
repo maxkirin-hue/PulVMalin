@@ -83,7 +83,19 @@ export function generatePdfHtml(state: any): string {
           <tr>
             <td style="border:1px solid #ccc; padding:6px;">${r.outputName}</td>
             <td style="border:1px solid #ccc; padding:6px;">${formatFlow(r.qTarget)}</td>
-            <td style="border:1px solid #ccc; padding:6px;">${r.nozzleLabel}</td>
+
+            <td style="border:1px solid #ccc; padding:6px;">
+              <span style="
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:${r.nozzleColor ?? "transparent"};
+                border:1px solid #333;
+                margin-right:6px;
+              "></span>
+              ${r.nozzleLabel}
+            </td>
+
             <td style="border:1px solid #ccc; padding:6px;">${formatFlow(r.qReal)}</td>
             <td style="border:1px solid #ccc; padding:6px;">${formatPercent(r.relError)}</td>
           </tr>`
