@@ -87,7 +87,7 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
   }
 
   if (state.machineType === "arbo") {
-    const total = state.arboCount!;
+    const total = state.arboRangs!;
     const half = total / 2;
 
     const names: string[] = [];
@@ -100,7 +100,6 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
       modelLabel: "Arbo",
     };
   }
-
   if (state.machineType === "rampe") {
     const n = state.rampeCount!;
     const names = Array.from({ length: n }, (_, i) => `Buse ${i + 1}`);
