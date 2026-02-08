@@ -191,7 +191,12 @@ export function optimizePressureAndNozzlesForFamily(
 ========================================================= */
 
 export function computeAll(): void {
-  if (!state.familyKey) return;
+   console.log(">>> computeAll state:", {
+    machineType: state.machineType,
+    familyKey: state.familyKey,
+    modelKey: state.modelKey,
+  });
+
 
   const fam = nozzleFamilies[state.familyKey];
   if (!fam) return;
