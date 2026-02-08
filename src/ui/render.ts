@@ -28,7 +28,7 @@ export function renderSummary(modelLabel: string) {
   $("#sumFamily")!.textContent =
     nozzleFamilies[state.familyKey!]?.label || "—";
   $("#sumModel")!.textContent = modelLabel || "—";
-  $("#sumMode")!.textContent = state.forced
+  $("#sumMode")!.textContent = state.forcedToggle
     ? "Pastilles forcées (validation)"
     : "Automatique (recommandé)";
 
