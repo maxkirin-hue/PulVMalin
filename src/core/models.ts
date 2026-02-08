@@ -100,6 +100,22 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
       modelLabel: "Arbo",
     };
   }
+  if (state.machineType === "tangentiel") {
+  const n = state.arboRangs ?? 2; // nombre de sorties par côté
+  const names: string[] = [];
+
+  // G = gauche
+  for (let i = 1; i <= n; i++) names.push(`Canon G${i}`);
+
+  // D = droite
+  for (let i = 1; i <= n; i++) names.push(`Canon D${i}`);
+
+  return {
+    names,
+    coefs: Array(n * 2).fill(1),
+    modelLabel: "Tangentiel",
+  };
+}
   if (state.machineType === "rampe") {
     const n = state.rampeCount!;
     const names = Array.from({ length: n }, (_, i) => `Buse ${i + 1}`);
