@@ -3,6 +3,12 @@ import { initNavigation } from "./ui/navigation";
 import "./ui/forms";
 import { setupInstallButton, showIosInstallBanner } from "./pwa/install";
 import { loadState, enableAutoSave } from "./state/statePersistence";
+import { updateResults } from "./ui/updateResults";
+import { bindFormFields } from "./ui/bindFormFields";
+
+loadState();
+bindFormFields();
+enableAutoSave();
 
 loadState();      // restaure les données au démarrage
 enableAutoSave(); // surveille et sauvegarde automatiquement
