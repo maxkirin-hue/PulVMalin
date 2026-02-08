@@ -1,77 +1,81 @@
 function vitiSchema() {
   return `
-<svg width="500" height="260">
+<svg width="400" height="180" viewBox="0 0 500 260">
   <rect x="210" y="100" width="80" height="60" fill="#ccc" stroke="#333"/>
   <line x1="210" y1="130" x2="80" y2="130" stroke="#2ecc71" stroke-width="6"/>
-  <circle cx="120" cy="90" r="8" fill="#2ecc71"/><text x="135" y="95">Canon G2</text>
-  <circle cx="120" cy="130" r="8" fill="#2ecc71"/><text x="135" y="135">Canon G1</text>
-  <circle cx="120" cy="160" r="8" fill="#2ecc71"/><text x="135" y="165">Main 1 G</text>
-  <circle cx="120" cy="190" r="8" fill="#2ecc71"/><text x="135" y="195">Main 2 G</text>
-  <circle cx="120" cy="220" r="8" fill="#2ecc71"/><text x="135" y="225">Retour G</text>
+  <circle cx="120" cy="90" r="8" fill="#2ecc71"/><text x="135" y="95" font-size="12">Canon G2</text>
+  <circle cx="120" cy="130" r="8" fill="#2ecc71"/><text x="135" y="135" font-size="12">Canon G1</text>
+  <circle cx="120" cy="160" r="8" fill="#2ecc71"/><text x="135" y="165" font-size="12">Main 1 G</text>
+  <circle cx="120" cy="190" r="8" fill="#2ecc71"/><text x="135" y="195" font-size="12">Main 2 G</text>
+  <circle cx="120" cy="220" r="8" fill="#2ecc71"/><text x="135" y="225" font-size="12">Retour G</text>
 
   <line x1="290" y1="130" x2="420" y2="130" stroke="#2ecc71" stroke-width="6"/>
-  <circle cx="380" cy="90" r="8" fill="#2ecc71"/><text x="300" y="95">Canon D2</text>
-  <circle cx="380" cy="130" r="8" fill="#2ecc71"/><text x="300" y="135">Canon D1</text>
-  <circle cx="380" cy="160" r="8" fill="#2ecc71"/><text x="300" y="165">Main 1 D</text>
-  <circle cx="380" cy="190" r="8" fill="#2ecc71"/><text x="300" y="195">Main 2 D</text>
-  <circle cx="380" cy="220" r="8" fill="#2ecc71"/><text x="300" y="225">Retour D</text>
+  <circle cx="380" cy="90" r="8" fill="#2ecc71"/><text x="300" y="95" font-size="12">Canon D2</text>
+  <circle cx="380" cy="130" r="8" fill="#2ecc71"/><text x="300" y="135" font-size="12">Canon D1</text>
+  <circle cx="380" cy="160" r="8" fill="#2ecc71"/><text x="300" y="165" font-size="12">Main 1 D</text>
+  <circle cx="380" cy="190" r="8" fill="#2ecc71"/><text x="300" y="195" font-size="12">Main 2 D</text>
+  <circle cx="380" cy="220" r="8" fill="#2ecc71"/><text x="300" y="225" font-size="12">Retour D</text>
 </svg>
 `;
 }
+
 function arboSchema() {
   return `
-<svg width="500" height="260">
+<svg width="400" height="180" viewBox="0 0 500 260">
   <circle cx="250" cy="130" r="40" fill="#ccc" stroke="#333"/>
 
-  <circle cx="150" cy="60" r="8" fill="#2ecc71"/><text x="165" y="65">G5</text>
-  <circle cx="150" cy="90" r="8" fill="#2ecc71"/><text x="165" y="95">G4</text>
-  <circle cx="150" cy="130" r="8" fill="#2ecc71"/><text x="165" y="135">G3</text>
-  <circle cx="150" cy="170" r="8" fill="#2ecc71"/><text x="165" y="175">G2</text>
-  <circle cx="150" cy="200" r="8" fill="#2ecc71"/><text x="165" y="205">G1</text>
+  <circle cx="150" cy="60" r="8" fill="#2ecc71"/><text x="165" y="65" font-size="12">G5</text>
+  <circle cx="150" cy="90" r="8" fill="#2ecc71"/><text x="165" y="95" font-size="12">G4</text>
+  <circle cx="150" cy="130" r="8" fill="#2ecc71"/><text x="165" y="135" font-size="12">G3</text>
+  <circle cx="150" cy="170" r="8" fill="#2ecc71"/><text x="165" y="175" font-size="12">G2</text>
+  <circle cx="150" cy="200" r="8" fill="#2ecc71"/><text x="165" y="205" font-size="12">G1</text>
 
-  <circle cx="350" cy="60" r="8" fill="#2ecc71"/><text x="300" y="65">D5</text>
-  <circle cx="350" cy="90" r="8" fill="#2ecc71"/><text x="300" y="95">D4</text>
-  <circle cx="350" cy="130" r="8" fill="#2ecc71"/><text x="300" y="135">D3</text>
-  <circle cx="350" cy="170" r="8" fill="#2ecc71"/><text x="300" y="175">D2</text>
-  <circle cx="350" cy="200" r="8" fill="#2ecc71"/><text x="300" y="205">D1</text>
+  <circle cx="350" cy="60" r="8" fill="#2ecc71"/><text x="300" y="65" font-size="12">D5</text>
+  <circle cx="350" cy="90" r="8" fill="#2ecc71"/><text x="300" y="95" font-size="12">D4</text>
+  <circle cx="350" cy="130" r="8" fill="#2ecc71"/><text x="300" y="135" font-size="12">D3</text>
+  <circle cx="350" cy="170" r="8" fill="#2ecc71"/><text x="300" y="175" font-size="12">D2</text>
+  <circle cx="350" cy="200" r="8" fill="#2ecc71"/><text x="300" y="205" font-size="12">D1</text>
 </svg>
 `;
 }
+
 function tangentielSchema() {
   return `
-<svg width="500" height="260">
+<svg width="400" height="180" viewBox="0 0 500 260">
   <rect x="180" y="40" width="20" height="180" fill="#ccc" stroke="#333"/>
   <rect x="300" y="40" width="20" height="180" fill="#ccc" stroke="#333"/>
 
-  <circle cx="190" cy="60" r="8" fill="#2ecc71"/><text x="205" y="65">G5</text>
-  <circle cx="190" cy="90" r="8" fill="#2ecc71"/><text x="205" y="95">G4</text>
-  <circle cx="190" cy="130" r="8" fill="#2ecc71"/><text x="205" y="135">G3</text>
-  <circle cx="190" cy="170" r="8" fill="#2ecc71"/><text x="205" y="175">G2</text>
-  <circle cx="190" cy="200" r="8" fill="#2ecc71"/><text x="205" y="205">G1</text>
+  <circle cx="190" cy="60" r="8" fill="#2ecc71"/><text x="205" y="65" font-size="12">G5</text>
+  <circle cx="190" cy="90" r="8" fill="#2ecc71"/><text x="205" y="95" font-size="12">G4</text>
+  <circle cx="190" cy="130" r="8" fill="#2ecc71"/><text x="205" y="135" font-size="12">G3</text>
+  <circle cx="190" cy="170" r="8" fill="#2ecc71"/><text x="205" y="175" font-size="12">G2</text>
+  <circle cx="190" cy="200" r="8" fill="#2ecc71"/><text x="205" y="205" font-size="12">G1</text>
 
-  <circle cx="310" cy="60" r="8" fill="#2ecc71"/><text x="260" y="65">D5</text>
-  <circle cx="310" cy="90" r="8" fill="#2ecc71"/><text x="260" y="95">D4</text>
-  <circle cx="310" cy="130" r="8" fill="#2ecc71"/><text x="260" y="135">D3</text>
-  <circle cx="310" cy="170" r="8" fill="#2ecc71"/><text x="260" y="175">D2</text>
-  <circle cx="310" cy="200" r="8" fill="#2ecc71"/><text x="260" y="205">D1</text>
+  <circle cx="310" cy="60" r="8" fill="#2ecc71"/><text x="260" y="65" font-size="12">D5</text>
+  <circle cx="310" cy="90" r="8" fill="#2ecc71"/><text x="260" y="95" font-size="12">D4</text>
+  <circle cx="310" cy="130" r="8" fill="#2ecc71"/><text x="260" y="135" font-size="12">D3</text>
+  <circle cx="310" cy="170" r="8" fill="#2ecc71"/><text x="260" y="175" font-size="12">D2</text>
+  <circle cx="310" cy="200" r="8" fill="#2ecc71"/><text x="260" y="205" font-size="12">D1</text>
 </svg>
 `;
 }
+
 function rampeSchema() {
   return `
-<svg width="500" height="120">
+<svg width="400" height="80" viewBox="0 0 500 120">
   <line x1="50" y1="60" x2="450" y2="60" stroke="#ccc" stroke-width="6"/>
 
-  <circle cx="120" cy="60" r="8" fill="#2ecc71"/><text x="105" y="50">G3</text>
-  <circle cx="160" cy="60" r="8" fill="#2ecc71"/><text x="145" y="50">G2</text>
-  <circle cx="200" cy="60" r="8" fill="#2ecc71"/><text x="185" y="50">G1</text>
+  <circle cx="120" cy="60" r="8" fill="#2ecc71"/><text x="105" y="50" font-size="12">G3</text>
+  <circle cx="160" cy="60" r="8" fill="#2ecc71"/><text x="145" y="50" font-size="12">G2</text>
+  <circle cx="200" cy="60" r="8" fill="#2ecc71"/><text x="185" y="50" font-size="12">G1</text>
 
-  <circle cx="300" cy="60" r="8" fill="#2ecc71"/><text x="285" y="50">D1</text>
-  <circle cx="340" cy="60" r="8" fill="#2ecc71"/><text x="325" y="50">D2</text>
-  <circle cx="380" cy="60" r="8" fill="#2ecc71"/><text x="365" y="50">D3</text>
+  <circle cx="300" cy="60" r="8" fill="#2ecc71"/><text x="285" y="50" font-size="12">D1</text>
+  <circle cx="340" cy="60" r="8" fill="#2ecc71"/><text x="325" y="50" font-size="12">D2</text>
+  <circle cx="380" cy="60" r="8" fill="#2ecc71"/><text x="365" y="50" font-size="12">D3</text>
 </svg>
 `;
 }
+
 export function generatePdfHtml(state: any): string {
   const today = new Date().toLocaleDateString("fr-FR");
 
@@ -86,50 +90,157 @@ export function generatePdfHtml(state: any): string {
   }
 
   return `
-  <div style="font-family:Arial; width:700px; color:#222;">
-
-    <div style="background:#2ecc71; color:white; padding:15px; border-radius:8px;">
-      <div style="font-size:26px; font-weight:bold;">PulvMalin</div>
-      <div style="font-size:18px;">Fiche de réglage de votre pulvérisateur</div>
-      <div style="float:right; margin-top:-40px;">${today}</div>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      color: #222;
+      margin: 0;
+      padding: 0;
+      line-height: 1.3;
+    }
+    .container {
+      width: 100%;
+      max-width: 210mm;
+    }
+    .header {
+      background: #2ecc71;
+      color: white;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .header-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    .header-subtitle {
+      font-size: 13px;
+    }
+    .header-date {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 11px;
+    }
+    h3 {
+      font-size: 13px;
+      margin: 8px 0 5px 0;
+      color: #2ecc71;
+      border-bottom: 1px solid #2ecc71;
+      padding-bottom: 3px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+      font-size: 10px;
+    }
+    table td, table th {
+      padding: 3px 5px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    table tr:last-child td {
+      border-bottom: none;
+    }
+    table th {
+      background: #f5f5f5;
+      font-weight: bold;
+      border-bottom: 2px solid #2ecc71;
+    }
+    .info-table td:first-child {
+      font-weight: bold;
+      width: 40%;
+      color: #555;
+    }
+    .pressure-box {
+      border: 2px solid #2ecc71;
+      padding: 8px;
+      border-radius: 6px;
+      margin: 5px 0 8px 0;
+      font-size: 11px;
+    }
+    .pressure-box strong {
+      font-size: 14px;
+      color: #2ecc71;
+    }
+    .schema-container {
+      text-align: center;
+      margin-top: 5px;
+    }
+    .schema-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-title">PulvMalin</div>
+      <div class="header-subtitle">Fiche de réglage de votre pulvérisateur</div>
+      <div class="header-date">${today}</div>
     </div>
 
     <h3>Paramètres de travail</h3>
-    <table style="width:100%; border-collapse:collapse;">
-      <tr><td>Nom</td><td>${state.userName}</td></tr>
-      <tr><td>Machine</td><td>${state.machineType}</td></tr>
-      <tr><td>Modèle</td><td>${state.modelKey}</td></tr>
-      <tr><td>Famille</td><td>${state.familyKey ?? "-"}</td></tr>
-      <tr><td>Largeur / interligne</td><td>${state.largeur ?? state.interligne} m</td></tr>
-      <tr><td>Dose</td><td>${state.dose} L/ha</td></tr>
-      <tr><td>Vitesse</td><td>${state.vitesse} km/h</td></tr>
+    <table class="info-table">
+      <tr><td>Nom</td><td>${state.userName || "-"}</td></tr>
+      <tr><td>Machine</td><td>${state.machineType || "-"}</td></tr>
+      <tr><td>Modèle</td><td>${state.modelKey || "-"}</td></tr>
+      <tr><td>Famille</td><td>${state.familyKey || "-"}</td></tr>
+      <tr><td>Largeur / interligne</td><td>${state.largeur || state.interligne || "-"} m</td></tr>
+      <tr><td>Dose</td><td>${state.dose || "-"} L/ha</td></tr>
+      <tr><td>Vitesse</td><td>${state.vitesse || "-"} km/h</td></tr>
       <tr><td>Débit total calculé</td><td>${(state.qTotal ?? 0).toFixed(2)} L/min</td></tr>
     </table>
 
     <h3>Détail par sortie</h3>
-    <table style="width:100%; border-collapse:collapse;">
-      <tr style="background:#f0f0f0;">
-        <th>Sortie</th><th>Pastille</th><th>Débit cible</th><th>Débit réel</th><th>Écart</th>
-      </tr>
-      ${state.results.map(r => `
+    <table>
+      <thead>
         <tr>
-          <td>${r.outputName}</td>
-          <td>${r.nozzleLabel}</td>
-          <td>${r.qTarget.toFixed(2)} L/min</td>
-          <td>${r.qReal.toFixed(2)} L/min</td>
-          <td>${(r.relError*100).toFixed(1)}%</td>
+          <th>Sortie</th>
+          <th>Pastille</th>
+          <th>Débit cible</th>
+          <th>Débit réel</th>
+          <th>Écart</th>
         </tr>
-      `).join("")}
+      </thead>
+      <tbody>
+        ${(state.results || []).map(r => `
+          <tr>
+            <td>${r.outputName || "-"}</td>
+            <td>${r.nozzleLabel || "-"}</td>
+            <td>${(r.qTarget || 0).toFixed(2)} L/min</td>
+            <td>${(r.qReal || 0).toFixed(2)} L/min</td>
+            <td>${((r.relError || 0) * 100).toFixed(1)}%</td>
+          </tr>
+        `).join("")}
+      </tbody>
     </table>
 
-   <h3>Pression de travail recommandée</h3>
-<div style="border:2px solid #2ecc71; padding:10px; border-radius:6px;">
-  <strong>${(state.recommendedPressure ?? 0).toFixed(1)} bar</strong><br>
-  (Pression idéale famille : ${state.familyPressure ?? "?"} bar)
-</div>
-    <h3>Schéma machine</h3>
-    <div>${schema()}</div>
+    <h3>Pression de travail recommandée</h3>
+    <div class="pressure-box">
+      <strong>${(state.recommendedPressure ?? 0).toFixed(1)} bar</strong><br>
+      (Pression idéale famille : ${state.familyPressure ?? "?"} bar)
+    </div>
 
+    <h3>Schéma machine</h3>
+    <div class="schema-container">
+      ${schema()}
+    </div>
   </div>
+</body>
+</html>
   `;
 }
