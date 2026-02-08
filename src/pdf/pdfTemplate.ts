@@ -1,6 +1,6 @@
 function vitiSchema() {
   return `
-<svg width="400" height="180" viewBox="0 0 500 260">
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="180" viewBox="0 0 500 260">
   <rect x="210" y="100" width="80" height="60" fill="#ccc" stroke="#333"/>
   <line x1="210" y1="130" x2="80" y2="130" stroke="#2ecc71" stroke-width="6"/>
   <circle cx="120" cy="90" r="8" fill="#2ecc71"/><text x="135" y="95" font-size="12">Canon G2</text>
@@ -21,7 +21,7 @@ function vitiSchema() {
 
 function arboSchema() {
   return `
-<svg width="400" height="180" viewBox="0 0 500 260">
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="180" viewBox="0 0 500 260">
   <circle cx="250" cy="130" r="40" fill="#ccc" stroke="#333"/>
 
   <circle cx="150" cy="60" r="8" fill="#2ecc71"/><text x="165" y="65" font-size="12">G5</text>
@@ -41,7 +41,7 @@ function arboSchema() {
 
 function tangentielSchema() {
   return `
-<svg width="400" height="180" viewBox="0 0 500 260">
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="180" viewBox="0 0 500 260">
   <rect x="180" y="40" width="20" height="180" fill="#ccc" stroke="#333"/>
   <rect x="300" y="40" width="20" height="180" fill="#ccc" stroke="#333"/>
 
@@ -62,7 +62,7 @@ function tangentielSchema() {
 
 function rampeSchema() {
   return `
-<svg width="400" height="80" viewBox="0 0 500 120">
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="80" viewBox="0 0 500 120">
   <line x1="50" y1="60" x2="450" y2="60" stroke="#ccc" stroke-width="6"/>
 
   <circle cx="120" cy="60" r="8" fill="#2ecc71"/><text x="105" y="50" font-size="12">G3</text>
@@ -74,6 +74,14 @@ function rampeSchema() {
   <circle cx="380" cy="60" r="8" fill="#2ecc71"/><text x="365" y="50" font-size="12">D3</text>
 </svg>
 `;
+}
+
+export function generatePdfFilename(state: any): string {
+  const userName = (state.userName || "utilisateur").replace(/[^a-z0-9]/gi, '_');
+  const machineType = (state.machineType || "machine").replace(/[^a-z0-9]/gi, '_');
+  const date = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+  
+  return `fiche_${userName}_${machineType}_${date}.pdf`;
 }
 
 export function generatePdfHtml(state: any): string {
@@ -97,7 +105,7 @@ export function generatePdfHtml(state: any): string {
   <style>
     @page {
       size: A4;
-      margin: 15mm;
+      margin: 0;
     }
     body {
       font-family: Arial, sans-serif;
@@ -110,12 +118,12 @@ export function generatePdfHtml(state: any): string {
     .container {
       width: 100%;
       max-width: 210mm;
+      padding: 0 15mm 15mm 15mm;
     }
     .header {
       background: #2ecc71;
       color: white;
-      padding: 10px 12px;
-      border-radius: 6px;
+      padding: 12px 15mm;
       margin-bottom: 10px;
       position: relative;
     }
@@ -129,8 +137,8 @@ export function generatePdfHtml(state: any): string {
     }
     .header-date {
       position: absolute;
-      top: 10px;
-      right: 12px;
+      top: 12px;
+      right: 15mm;
       font-size: 11px;
     }
     h3 {
@@ -178,10 +186,12 @@ export function generatePdfHtml(state: any): string {
     .schema-container {
       text-align: center;
       margin-top: 5px;
+      display: block;
     }
     .schema-container svg {
       max-width: 100%;
       height: auto;
+      display: inline-block;
     }
   </style>
 </head>
@@ -232,7 +242,7 @@ export function generatePdfHtml(state: any): string {
     <h3>Pression de travail recommandée</h3>
     <div class="pressure-box">
       <strong>${(state.recommendedPressure ?? 0).toFixed(1)} bar</strong><br>
-      (Pression idéale famille : ${state.familyPressure ?? "?"} bar)
+      
     </div>
 
     <h3>Schéma machine</h3>
