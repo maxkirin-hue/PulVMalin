@@ -28,8 +28,9 @@ export function updateResults() {
   set("sumDose", state.dose ?? "—");
   set("sumVitesse", state.vitesse ?? "—");
 
-  set("sumQtotal", state.qTotal.toFixed(2));
-  set("sumPressure", state.recommendedPressure.toFixed(2));
+set("sumQtotal", (state.qTotal ?? 0).toFixed(2));
+set("sumPressure", (state.recommendedPressure ?? 0).toFixed(2));
+
 
   // 4) Tableau simplifié (3 colonnes)
   fillResultsTable();
