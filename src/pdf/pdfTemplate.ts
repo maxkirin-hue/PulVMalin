@@ -103,7 +103,7 @@ export function generatePdfHtml(state: any): string {
       <tr><td>Largeur / interligne</td><td>${state.largeur ?? state.interligne} m</td></tr>
       <tr><td>Dose</td><td>${state.dose} L/ha</td></tr>
       <tr><td>Vitesse</td><td>${state.vitesse} km/h</td></tr>
-      <tr><td>Débit total calculé</td><td>${state.totalFlow.toFixed(2)} L/min</td></tr>
+      <tr><td>Débit total calculé</td><td>${(state.qTotal ?? 0).toFixed(2)} L/min</td></tr>
     </table>
 
     <h3>Détail par sortie</h3>
@@ -124,7 +124,8 @@ export function generatePdfHtml(state: any): string {
 
     <h3>Pression de travail recommandée</h3>
     <div style="border:2px solid #2ecc71; padding:10px; border-radius:6px;">
-      <strong>${state.recommendedPressure.toFixed(1)} bar</strong><br>
+      <strong>${(state.recommendedPressure ?? 0).toFixed(1)} bar</strong><br>
+(Pression idéale famille : ${state.familyPressure ?? "?"} bar)
       (Pression idéale famille : ${state.familyPressure ?? "?"} bar)
     </div>
 
