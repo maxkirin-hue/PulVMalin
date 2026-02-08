@@ -60,3 +60,6 @@ export function formatName(name: string): string {
   if (!clean) return "";
   return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
+export function safeFixed(value: any, digits = 2) {
+  return typeof value === "number" ? value.toFixed(digits) : "0.00";
+}
