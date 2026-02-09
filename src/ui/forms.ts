@@ -4,7 +4,9 @@
   import { computeAll, recomputePressureOnly } from "../core/optimizer";
   import { generatePdfHtml, generatePdfFilename} from "../pdf/pdfTemplate"; 
   import { formatName, formatVitiModel } from "../utils/format";
-  declare const html2pdf: any;
+  import { buildDocDefinition } from "../pdf/pdfmakeTemplate";
+  declare const pdfMake: any;
+
   /* =========================================================
     PAGE 1 → PAGE 2
   ========================================================= */
@@ -373,21 +375,18 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     // 🔥 on met à jour uniquement la pression affichée
     fillSummary();
   });
+
+function generatePdf(docDefinition) {
+  pdfMake.createPdf(docDefinition).download(generatePdfFilename(state));
+}
   /* =========================================================
     EXPORT PDF
-  ========================================================= */  
+========================================================= */  
 document.getElementById("btnPdf")?.addEventListener("click", () => {
-  const html = generatePdfHtml(state);
-  const filename = generatePdfFilename(state);
 
-  html2pdf()
-    .set({
-      margin: 0,
-      filename: filename,  // 👈 Nom dynamique au lieu de "pulvmalin.pdf"
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-    })
-    .from(html)
-    .save();
+  // 1) Construire le docDefinition pdfmake
+  const doc = buildDocDefinition(state);
+
+  // 2) Générer le PDF
+  generatePdf(doc);
 });
