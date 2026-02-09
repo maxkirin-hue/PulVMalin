@@ -1,50 +1,40 @@
-import { vitiSchema, arboSchema, tangentielSchema, rampeSchema } from "./schema"; 
-// adapte le chemin selon ton projet
+import { loadPdfImages } from "./images";
+import { getSchema, MachineKind } from "./schema";
 
-export function schemaFor(state: any): string {
-  switch (state.machineType) {
-    case "viti": return vitiSchema();
-    case "arbo": return arboSchema();
-    case "tangentiel": return tangentielSchema();
-    case "rampe": return rampeSchema();
-    default: return "";
-  }
-}
-export function extractBase64(imgTag: string): string | null {
-  const match = imgTag.match(/src="data:image\/svg\+xml;base64,([^"]+)"/);
-  return match ? match[1] : null;
-}
-export function buildDocDefinition(state) {
+export async function buildDocDefinition(state) {
 
-  // Récupération du schéma en base64
-  const schemaImgTag = schemaFor(state); // vitiSchema(), arboSchema(), etc.
-  const schemaBase64 = extractBase64(schemaImgTag);
+  const images = await loadPdfImages();
+  const schema = getSchema(state.machineType as MachineKind);
+  const buses = schema.getBusPositions(state.results.length);
 
   return {
     pageSize: "A4",
     pageMargins: [20, 20, 20, 20],
 
+    images,
+
     content: [
 
-      // HEADER
+      // ---------------------------------------------------------
+      // BANDEAU VERT
+      // ---------------------------------------------------------
       {
-        columns: [
-          [
-            { text: "PulvMalin", style: "header" },
-            { text: "Fiche de réglage de votre pulvérisateur", style: "subheader" }
-          ],
-          {
-            text: new Date().toLocaleDateString("fr-FR"),
-            alignment: "right",
-            style: "date"
-          }
-        ],
-        margin: [0, 0, 0, 10]
+        table: {
+          widths: ["*", "auto", "auto"],
+          body: [[
+            { text: "PULVMALIN", color: "white", fontSize: 22, bold: true },
+            { text: new Date().toLocaleDateString("fr-FR"), color: "white", alignment: "right" },
+            { qr: "https://www.pulvmalin.fr", fit: 60 }
+          ]]
+        },
+        layout: "noBorders",
+        fillColor: "#2ecc71",
+        margin: [0, 0, 0, 15]
       },
 
-      // PARAMÈTRES
-      { text: "Paramètres de travail", style: "section" },
-
+      // ---------------------------------------------------------
+      // CADRE D’INFOS
+      // ---------------------------------------------------------
       {
         table: {
           widths: ["40%", "*"],
@@ -60,10 +50,12 @@ export function buildDocDefinition(state) {
           ]
         },
         layout: "lightHorizontalLines",
-        margin: [0, 0, 0, 10]
+        margin: [0, 0, 0, 15]
       },
 
-      // SORTIES
+      // ---------------------------------------------------------
+      // TABLEAU DES SORTIES
+      // ---------------------------------------------------------
       { text: "Détail par sortie", style: "section" },
 
       {
@@ -87,35 +79,56 @@ export function buildDocDefinition(state) {
           ]
         },
         layout: "lightHorizontalLines",
-        margin: [0, 0, 0, 10]
+        margin: [0, 0, 0, 15]
       },
 
-      // PRESSION
-      { text: "Pression de travail recommandée", style: "section" },
-
+      // ---------------------------------------------------------
+      // PRESSION RECOMMANDÉE
+      // ---------------------------------------------------------
       {
-        stack: [
-          { text: `${(state.recommendedPressure ?? 0).toFixed(1)} bar`, style: "pressure" },
-          { text: `(Pression idéale famille : ${state.familyPressure ?? "?"} bar)` }
-        ],
-        margin: [0, 0, 0, 10]
+        text: `Pression de travail recommandée : ${(state.recommendedPressure ?? 0).toFixed(1)} bar`,
+        alignment: "center",
+        fontSize: 18,
+        bold: true,
+        color: "#2ecc71",
+        margin: [0, 0, 0, 20]
       },
 
-      // SCHÉMA
+      // ---------------------------------------------------------
+      // SCHÉMA MACHINE
+      // ---------------------------------------------------------
       { text: "Schéma machine", style: "section" },
 
-      schemaBase64
-        ? { image: `data:image/svg+xml;base64,${schemaBase64}`, width: 300, alignment: "center" }
-        : { text: "Aucun schéma disponible" }
+      {
+        image: schema.imageKey,
+        width: 300,
+        alignment: "center",
+        margin: [0, 0, 0, 10]
+      },
+
+      // Buses superposées
+      ...buses.map((b) => ({
+        absolutePosition: { x: b.x, y: b.y },
+        canvas: [
+          { type: "circle", x: 0, y: 0, r: 5, color: "#2ecc71" }
+        ]
+      })),
+
+      // ---------------------------------------------------------
+      // PIED DE PAGE
+      // ---------------------------------------------------------
+      {
+        text: "Les réglages fournis sont indicatifs et ne dispensent pas d’un essai en conditions réelles.",
+        alignment: "center",
+        fontSize: 9,
+        color: "#555",
+        margin: [0, 30, 0, 0]
+      }
     ],
 
     styles: {
-      header: { fontSize: 22, bold: true, color: "#2ecc71" },
-      subheader: { fontSize: 12, margin: [0, 2, 0, 0] },
-      date: { fontSize: 10, color: "#555" },
       section: { fontSize: 14, bold: true, color: "#2ecc71", margin: [0, 10, 0, 5] },
-      tableHeader: { bold: true, fillColor: "#f0f0f0" },
-      pressure: { fontSize: 16, bold: true, color: "#2ecc71" }
+      tableHeader: { bold: true, fillColor: "#f0f0f0" }
     }
   };
 }
