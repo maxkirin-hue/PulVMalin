@@ -25,6 +25,11 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+          
+      - uses: actions/setup-node@v3
+  with:
+    node-version: 20
+
 
   deploy:
     needs: build
