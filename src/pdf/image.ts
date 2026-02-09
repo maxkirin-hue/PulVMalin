@@ -1,4 +1,4 @@
-// src/pdf/images.ts
+// src/pdf/image.ts
 
 async function toBase64(url: string): Promise<string> {
   const res = await fetch(url);
