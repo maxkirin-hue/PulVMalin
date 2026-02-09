@@ -9,5 +9,5 @@
     "noEmit": true,
     "lib": ["DOM", "ES2020"]
   },
-  "include": ["src"]
+  "include": ["src", "public/libs"]
 }
