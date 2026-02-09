@@ -139,6 +139,9 @@ export async function buildDocDefinition(state) {
 // SCHÉMA MACHINE (CADRE + BUSES + LABELS)
 // ---------------------------------------------------------
 {
+  width: 300,
+  height: 200,
+  alignment: "center",
   stack: [
 
     // Cadre vert
@@ -155,14 +158,14 @@ export async function buildDocDefinition(state) {
           lineColor: "#2ecc71"
         }
       ],
-      margin: [0, 0, 0, 0]
+      absolutePosition: { x: 0, y: 0 }
     },
 
     // Image du schéma
     {
       image: schema.imageKey,
       width: 300,
-      margin: [0, 0, 0, 0]
+      absolutePosition: { x: 0, y: 0 }
     },
 
     // Buses + labels
@@ -189,11 +192,8 @@ export async function buildDocDefinition(state) {
       ]
     }))
   ],
-  width: 300,
-  margin: [0, 0, 0, 20],
-  alignment: "center"
+  margin: [0, 0, 0, 20]
 },
-
       // ---------------------------------------------------------
       // PIED DE PAGE
       // ---------------------------------------------------------
