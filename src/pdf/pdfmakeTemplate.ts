@@ -1,4 +1,4 @@
-import { loadPdfImages } from "./images";
+import { loadPdfImages } from "./image";
 import { getSchema, MachineKind } from "./schema";
 
 export async function buildDocDefinition(state) {
