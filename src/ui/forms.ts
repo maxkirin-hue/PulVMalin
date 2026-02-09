@@ -375,17 +375,18 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     // 🔥 on met à jour uniquement la pression affichée
     fillSummary();
   });
-
+  
 function generatePdf(docDefinition) {
   pdfMake.createPdf(docDefinition).download(generatePdfFilename(state));
 }
-  /* =========================================================
-    EXPORT PDF
-========================================================= */  
-document.getElementById("btnPdf")?.addEventListener("click", () => {
 
-  // 1) Construire le docDefinition pdfmake
-  const doc = buildDocDefinition(state);
+/* =========================================================
+    EXPORT PDF
+========================================================= */
+document.getElementById("btnPdf")?.addEventListener("click", async () => {
+
+  // 1) Construire le docDefinition pdfmake (ATTENTION : async)
+  const doc = await buildDocDefinition(state);
 
   // 2) Générer le PDF
   generatePdf(doc);
