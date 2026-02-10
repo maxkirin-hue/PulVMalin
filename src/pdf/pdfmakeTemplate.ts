@@ -95,24 +95,34 @@ export async function buildDocDefinition(state) {
       },
 
       // ---------------------------------------------------------
-      // SCHÉMA MACHINE
+      // SCHÉMA MACHINE (corrigé)
       // ---------------------------------------------------------
       { text: "Schéma machine", style: "section" },
 
       {
-        image: schema.imageKey,
-        width: 300,
+        stack: [
+          {
+            image: schema.imageKey,
+            width: 300,
+            alignment: "center",
+            margin: [0, 0, 0, 10]
+          },
+          {
+            canvas: buses.map(b => ({
+              type: "circle",
+              x: b.x,
+              y: b.y,
+              r: 5,
+              color: "#2ecc71"
+            })),
+            width: 300,
+            height: 200,
+            alignment: "center"
+          }
+        ],
         alignment: "center",
-        margin: [0, 0, 0, 10]
+        margin: [0, 0, 0, 20]
       },
-
-      // Buses superposées
-      ...buses.map((b) => ({
-        absolutePosition: { x: b.x, y: b.y },
-        canvas: [
-          { type: "circle", x: 0, y: 0, r: 5, color: "#2ecc71" }
-        ]
-      })),
 
       // ---------------------------------------------------------
       // PIED DE PAGE
