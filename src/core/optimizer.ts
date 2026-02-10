@@ -96,8 +96,8 @@ export function optimizePressureAndNozzlesForFamily(
   targets: number[],
   familyKey: string
 ): OptimizationOutput {
-  const refP = fam?.refPressure ?? 3;
 
+  // 🔥 Pression cible constructeur (fallback)
   const familyTargetPressures: Record<string, number> = {
     CP4916: 3,
     AMT: 2,
@@ -108,12 +108,35 @@ export function optimizePressureAndNozzlesForFamily(
     AD90: 3,
   };
 
-  const preferredP = familyTargetPressures[familyKey] ?? refP;
+  const refP = fam?.refPressure ?? 3;
 
-  const Pmin = Math.max(fam.limitRange[0], preferredP - 1.5);
-  const Pmax = Math.min(fam.limitRange[1], preferredP + 1.5);
+  // 🔥 Pression souhaitée par l'utilisateur (optionnelle)
+  // Si l'utilisateur saisit une pression, on l'utilise comme centre de recherche
+  const userP = state.userPressureTarget ?? null;
+
+  // 🔥 Pression préférée = userP OU pression constructeur
+  const preferredP =
+    userP ??
+    familyTargetPressures[familyKey] ??
+    refP;
+
+  // 🔥 Définition de la plage de recherche
+  // Si l'utilisateur a donné une pression → on centre autour de cette pression
+  let Pmin = fam.limitRange[0];
+  let Pmax = fam.limitRange[1];
+
+  if (userP !== null) {
+    Pmin = Math.max(fam.limitRange[0], userP - 2);
+    Pmax = Math.min(fam.limitRange[1], userP + 2);
+  } else {
+    // Sinon, comportement actuel : ±1.5 autour de la pression constructeur
+    Pmin = Math.max(fam.limitRange[0], preferredP - 1.5);
+    Pmax = Math.min(fam.limitRange[1], preferredP + 1.5);
+  }
+
   const step = 0.1;
 
+  // 🔥 Liste des variantes de buses
   const variants = getNozzleVariants(fam);
   if (!variants.length) {
     return {
@@ -132,6 +155,7 @@ export function optimizePressureAndNozzlesForFamily(
 
   let best: OptimizationOutput | null = null;
 
+  // 🔥 Boucle d'optimisation
   for (let P = Pmin; P <= Pmax + 1e-6; P += step) {
     const results: OptimizationResult[] = [];
     let Qtot = 0;
@@ -171,6 +195,7 @@ export function optimizePressureAndNozzlesForFamily(
     const QtargetTot = targets.reduce((a, b) => a + b, 0);
     const relErrTot = QtargetTot > 0 ? (Qtot - QtargetTot) / QtargetTot : 0;
 
+    // 🔥 Coût : erreur individuelle + erreur totale + écart à la pression souhaitée
     const w1 = 1;
     const w2 = 2;
     const w3 = 0.5;
@@ -180,7 +205,9 @@ export function optimizePressureAndNozzlesForFamily(
       w2 * relErrTot * relErrTot +
       w3 * Math.pow((P - preferredP) / preferredP, 2);
 
-    if (!best || cost < best.cost) best = { P, results, Qtot, relErrTot, cost };
+    if (!best || cost < best.cost) {
+      best = { P, results, Qtot, relErrTot, cost };
+    }
   }
 
   return best!;
