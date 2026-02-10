@@ -105,6 +105,10 @@
     state.familyKey = sel.value;
     populateForcedNozzleSelect();
   });
+  document.getElementById("userPressure")?.addEventListener("input", e => {
+  const v = parseFloat((e.target as HTMLInputElement).value);
+  state.userPressureTarget = isNaN(v) ? null : v;
+});
 
   populateForcedNozzleSelect();
 }
