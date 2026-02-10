@@ -73,13 +73,13 @@
 
   sel.innerHTML = "";
 
-  // 🔥 Règles de familles autorisées par type de machine
-  const allowedByMachine: Record<string, string[]> = {
-    viti: ["ATR80", "CP4916", "AMT", "AD90"],
-    arbo: ["TXR", "IDK", "XR"],
-    tangentiel: ["ATR80", "TXR", "IDK"],   // ❌ pas de CP4916 ici
-    rampe: ["XR", "IDK90", "AD90"],
-  };
+    // 🔥 Règles de familles autorisées par type de machine
+    const allowedByMachine: Record<string, string[]> = {
+      viti: ["ATR80", "CP4916", "AMT", "AD90"],
+      arbo: ["TXR", "IDK", "XR"],
+      tangentiel: ["ATR80", "TXR", "IDK90"],   // ❌ pas de CP4916 ici
+      rampe: ["XR", "IDK90", "AD90"],
+    };
 
   const allowed = allowedByMachine[state.machineType] ?? [];
 
