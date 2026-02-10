@@ -110,22 +110,28 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
   }
 
   /* ============================
-       MODE TANGENTIEL
-  ============================ */
-  if (state.machineType === "tangentiel") {
-    const n = state.arboRangs ?? 2;
-    const names: string[] = [];
+     MODE TANGENTIEL
+============================ */
+if (state.machineType === "tangentiel") {
+  let n = state.arboRangs ?? 2;
 
-    for (let i = 1; i <= n; i++) names.push(`Buse G${i}`);
-    for (let i = 1; i <= n; i++) names.push(`Buse D${i}`);
+  // 🔥 n = nombre total de buses
+  // On impose un nombre pair
+  if (n % 2 !== 0) n = n - 1;
 
-    return {
-      names,
-      coefs: Array(n * 2).fill(1),
-      modelLabel: "Tangentiel",
-    };
-  }
+  const perSide = n / 2;
 
+  const names: string[] = [];
+
+  for (let i = 1; i <= perSide; i++) names.push(`Buse G${i}`);
+  for (let i = 1; i <= perSide; i++) names.push(`Buse D${i}`);
+
+  return {
+    names,
+    coefs: Array(n).fill(1),
+    modelLabel: "Tangentiel",
+  };
+}
   /* ============================
        MODE RAMPE
   ============================ */
