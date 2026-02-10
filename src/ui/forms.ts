@@ -236,11 +236,11 @@ export function updateFamilyOptions() {
       break;
 
     case "arbo":
-      families = ["TXR", "IDK", "XR", "ATR80"];
+      families = ["TXR", "IDK90", "XR", "ATR80"];
       break;
 
     case "tangentiel":
-      families = ["ATR80", "TXR", "IDK"];
+      families = ["ATR80", "TXR", "IDK90"];
       break;
 
     case "rampe":
