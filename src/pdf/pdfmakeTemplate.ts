@@ -95,7 +95,7 @@ export async function buildDocDefinition(state) {
       },
 
 // ---------------------------------------------------------
-// SCHÉMA MACHINE AVEC LABELS
+// SCHÉMA MACHINE — VERSION UNIVERSELLE
 // ---------------------------------------------------------
 { text: "Schéma machine", style: "section" },
 
@@ -109,45 +109,53 @@ export async function buildDocDefinition(state) {
     },
 
     {
-      canvas: state.results.map((r, i) => {
-        const b = buses[i];
+      canvas: state.results.flatMap((r, i) => {
         const name = r.outputName;
 
+        // Détection du côté
         const isLeft = name.includes("G");
         const isRight = name.includes("D");
 
+        // Détection du type
         const isCanon = name.toLowerCase().includes("canon");
         const isRetour = name.toLowerCase().includes("retour");
         const isMain = name.toLowerCase().includes("main") && !isRetour;
 
-        let dx = 0;
-        let dy = 0;
+        // Position de base (centre du schéma)
+        const centerX = 150;
+        const centerY = 100;
 
-        if (isLeft) dx = -60;
-        if (isRight) dx = +60;
+        // Décalages horizontaux
+        const x = isLeft ? centerX - 80 : centerX + 80;
 
-        if (isCanon) dy = -40;
-        else if (isRetour) dy = -10;
-        else if (isMain) dy = +20;
+        // Décalages verticaux
+        let y = centerY;
+
+        if (isCanon) y = centerY - 60;
+        else if (isRetour) y = centerY - 20;
+        else if (isMain) y = centerY + 20;
 
         return [
+          // Cercle
           {
             type: "circle",
-            x: b.x,
-            y: b.y,
+            x,
+            y,
             r: 5,
             color: "#2ecc71"
           },
+
+          // Label
           {
             type: "text",
             text: name,
-            x: b.x + dx,
-            y: b.y + dy,
+            x: x + (isLeft ? -40 : 10),
+            y: y - 3,
             fontSize: 9,
             color: "#333"
           }
         ];
-      }).flat(),
+      }),
       width: 300,
       height: 200,
       alignment: "center"
