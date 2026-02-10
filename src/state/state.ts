@@ -41,6 +41,9 @@ export interface AppState {
   qTotal: number;
   recommendedPressure: number;
   results: ResultRow[];
+  
+  // Pression souhaitée par l'utilisateur (optionnelle) 
+  userPressureTarget: number | null;
 
   // Pastilles figées
   fixedNozzles: string[];
@@ -69,6 +72,7 @@ export const state: AppState = {
 
   qTotal: 0,
   recommendedPressure: 0,
+  userPressureTarget: null,
   results: [],
 
   fixedNozzles: [],
