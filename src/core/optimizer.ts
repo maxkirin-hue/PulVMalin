@@ -236,37 +236,44 @@ export function computeAll(): void {
     return;
   }
 
-  /* ======== AUTRES MODES (viti, arbo, tangentiel) ======== */
+ /* ======== AUTRES MODES (viti, arbo, tangentiel) ======== */
 
-  const rangs = detectRangs();
-  const largeurTotale = state.interligne! * rangs;
+const rangs = detectRangs();
+const largeurTotale = state.interligne! * rangs;
 
-  const qTotal = (state.dose! * largeurTotale * state.speed!) / 600;
-  state.qTotal = qTotal;
+const qTotal = (state.dose! * largeurTotale * state.speed!) / 600;
+state.qTotal = qTotal;
 
-  const sumCoef = coefs.reduce((a, b) => a + b, 0);
-  const targets = coefs.map(c => qTotal * (c / sumCoef));
+const sumCoef = coefs.reduce((a, b) => a + b, 0);
+const targets = coefs.map(c => qTotal * (c / sumCoef));
 
-  const opt = optimizePressureAndNozzlesForFamily(fam, targets, state.familyKey);
+const opt = optimizePressureAndNozzlesForFamily(fam, targets, state.familyKey);
 
-  state.recommendedPressure = opt.P;
+state.recommendedPressure = opt.P;
 
-  state.results = names.map((name, idx) => {
-    const r = opt.results[idx];
-    return {
-      outputName: name,
-      coef: coefs[idx],
-      qTarget: r.qTarget,
-      nozzleLabel: r.nozzle.code,
-      nozzleColor: r.nozzle.color,
-      pressure: opt.P,
-      qReal: r.q,
-      relError: r.relErr,
-      status: pressureStatus(opt.P, fam),
-    };
-  });
+// 🔥 Correction tangentiel : imposer un nombre pair de buses
+if (state.machineType === "tangentiel" && names.length % 2 !== 0) {
+  console.warn("Nombre impair détecté pour tangentiel → ajustement automatique");
+  names.pop(); // supprime la dernière sortie
+  coefs.pop(); // supprime aussi le coef correspondant
+}
 
-  (state as any).fixedNozzles = state.results.map(r => r.nozzleLabel);
+state.results = names.map((name, idx) => {
+  const r = opt.results[idx];
+  return {
+    outputName: name,
+    coef: coefs[idx],
+    qTarget: r.qTarget,
+    nozzleLabel: r.nozzle.code,
+    nozzleColor: r.nozzle.color,
+    pressure: opt.P,
+    qReal: r.q,
+    relError: r.relErr,
+    status: pressureStatus(opt.P, fam),
+  };
+});
+
+(state as any).fixedNozzles = state.results.map(r => r.nozzleLabel);
 }
 
 /* =========================================================
