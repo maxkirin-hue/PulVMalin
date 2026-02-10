@@ -71,7 +71,7 @@ function arboBusPositions(count: number): BusPosition[] {
 // VITI SANS RETOUR
 // -------------------------------------------------------------
 
-function vitiSansRetourBusPositions(count: number): BusPosition[] {
+function vitisansretourBusPositions(count: number): BusPosition[] {
   const base: BusPosition[] = [
     { x: 60,  y: 30 },   // Canon G
     { x: 190, y: 30 },   // Canon D
@@ -86,7 +86,7 @@ function vitiSansRetourBusPositions(count: number): BusPosition[] {
 // VITI AVEC RETOUR
 // -------------------------------------------------------------
 
-function vitiAvecRetourBusPositions(count: number): BusPosition[] {
+function vitiavecretourBusPositions(count: number): BusPosition[] {
   const base: BusPosition[] = [
     { x: 60,  y: 30 },   // Canon G
     { x: 190, y: 30 },   // Canon D
@@ -134,11 +134,11 @@ export const MACHINE_SCHEMAS: Record<MachineKind, MachineSchema> = {
   },
   viti: {
     imageKey: 'vitiSansRetourPng',
-    getBusPositions: vitiSansRetourBusPositions,
+    getBusPositions: vitisansretourBusPositions,
   },
   viti_retour: {
     imageKey: 'vitiAvecRetourPng',
-    getBusPositions: vitiAvecRetourBusPositions,
+    getBusPositions: vitiavecretourBusPositions,
   },
   rampe: {
     imageKey: 'rampePng',
