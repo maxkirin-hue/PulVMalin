@@ -94,35 +94,68 @@ export async function buildDocDefinition(state) {
         margin: [0, 0, 0, 20]
       },
 
-      // ---------------------------------------------------------
-      // SCHÉMA MACHINE (corrigé)
-      // ---------------------------------------------------------
-      { text: "Schéma machine", style: "section" },
+// ---------------------------------------------------------
+// SCHÉMA MACHINE AVEC LABELS
+// ---------------------------------------------------------
+{ text: "Schéma machine", style: "section" },
 
-      {
-        stack: [
+{
+  stack: [
+    {
+      image: schema.imageKey,
+      width: 300,
+      alignment: "center",
+      margin: [0, 0, 0, 10]
+    },
+
+    {
+      canvas: state.results.map((r, i) => {
+        const b = buses[i];
+        const name = r.outputName;
+
+        const isLeft = name.includes("G");
+        const isRight = name.includes("D");
+
+        const isCanon = name.toLowerCase().includes("canon");
+        const isRetour = name.toLowerCase().includes("retour");
+        const isMain = name.toLowerCase().includes("main") && !isRetour;
+
+        let dx = 0;
+        let dy = 0;
+
+        if (isLeft) dx = -60;
+        if (isRight) dx = +60;
+
+        if (isCanon) dy = -40;
+        else if (isRetour) dy = -10;
+        else if (isMain) dy = +20;
+
+        return [
           {
-            image: schema.imageKey,
-            width: 300,
-            alignment: "center",
-            margin: [0, 0, 0, 10]
+            type: "circle",
+            x: b.x,
+            y: b.y,
+            r: 5,
+            color: "#2ecc71"
           },
           {
-            canvas: buses.map(b => ({
-              type: "circle",
-              x: b.x,
-              y: b.y,
-              r: 5,
-              color: "#2ecc71"
-            })),
-            width: 300,
-            height: 200,
-            alignment: "center"
+            type: "text",
+            text: name,
+            x: b.x + dx,
+            y: b.y + dy,
+            fontSize: 9,
+            color: "#333"
           }
-        ],
-        alignment: "center",
-        margin: [0, 0, 0, 20]
-      },
+        ];
+      }).flat(),
+      width: 300,
+      height: 200,
+      alignment: "center"
+    }
+  ],
+  alignment: "center",
+  margin: [0, 0, 0, 20]
+},
 
       // ---------------------------------------------------------
       // PIED DE PAGE
@@ -140,5 +173,5 @@ export async function buildDocDefinition(state) {
       section: { fontSize: 14, bold: true, color: "#2ecc71", margin: [0, 10, 0, 5] },
       tableHeader: { bold: true, fillColor: "#f0f0f0" }
     }
-  };
+  }
 }
