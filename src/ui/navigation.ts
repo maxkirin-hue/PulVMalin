@@ -1,5 +1,6 @@
 import { $ } from "../utils/dom";
-import { updateResults } from "./updateResults";
+import { fillSummary } from "./summary";
+
 
 export function showPage(n: number): void {
   document.querySelectorAll<HTMLElement>(".page").forEach(p => {
@@ -34,7 +35,7 @@ export function initNavigation(): void {
 
   // Bouton "Calculer" page 3 → page 4
   document.getElementById("toPage4")?.addEventListener("click", () => {
-    updateResults();   // 👈 ENFIN !
+    fillSummary();   // 👈 ENFIN !
     showPage(4);
   });
 }
