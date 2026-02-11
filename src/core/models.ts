@@ -11,13 +11,16 @@ export interface VitiOutput {
 }
 
 export const vitiModels: Record<string, VitiOutput[]> = {
+
   "3r_avec": [
     { name: "Canon G1", role: "moitie", group: 1 },
     { name: "Canon G2", role: "moitie", group: 1 },
     { name: "Canon D2", role: "moitie", group: 1 },
     { name: "Canon D1", role: "moitie", group: 1 },
+
     { name: "Main retour G", role: "complete", group: 2 },
     { name: "Main retour D", role: "complete", group: 2 },
+
     { name: "Main G1", role: "moitie", group: 1 },
     { name: "Main G2", role: "moitie", group: 1 },
     { name: "Main D2", role: "moitie", group: 1 },
@@ -28,11 +31,14 @@ export const vitiModels: Record<string, VitiOutput[]> = {
     { name: "Canon G1", role: "complete", group: 1 },
     { name: "Canon G2", role: "complete", group: 1 },
     { name: "Main retour G", role: "complete", group: 1 },
+
     { name: "Main G1", role: "moitie", group: 2 },
     { name: "Main G2", role: "moitie", group: 2 },
+
     { name: "Canon D1", role: "complete", group: 1 },
     { name: "Canon D2", role: "complete", group: 1 },
     { name: "Main retour D", role: "complete", group: 1 },
+
     { name: "Main D1", role: "moitie", group: 2 },
     { name: "Main D2", role: "moitie", group: 2 },
   ],
@@ -42,6 +48,7 @@ export const vitiModels: Record<string, VitiOutput[]> = {
     { name: "Canon G2", role: "moitie", group: 1 },
     { name: "Canon D2", role: "moitie", group: 1 },
     { name: "Canon D1", role: "moitie", group: 1 },
+
     { name: "Main G1", role: "complete", group: 1 },
     { name: "Main G2", role: "complete", group: 1 },
     { name: "Main D2", role: "complete", group: 1 },
@@ -51,14 +58,69 @@ export const vitiModels: Record<string, VitiOutput[]> = {
   "4r_sans": [
     { name: "Canon G1", role: "complete", group: 1 },
     { name: "Canon G2", role: "complete", group: 1 },
+
     { name: "Main G1", role: "complete", group: 1 },
     { name: "Main G2", role: "complete", group: 1 },
+
     { name: "Canon D1", role: "complete", group: 1 },
     { name: "Canon D2", role: "complete", group: 1 },
+
     { name: "Main D1", role: "complete", group: 1 },
     { name: "Main D2", role: "complete", group: 1 },
   ],
+
+  /* ---------------------------------------------------------
+     MODÈLE VITI LIBRE (rempli dynamiquement)
+  --------------------------------------------------------- */
+  "viti_libre": []
 };
+
+
+/* =========================================================
+   CONSTRUCTEUR DU MODÈLE VITI LIBRE
+========================================================= */
+
+export function buildVitiLibreModel(params: {
+  canonsG: number;
+  canonsD: number;
+  retourG: number;
+  retourD: number;
+  mainsG: number;
+  mainsD: number;
+}): VitiOutput[] {
+
+  const outs: VitiOutput[] = [];
+
+  const add = (count: number, base: string, group: 1 | 2) => {
+    if (count <= 0) return;
+
+    // Rôle automatique :
+    // 1 bus = complete
+    // 2 bus = moitie
+    // >2 bus = moitie (fraction gérée dans optimizer)
+    const role: VitiOutput["role"] =
+      count === 1 ? "complete" : "moitie";
+
+    for (let i = 1; i <= count; i++) {
+      outs.push({
+        name: `${base} ${i}`,
+        role,
+        group
+      });
+    }
+  };
+
+  add(params.canonsG, "Canon G", 1);
+  add(params.canonsD, "Canon D", 1);
+
+  add(params.retourG, "Main retour G", 2);
+  add(params.retourD, "Main retour D", 2);
+
+  add(params.mainsG, "Main G", 1);
+  add(params.mainsD, "Main D", 1);
+
+  return outs;
+}
 
 /* =========================================================
    SORTIES & COEFFICIENTS
