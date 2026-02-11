@@ -5,6 +5,8 @@
   import { generatePdfHtml, generatePdfFilename} from "../pdf/pdfTemplate"; 
   import { formatName, formatVitiModel } from "../utils/format";
   import { buildDocDefinition } from "../pdf/pdfmakeTemplate";
+  import { buildVitiLibreModel } from "../core/models";
+
   declare const pdfMake: any;
 
   /* =========================================================
@@ -63,6 +65,14 @@
     if (state.machineType === "tangentiel") tang.style.display = "block";
     if (state.machineType === "rampe") rampe.style.display = "block";
   }
+  const libreBlock = document.getElementById("vitiLibreBlock");
+
+  if (state.machineType === "viti" && state.modelKey === "viti_libre") {
+    libreBlock.style.display = "block";
+  } else {
+    libreBlock.style.display = "none";
+  }
+
   /* =========================================================
     FAMILLES
   ========================================================= */
@@ -273,34 +283,52 @@ export function updateFamilyOptions() {
     PAGE 2 → PAGE 3
 ========================================================= */
 document.getElementById("toPage3")?.addEventListener("click", () => {
+
   state.dose = Number((document.getElementById("dose") as HTMLInputElement).value);
   state.interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
   state.speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
   state.machineName = (document.getElementById("machineName") as HTMLInputElement).value;
 
-  if (state.machineType === "viti") {
-    const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
-    state.modelKey = modelSel.value;        // ✔ VITI a des modèles
-  }
+ /* ----------- VITI ----------- */
+if (state.machineType === "viti") {
+  const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
+  state.modelKey = modelSel.value;
 
+  // 🔥 SI modèle libre → on génère les outputs ici
+  if (state.modelKey === "viti_libre") {
+    state.outputs = buildVitiLibreModel({
+      canonsG: Number((document.getElementById("libreCanonsG") as HTMLInputElement).value),
+      canonsD: Number((document.getElementById("libreCanonsD") as HTMLInputElement).value),
+      retourG: Number((document.getElementById("libreRetourG") as HTMLInputElement).value),
+      retourD: Number((document.getElementById("libreRetourD") as HTMLInputElement).value),
+      mainsG: Number((document.getElementById("libreMainsG") as HTMLInputElement).value),
+      mainsD: Number((document.getElementById("libreMainsD") as HTMLInputElement).value),
+    });
+  }
+}
+
+  /* ----------- ARBO ----------- */
   if (state.machineType === "arbo") {
     const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
     state.arboRangs = Number(arboRangs.value);
-    state.modelKey = null;                  // 🔥 ARBO n’a PAS de modèle
+    state.modelKey = null;
   }
 
+  /* ----------- RAMPE ----------- */
   if (state.machineType === "rampe") {
     const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
     state.rampeCount = Number(rampeCount.value);
-    state.modelKey = null;                  // ✔ RAMPE n’a pas de modèle
+    state.modelKey = null;
   }
 
+  /* ----------- TANGENTIEL ----------- */
   if (state.machineType === "tangentiel") {
     const tangCount = document.getElementById("tangentielCount") as HTMLInputElement;
     state.arboRangs = Number(tangCount.value);
-    state.modelKey = null;                  // 🔥 TANGENTIEL n’a PAS de modèle
+    state.modelKey = null;
   }
 
+  /* ----------- VALIDATION ----------- */
   if (!state.dose || !state.interligne || !state.speed) {
     alert("Merci de remplir tous les champs.");
     return;
@@ -308,6 +336,7 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
 
   showPage(3);
 });
+
   /* =========================================================
     PAGE 3 → PAGE 4
   ========================================================= */
