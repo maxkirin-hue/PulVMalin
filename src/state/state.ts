@@ -2,6 +2,8 @@
    STATE GLOBAL — PulvMalin (compatible optimizer)
 ============================================================ */
 
+import { VitiOutput } from "../core/models";
+
 export interface ResultRow {
   outputName: string;
   coef: number;
@@ -24,7 +26,8 @@ export interface AppState {
   familyKey: string;        // ex: "CP4916"
 
   // Modèle viti
-  modelKey: string;         // ex: "3r", "4r"
+  modelKey: string;         // ex: "3r_avec", "4r_sans", "viti_libre"
+  outputs: VitiOutput[] | null;   // <-- AJOUT CORRECT
 
   // Paramètres
   dose: number | null;
@@ -41,8 +44,8 @@ export interface AppState {
   qTotal: number;
   recommendedPressure: number;
   results: ResultRow[];
-  
-  // Pression souhaitée par l'utilisateur (optionnelle) 
+
+  // Pression souhaitée par l'utilisateur (optionnelle)
   userPressureTarget: number | null;
 
   // Pastilles figées
@@ -61,6 +64,7 @@ export const state: AppState = {
 
   familyKey: "",
   modelKey: "",
+  outputs: null,          // <-- AJOUT CORRECT
 
   dose: null,
   largeur: null,
