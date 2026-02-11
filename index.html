@@ -152,13 +152,17 @@
       <p class="hint">Sans cocher, PULV MALIN choisit automatiquement la pastille.</p>
 
       <div id="forcedPanel" style="display:none; margin-top:1rem;">
-        <label>Pastille forcée – Groupe 1</label>
+        <label>Pastille forcée – Principales </label>
         <select id="forcedNozzle1"></select>
 
-        <label>Pastille forcée – Groupe 2</label>
+        <label>Pastille forcée – Main de retour 2</label>
         <select id="forcedNozzle2"></select>
       </div>
-    </div>
+       </div>
+      <label class="field">
+  <span>Pression souhaitée (bar) — optionnel</span>
+  <input id="userPressure" type="number" step="0.1" min="0" placeholder="Ex : 5.0" />
+      </label>
 
     <div class="nav-row">
       <button class="secondary" data-back="2">Retour</button>
@@ -202,7 +206,7 @@
     </div>
 
     <div class="summary card">
-      <div><strong>Pression de travail recommandée :</strong>
+      <div><strong>Pression de travail:</strong>
         <span id="sumPressure"></span> bar
       </div>
     </div>
