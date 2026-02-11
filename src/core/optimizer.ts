@@ -2,6 +2,7 @@ import { state } from "../state/state";
 import { nozzleFamilies } from "../data/nozzles";
 import { getOutputsAndCoefs } from "./models";
 import { flowAtPressure, pressureStatus } from "./hydraulics";
+import type { VitiOutput } from "./models";
 
 /* =========================================================
    TYPES
@@ -26,6 +27,29 @@ interface OptimizationOutput {
   Qtot: number;
   relErrTot: number;
   cost: number;
+}
+/* =========================================================
+   COEFFICIENTS VITI LIBRE (faces traitées)
+========================================================= */
+
+function computeVitiLibreCoefficients(outputs: VitiOutput[]) {
+  // 1 face = 0.5 rang
+  // 1/2 face = 0.25 rang
+  // si plusieurs buses font une face → division automatique
+
+  const faceValue = (role: VitiOutput["role"]) =>
+    role === "complete" ? 0.5 : 0.25;
+
+  // fraction de rang par sortie
+  const fractions = outputs.map(o => {
+    const base = o.name.split(" ")[0]; // ex: "Canon", "Main"
+    const siblings = outputs.filter(x => x.name.startsWith(base));
+    return faceValue(o.role) / siblings.length;
+  });
+
+  const total = fractions.reduce((a, b) => a + b, 0);
+
+  return outputs.map((_, i) => fractions[i] / total);
 }
 
 /* =========================================================
@@ -218,12 +242,12 @@ export function optimizePressureAndNozzlesForFamily(
 ========================================================= */
 
 export function computeAll(): void {
-   console.log(">>> computeAll state:", {
+
+  console.log(">>> computeAll state:", {
     machineType: state.machineType,
     familyKey: state.familyKey,
     modelKey: state.modelKey,
   });
-
 
   const fam = nozzleFamilies[state.familyKey];
   if (!fam) return;
@@ -231,9 +255,47 @@ export function computeAll(): void {
   const { names, coefs } = getOutputsAndCoefs();
   if (!names.length || !coefs.length) return;
 
+  /* ======== MODE VITI LIBRE ======== */
+  if (state.modelKey === "viti_libre") {
+
+    // 1) Générer les coefficients proportionnels (faces traitées)
+    const coeffs = computeVitiLibreCoefficients(state.outputs);
+
+    // 2) Calcul du débit total
+    const qTotal = (state.dose! * state.interligne! * state.vitesse!) / 600;
+    state.qTotal = qTotal;
+
+    // 3) Débits cibles par sortie
+    const targets = coeffs.map(c => qTotal * c);
+
+    // 4) Optimisation pression + pastilles
+    const opt = optimizePressureAndNozzlesForFamily(fam, targets, state.familyKey);
+
+    state.recommendedPressure = opt.P;
+
+    // 5) Résultats formatés
+    state.results = state.outputs.map((o, idx) => {
+      const r = opt.results[idx];
+      return {
+        outputName: o.name,
+        coef: coeffs[idx],
+        qTarget: r.qTarget,
+        nozzleLabel: r.nozzle.code,
+        nozzleColor: r.nozzle.color,
+        pressure: opt.P,
+        qReal: r.q,
+        relError: r.relErr,
+        status: pressureStatus(opt.P, fam),
+      };
+    });
+
+    (state as any).fixedNozzles = state.results.map(r => r.nozzleLabel);
+    return;
+  }
+
   /* ======== MODE RAMPE ======== */
   if (state.machineType === "rampe") {
-    const largeurTotale = state.largeur!; // largeur en mètres
+    const largeurTotale = state.largeur!;
     const qTotal = (state.dose! * largeurTotale * state.vitesse!) / 600;
     state.qTotal = qTotal;
 
