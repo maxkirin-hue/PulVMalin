@@ -1,10 +1,6 @@
 import { state } from "../state/state";
 import { showPage } from "./navigation";
-import { 
-  populateFamilySelect, 
-  updateModelOptions, 
-  updateFamilyOptions 
-} from "./forms";
+
 
 /* =========================================================
    INITIALISATION DES BOUTONS MACHINE
@@ -35,10 +31,7 @@ export function initMachineButtons() {
       if (type === "rampe") document.getElementById("rampeBlock")!.style.display = "block";
       if (type === "tangentiel") document.getElementById("tangentielBlock")!.style.display = "block";
 
-      // 5) Mettre à jour modèles + familles
-      updateModelOptions();
-      updateFamilyOptions();
-
+      
       // 6) Aller à la page 2
       showPage(2);
     });
@@ -57,7 +50,7 @@ export function initMachineButtons() {
         return;
       }
 
-      populateFamilySelect();
+  
       showPage(2);
     });
   }
