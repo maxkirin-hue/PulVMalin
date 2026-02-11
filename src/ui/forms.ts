@@ -361,6 +361,15 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
         state.machineType === "viti"
           ? formatVitiModel(state.modelKey)
           : state.machineName ?? "";
+          const sumPressure = document.getElementById("sumPressure") as HTMLElement;
+
+if (state.userPressureTarget !== null) {
+  sumPressure.textContent =
+    `${state.userPressureTarget} bar (obtenu : ${state.recommendedPressure.toFixed(1)} bar)`;
+} else {
+  sumPressure.textContent = `${state.recommendedPressure.toFixed(1)} bar`;
+}
+
     }
 
   /* =========================================================
