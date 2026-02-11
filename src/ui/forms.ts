@@ -1,70 +1,30 @@
-  import { nozzleFamilies } from "../data/nozzles";
-  import { state } from "../state/state";
-  import { showPage } from "./navigation";
-  import { computeAll, recomputePressureOnly } from "../core/optimizer";
-  import { generatePdfHtml, generatePdfFilename} from "../pdf/pdfTemplate"; 
-  import { formatName, formatVitiModel } from "../utils/format";
-  import { buildDocDefinition } from "../pdf/pdfmakeTemplate";
-  import { buildVitiLibreModel } from "../core/models";
+/* =========================================================
+   IMPORTS
+========================================================= */
+import { nozzleFamilies } from "../data/nozzles";
+import { state } from "../state/state"; 
+import { computeAll, recomputePressureOnly } from "../core/optimizer"; 
+import { generatePdfHtml, generatePdfFilename} from "../pdf/pdfTemplate"; 
+import { formatName, formatVitiModel } from "../utils/format";
+import { buildDocDefinition } from "../pdf/pdfmakeTemplate"; 
+import { buildVitiLibreModel } from "../core/models";
+import { renderResultsTable } from "./summary";
+import { fillSummary } from "./summary";
 
-  declare const pdfMake: any;
+declare const pdfMake: any;
 
-  /* =========================================================
-    PAGE 1 → PAGE 2
-  ========================================================= */
+/* =========================================================
+   PAGE SWITCHER
+========================================================= */
+export function showPage(n: number) {
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.getElementById(`page${n}`)?.classList.remove("hidden");
+}
 
-  document.getElementById("toPage2")?.addEventListener("click", () => {
-    const userName = (document.getElementById("userName") as HTMLInputElement).value.trim();
-    const machineName = (document.getElementById("machineName") as HTMLInputElement).value.trim();
-    const machineType = (document.getElementById("machineType") as HTMLSelectElement).value;
-
-    if (!userName) {
-      alert("Merci de saisir votre nom.");
-      return;
-    }
-
-    if (!machineName) {
-      alert("Merci de saisir le modèle de machine.");
-      return;
-    }
-
-    if (!machineType) {
-      alert("Merci de choisir un type de machine.");
-      return;
-    }
-
-    state.userName = userName;
-    state.machineName = machineName;
-    state.machineType = machineType;
-
-  showPage(2);
-  updatePage2Visibility();
-  populateFamilySelect(); ;
-  });
-  /* =========================================================
-    AFFICHAGE CONDITIONNEL PAGE 2
-  ========================================================= */
-
-  function updatePage2Visibility() {
-    const viti = document.getElementById("vitiBlock") as HTMLElement;
-    const arbo = document.getElementById("arboBlock") as HTMLElement;
-    const tang = document.getElementById("tangentielBlock") as HTMLElement;
-    const rampe = document.getElementById("rampeBlock") as HTMLElement;
-
-    if (!viti || !arbo || !tang || !rampe) return;
-
-    // Tout masquer
-    viti.style.display = "none";
-    arbo.style.display = "none";
-    tang.style.display = "none";
-    rampe.style.display = "none";
-
-    // Afficher uniquement le bon bloc
-    if (state.machineType === "viti") viti.style.display = "block";
-    if (state.machineType === "arbo") arbo.style.display = "block";
-    if (state.machineType === "tangentiel") tang.style.display = "block";
-    if (state.machineType === "rampe") rampe.style.display = "block";
-  }
+/* =========================================================
+   VISIBILITÉ DU BLOC MODÈLE LIBRE
+========================================================= */
+function updatePage2Visibility() {
   const libreBlock = document.getElementById("vitiLibreBlock");
 
   if (state.machineType === "viti" && state.modelKey === "viti_libre") {
@@ -72,244 +32,79 @@
   } else {
     libreBlock.style.display = "none";
   }
+}
 
-  /* =========================================================
-    FAMILLES
-  ========================================================= */
+/* =========================================================
+   CHANGEMENT DE MODÈLE VITI
+========================================================= */
+document.getElementById("vitiModel")?.addEventListener("change", () => {
+  const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
+  state.modelKey = modelSel.value;
 
-  export function populateFamilySelect() {
-  const sel = document.getElementById("familySelect") as HTMLSelectElement;
-  if (!sel) return;
-
-  sel.innerHTML = "";
-
-    // 🔥 Règles de familles autorisées par type de machine
-    const allowedByMachine: Record<string, string[]> = {
-      viti: ["ATR80", "CP4916", "AMT", "AD90"],
-      arbo: ["TXR", "IDK", "XR"],
-      tangentiel: ["ATR80", "TXR", "IDK90"],   // ❌ pas de CP4916 ici
-      rampe: ["XR", "IDK90", "AD90"],
-    };
-
-  const allowed = allowedByMachine[state.machineType] ?? [];
-
-  const entries = Object.entries(nozzleFamilies).filter(
-    ([key, fam]: any) =>
-      allowed.includes(key) &&
-      (!fam.machines || fam.machines.includes(state.machineType))
-  );
-
-  entries.forEach(([key, fam]: any) => {
-    const opt = document.createElement("option");
-    opt.value = key;
-    opt.textContent = fam.label ?? key;
-    sel.appendChild(opt);
-  });
-
-  if (entries.length) {
-    state.familyKey = entries[0][0];
-    sel.value = state.familyKey;
-  }
-
-  sel.addEventListener("change", () => {
-    state.familyKey = sel.value;
-    populateForcedNozzleSelect();
-  });
-  document.getElementById("userPressure")?.addEventListener("input", e => {
-  const v = parseFloat((e.target as HTMLInputElement).value);
-  state.userPressureTarget = isNaN(v) ? null : v;
+  updatePage2Visibility();
 });
 
-  populateForcedNozzleSelect();
-}
-  /* =========================================================
-    PASTILLES
-  ========================================================= */
-
-  function listNozzleVariants(family: any) {
-    const variants: any[] = [];
-
-    family.nozzles.forEach((n: any) => {
-      if (n.faces) {
-        n.faces.forEach((face: any) => {
-          variants.push({
-            value: `${n.code}|${face.side}`,
-            label: `${n.code} — ${face.label}`,
-            code: n.code,
-            qRef: face.qRef,
-            faceLabel: face.label,
-          });
-        });
-      } else {
-        variants.push({
-          value: n.code,
-          label: n.code,
-          code: n.code,
-          qRef: n.qRef,
-          faceLabel: null,
-        });
-      }
-    });
-
-    return variants;
-  }
-
-  export function populateForcedNozzleSelect() {
-    const sel1 = document.getElementById("forcedNozzle1") as HTMLSelectElement;
-    const sel2 = document.getElementById("forcedNozzle2") as HTMLSelectElement;
-
-    if (!sel1 || !sel2) return;
-
-    sel1.innerHTML = "";
-    sel2.innerHTML = "";
-
-    const fam = nozzleFamilies[state.familyKey!];
-    if (!fam) return;
-
-    const variants = listNozzleVariants(fam);
-
-    const empty = document.createElement("option");
-    empty.value = "";
-    empty.textContent = "Choisir…";
-
-    sel1.appendChild(empty.cloneNode(true));
-    sel2.appendChild(empty.cloneNode(true));
-
-    variants.forEach(v => {
-      const o1 = document.createElement("option");
-      o1.value = v.value;
-      o1.textContent = v.label;
-      sel1.appendChild(o1);
-
-      const o2 = document.createElement("option");
-      o2.value = v.value;
-      o2.textContent = v.label;
-      sel2.appendChild(o2);
-    });
-  }
 /* =========================================================
-   MODÈLES DISPONIBLES SELON MACHINE
+   PAGE 1 → PAGE 2
 ========================================================= */
+document.getElementById("toPage2")?.addEventListener("click", () => {
+  const machineSel = document.getElementById("machineType") as HTMLSelectElement;
+  state.machineType = machineSel.value;
 
-export function updateModelOptions() {
-  const sel = document.getElementById("modelSelect") as HTMLSelectElement;
-  if (!sel) return;
+  updatePage2Visibility();
+  showPage(2);
+});
 
-  let models: string[] = [];
-
-  switch (state.machineType) {
-
-    case "viti":
-      models = ["3r_sans", "3r_avec", "4r_sans", "4r_avec"];
-      break;
-
-    case "arbo":
-      models = ["arbo_3_3", "arbo_4_4", "arbo_5_5"];
-      break;
-
-    case "tangentiel":
-      models = ["tangentiel_6", "tangentiel_8", "tangentiel_10", "tangentiel_12"];
-      break;
-
-    case "rampe":
-      models = []; // 🔥 Rampe = pas de modèles imposés
-      break;
-  }
-
-  sel.innerHTML = "";
-
-  models.forEach(m => {
-    const opt = document.createElement("option");
-    opt.value = m;
-    opt.textContent = m;
-    sel.appendChild(opt);
-  });
-
-  // Sélection automatique du premier modèle
-  if (models.length > 0) {
-    state.modelKey = models[0];
-    sel.value = state.modelKey;
-  } else {
-    state.modelKey = null;
-  }
-}
 /* =========================================================
-   FAMILLES DISPONIBLES SELON MACHINE
-========================================================= */
-
-export function updateFamilyOptions() {
-  const sel = document.getElementById("familySelect") as HTMLSelectElement;
-  if (!sel) return;
-
-  let families: string[] = [];
-
-  switch (state.machineType) {
-
-    case "viti":
-      families = [ "CP4916", "AMT", "AD90"];
-      break;
-
-    case "arbo":
-      families = ["TXR", "IDK90", "XR", "ATR80"];
-      break;
-
-    case "tangentiel":
-      families = ["ATR80", "TXR", "IDK90"];
-      break;
-
-    case "rampe":
-      families = ["XR", "AD90"];
-      break;
-  }
-
-  sel.innerHTML = "";
-
-  families.forEach(f => {
-    const opt = document.createElement("option");
-    opt.value = f;
-    opt.textContent = f;
-    sel.appendChild(opt);
-  });
-
-  if (families.length > 0) {
-    state.familyKey = families[0];
-    sel.value = state.familyKey;
-  }
-
-  populateForcedNozzleSelect();
-}
-
- /* =========================================================
-    PAGE 2 → PAGE 3
+   PAGE 2 → PAGE 3
 ========================================================= */
 document.getElementById("toPage3")?.addEventListener("click", () => {
 
+  /* ----------- LECTURE DES CHAMPS COMMUNS ----------- */
   state.dose = Number((document.getElementById("dose") as HTMLInputElement).value);
   state.interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
   state.speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
   state.machineName = (document.getElementById("machineName") as HTMLInputElement).value;
 
- /* ----------- VITI ----------- */
-if (state.machineType === "viti") {
-  const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
-  state.modelKey = modelSel.value;
+  /* ----------- VITI ----------- */
+  if (state.machineType === "viti") {
+    const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
+    state.modelKey = modelSel.value;
 
-  // 🔥 SI modèle libre → on génère les outputs ici
-  if (state.modelKey === "viti_libre") {
-    state.outputs = buildVitiLibreModel({
-      canonsG: Number((document.getElementById("libreCanonsG") as HTMLInputElement).value),
-      canonsD: Number((document.getElementById("libreCanonsD") as HTMLInputElement).value),
-      retourG: Number((document.getElementById("libreRetourG") as HTMLInputElement).value),
-      retourD: Number((document.getElementById("libreRetourD") as HTMLInputElement).value),
-      mainsG: Number((document.getElementById("libreMainsG") as HTMLInputElement).value),
-      mainsD: Number((document.getElementById("libreMainsD") as HTMLInputElement).value),
-    });
+    /* ----- MODÈLE LIBRE ----- */
+    if (state.modelKey === "viti_libre") {
+
+      const canG = Number((document.getElementById("libreCanonsG") as HTMLInputElement).value);
+      const canD = Number((document.getElementById("libreCanonsD") as HTMLInputElement).value);
+      const retG = Number((document.getElementById("libreRetourG") as HTMLInputElement).value);
+      const retD = Number((document.getElementById("libreRetourD") as HTMLInputElement).value);
+      const mainG = Number((document.getElementById("libreMainsG") as HTMLInputElement).value);
+      const mainD = Number((document.getElementById("libreMainsD") as HTMLInputElement).value);
+
+      // Validation : au moins une sortie
+      if (canG + canD + retG + retD + mainG + mainD === 0) {
+        alert("Merci de définir au moins une sortie pour le modèle libre.");
+        return;
+      }
+
+      // Génération des sorties
+      state.outputs = buildVitiLibreModel({
+        canonsG: canG,
+        canonsD: canD,
+        retourG: retG,
+        retourD: retD,
+        mainsG: mainG,
+        mainsD: mainD,
+      });
+    }
   }
-}
 
   /* ----------- ARBO ----------- */
   if (state.machineType === "arbo") {
+    const arboCount = document.getElementById("arboCount") as HTMLInputElement;
     const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
+
+  
     state.arboRangs = Number(arboRangs.value);
     state.modelKey = null;
   }
@@ -324,11 +119,11 @@ if (state.machineType === "viti") {
   /* ----------- TANGENTIEL ----------- */
   if (state.machineType === "tangentiel") {
     const tangCount = document.getElementById("tangentielCount") as HTMLInputElement;
-    state.arboRangs = Number(tangCount.value);
+  
     state.modelKey = null;
   }
 
-  /* ----------- VALIDATION ----------- */
+  /* ----------- VALIDATION GÉNÉRALE ----------- */
   if (!state.dose || !state.interligne || !state.speed) {
     alert("Merci de remplir tous les champs.");
     return;
@@ -337,99 +132,66 @@ if (state.machineType === "viti") {
   showPage(3);
 });
 
-  /* =========================================================
-    PAGE 3 → PAGE 4
-  ========================================================= */
+/* =========================================================
+   PAGE 3 → PAGE 4
+========================================================= */
+document.getElementById("toPage4")?.addEventListener("click", () => {
 
-  document.getElementById("toPage4")?.addEventListener("click", () => {
-    computeAll();
-    console.log("RESULTS:", state.results);
-    renderResultsTable();
-    fillSummary();
-    showPage(4);
-  });
+  // Forced mode
+  state.forcedToggle = (document.getElementById("forcedToggle") as HTMLInputElement).checked;
+  state.forcedNozzle1 = (document.getElementById("forcedNozzle1") as HTMLSelectElement).value;
+  state.forcedNozzle2 = (document.getElementById("forcedNozzle2") as HTMLSelectElement).value;
 
-  /* =========================================================
-    TABLEAU DES RÉSULTATS
-  ========================================================= */
+  // Pression utilisateur
+  const userP = Number((document.getElementById("userPressure") as HTMLInputElement).value);
+  state.userPressureTarget = userP || null;
 
-  function renderResultsTable() {
-    const tbody = document.getElementById("resultBody");
-    if (!tbody) return;
+  computeAll();
+  renderResultsTable();
+  fillSummary();
+  showPage(4);
+});
 
-    tbody.innerHTML = "";
+/* =========================================================
+   RE-CALCUL PRESSION (PAGE 4)
+========================================================= */
+document.getElementById("btnRecalc")?.addEventListener("click", () => {
+  const newI = Number((document.getElementById("newInterligne") as HTMLInputElement).value);
+  const newDose = Number((document.getElementById("newDose") as HTMLInputElement).value);
 
-    state.results.forEach((r, i) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${r.outputName}</td>
-        <td>${r.qTarget.toFixed(2)}</td>
-        <td>${r.nozzleLabel}</td>
-        <td>${r.nozzleColor ?? ""}
-      `;
-      tbody.appendChild(tr);
-    });
-  }
+  if (newI) state.interligne = newI;
+  if (newDose) state.dose = newDose;
 
-    /* =========================================================
-      RÉSUMÉ PAGE 4
-    ========================================================= */
+  // 🔥 recalcul pression uniquement (pastilles figées)
+  recomputePressureOnly();
 
-    function fillSummary() {
-      // Nom utilisateur
-      const sumName = document.getElementById("sumName") as HTMLElement;
-      sumName.textContent = formatName(state.userName ?? "");
+  // 🔥 on met à jour uniquement la pression affichée
+  fillSummary();
+});
 
-      // Type de machine
-      const sumMachine = document.getElementById("sumMachine") as HTMLElement;
-      sumMachine.textContent = state.machineType ?? "";
-
-      // Modèle machine (VITI ou autre)
-      const sumModel = document.getElementById("sumModel") as HTMLElement;
-      sumModel.textContent =
-        state.machineType === "viti"
-          ? formatVitiModel(state.modelKey)
-          : state.machineName ?? "";
-          const sumPressure = document.getElementById("sumPressure") as HTMLElement;
-
-if (state.userPressureTarget !== null) {
-  sumPressure.textContent =
-    `${state.userPressureTarget} bar (obtenu : ${state.recommendedPressure.toFixed(1)} bar)`;
-} else {
-  sumPressure.textContent = `${state.recommendedPressure.toFixed(1)} bar`;
-}
-
-    }
-
-  /* =========================================================
-    RE-CALCUL PRESSION (PAGE 4)
-  ========================================================= */
-  document.getElementById("btnRecalc")?.addEventListener("click", () => {
-    const newI = Number((document.getElementById("newInterligne") as HTMLInputElement).value);
-    const newDose = Number((document.getElementById("newDose") as HTMLInputElement).value);
-
-    if (newI) state.interligne = newI;
-    if (newDose) state.dose = newDose;
-
-    // 🔥 recalcul pression uniquement (pastilles figées)
-    recomputePressureOnly();
-
-    // 🔥 on met à jour uniquement la pression affichée
-    fillSummary();
-  });
-  
+/* =========================================================
+   EXPORT PDF
+========================================================= */
 function generatePdf(docDefinition) {
   pdfMake.createPdf(docDefinition).download(generatePdfFilename(state));
 }
 
-/* =========================================================
-    EXPORT PDF
-========================================================= */
 document.getElementById("btnPdf")?.addEventListener("click", async () => {
+  document.getElementById("pdfLoader")!.style.display = "block";
 
-  // 1) Construire le docDefinition pdfmake (ATTENTION : async)
   const doc = await buildDocDefinition(state);
 
-  // 2) Générer le PDF
   generatePdf(doc);
+
+  document.getElementById("pdfLoader")!.style.display = "none";
+});
+
+/* =========================================================
+   BOUTONS RETOUR
+========================================================= */
+document.querySelectorAll("[data-back]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = Number((btn as HTMLElement).getAttribute("data-back"));
+    showPage(target);
+  });
 });
