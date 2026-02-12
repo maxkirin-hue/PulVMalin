@@ -1,94 +1,105 @@
 /* =========================================================
-   IMPORTS
+   FORMS UI — familles, pastilles, modèles, navigation
 ========================================================= */
+
+import { nozzleFamilies } from "../data/nozzles";
 import { state } from "../state/state";
 import { computeAll, recomputePressureOnly } from "../core/optimizer";
-import { buildDocDefinition } from "../pdf/pdfmakeTemplate";
 import { buildVitiLibreModel } from "../core/models";
 import { renderResultsTable, fillSummary } from "./summary";
+import { buildDocDefinition, generatePdfFilename } from "../pdf/pdfmakeTemplate";
+import { showPage } from "./navigation";
 
 declare const pdfMake: any;
 
-/* =========================================================
-   PAGE SWITCHER
-========================================================= */
-export function showPage(n: number) {
-  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
-  document.getElementById(`page${n}`)?.classList.remove("hidden");
+/* Helpers PDF fallback */
+function defaultGeneratePdfFilename(): string {
+  const name = (state.machineName || "PulvMalin").replace(/\s+/g, "_");
+  const date = new Date().toISOString().slice(0,19).replace(/[:T]/g, "-");
+  return `${name}_${date}.pdf`;
 }
 
-/* =========================================================
-   FAMILLES & PASTILLES (MODE FORCÉ)
-========================================================= */
-
+/* FAMILLES & PASTILLES */
 export function populateFamilySelect() {
   const sel = document.getElementById("familySelect") as HTMLSelectElement;
   if (!sel) return;
 
   sel.innerHTML = "";
 
-  const families = ["Albuz ATR", "Albuz TVI", "Teejet XR", "Lechler IDK"];
+  const families = Object.keys(nozzleFamilies);
+  if (families.length === 0) {
+    sel.appendChild(new Option("—", ""));
+    return;
+  }
 
   families.forEach(f => {
     const opt = document.createElement("option");
     opt.value = f;
-    opt.textContent = f;
+    opt.textContent = `${f} — ${nozzleFamilies[f].label}`;
     sel.appendChild(opt);
   });
 
-  if (!state.familyKey) {
-    state.familyKey = families[0];
-  }
-
+  if (!state.familyKey) state.familyKey = families[0];
   sel.value = state.familyKey;
 }
 
 export function updateFamilyOptions() {
-  const fam = state.familyKey;
+  const famKey = state.familyKey;
   const forced1 = document.getElementById("forcedNozzle1") as HTMLSelectElement;
   const forced2 = document.getElementById("forcedNozzle2") as HTMLSelectElement;
+  if (!forced1 || !forced2) return;
 
-  if (!fam || !forced1 || !forced2) return;
-
-  const nozzlesByFamily: Record<string, string[]> = {
-    "Albuz ATR": ["ATR 80", "ATR 100", "ATR 120"],
-    "Albuz TVI": ["TVI 80", "TVI 100", "TVI 120"],
-    "Teejet XR": ["XR 80", "XR 110", "XR 150"],
-    "Lechler IDK": ["IDK 80", "IDK 110", "IDK 150"]
-  };
-
-  const list = nozzlesByFamily[fam] ?? [];
+  const fam = nozzleFamilies[famKey];
+  const list = fam ? fam.nozzles.map(n => n.code) : [];
 
   forced1.innerHTML = "";
   forced2.innerHTML = "";
 
   list.forEach(n => {
-    const opt1 = document.createElement("option");
-    opt1.value = n;
-    opt1.textContent = n;
-    forced1.appendChild(opt1);
-
-    const opt2 = document.createElement("option");
-    opt2.value = n;
-    opt2.textContent = n;
-    forced2.appendChild(opt2);
+    forced1.appendChild(new Option(n, n));
+    forced2.appendChild(new Option(n, n));
   });
 
   if (list.length > 0) {
     if (!state.forcedNozzle1) state.forcedNozzle1 = list[0];
     if (!state.forcedNozzle2) state.forcedNozzle2 = list[0];
-
     forced1.value = state.forcedNozzle1;
     forced2.value = state.forcedNozzle2;
   }
 }
 
-/* =========================================================
-   VISIBILITÉ DU BLOC MODÈLE LIBRE
-========================================================= */
+/* MODELES VITI */
+export function updateModelOptions() {
+  const sel = document.getElementById("vitiModel") as HTMLSelectElement;
+  if (!sel) return;
+
+  if (state.machineType !== "viti") {
+    sel.innerHTML = "";
+    return;
+  }
+
+  sel.innerHTML = `
+    <option value="">Choisir…</option>
+    <option value="3r_sans">3 rangs — sans retour (8 sorties)</option>
+    <option value="3r_avec">3 rangs — avec retour (10 sorties)</option>
+    <option value="4r_sans">4 rangs — sans retour (8 sorties)</option>
+    <option value="4r_avec">4 rangs — avec retour (10 sorties)</option>
+    <option value="viti_libre">Personalisé</option>
+  `;
+}
+
+/* VISIBILITÉ */
+export function hideAllMachineBlocks() {
+  const ids = ["arboBlock", "vitiBlock", "rampeBlock", "tangentielBlock"];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+}
+
 function updatePage2Visibility() {
   const libreBlock = document.getElementById("vitiLibreBlock");
-
+  if (!libreBlock) return;
   if (state.machineType === "viti" && state.modelKey === "viti_libre") {
     libreBlock.style.display = "block";
   } else {
@@ -96,24 +107,17 @@ function updatePage2Visibility() {
   }
 }
 
-/* =========================================================
-   CHANGEMENT DE MODÈLE VITI
-========================================================= */
+/* LISTENERS */
 document.getElementById("vitiModel")?.addEventListener("change", () => {
   const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
   state.modelKey = modelSel.value;
-
   updatePage2Visibility();
 });
 
-/* =========================================================
-   MODE FORCÉ / AUTOMATIQUE
-========================================================= */
 document.getElementById("forcedToggle")?.addEventListener("change", () => {
   const panel = document.getElementById("forcedPanel");
   const checked = (document.getElementById("forcedToggle") as HTMLInputElement).checked;
-
-  panel.style.display = checked ? "block" : "none";
+  if (panel) panel.style.display = checked ? "block" : "none";
   state.forcedToggle = checked;
 });
 
@@ -123,21 +127,16 @@ document.getElementById("familySelect")?.addEventListener("change", () => {
   updateFamilyOptions();
 });
 
-/* =========================================================
-   PAGE 1 → PAGE 2
-   (machineType est déjà géré par machine.ts via les boutons)
-========================================================= */
+/* PAGE NAV */
 document.getElementById("toPage2")?.addEventListener("click", () => {
-  // On ne touche pas à machineType ici, il est défini dans machine.ts
+  // machineType may be set by machine.ts buttons or a select
   updatePage2Visibility();
   populateFamilySelect();
   updateFamilyOptions();
+  updateModelOptions();
   showPage(2);
 });
 
-/* =========================================================
-   PAGE 2 → PAGE 3
-========================================================= */
 document.getElementById("toPage3")?.addEventListener("click", () => {
   state.dose = Number((document.getElementById("dose") as HTMLInputElement).value);
   state.interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
@@ -188,8 +187,6 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
   }
 
   if (state.machineType === "tangentiel") {
-    const tangCount = document.getElementById("tangentielCount") as HTMLInputElement;
-    // si besoin : state.arboRangs ou autre
     state.modelKey = null;
   }
 
@@ -201,9 +198,6 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
   showPage(3);
 });
 
-/* =========================================================
-   PAGE 3 → PAGE 4
-========================================================= */
 document.getElementById("toPage4")?.addEventListener("click", () => {
   state.forcedToggle = (document.getElementById("forcedToggle") as HTMLInputElement).checked;
   state.forcedNozzle1 = (document.getElementById("forcedNozzle1") as HTMLSelectElement).value;
@@ -212,15 +206,22 @@ document.getElementById("toPage4")?.addEventListener("click", () => {
   const userP = Number((document.getElementById("userPressure") as HTMLInputElement).value);
   state.userPressureTarget = userP || null;
 
+  // If forced mode, populate fixedNozzles array (simple strategy: use forcedNozzle1/2 for all outputs if needed)
+  if (state.forcedToggle) {
+    // simple default: apply forcedNozzle1 to odd outputs and forcedNozzle2 to even outputs
+    const { names } = getOutputsAndCoefsForUI();
+    state.fixedNozzles = names.map((_, i) => (i % 2 === 0 ? state.forcedNozzle1 : state.forcedNozzle2));
+  } else {
+    state.fixedNozzles = [];
+  }
+
   computeAll();
   renderResultsTable();
   fillSummary();
   showPage(4);
 });
 
-/* =========================================================
-   RE-CALCUL PRESSION (PAGE 4)
-========================================================= */
+/* RE-CALCUL PRESSION (PAGE 4) */
 document.getElementById("btnRecalc")?.addEventListener("click", () => {
   const newI = Number((document.getElementById("newInterligne") as HTMLInputElement).value);
   const newDose = Number((document.getElementById("newDose") as HTMLInputElement).value);
@@ -232,29 +233,41 @@ document.getElementById("btnRecalc")?.addEventListener("click", () => {
   fillSummary();
 });
 
-/* =========================================================
-   EXPORT PDF
-========================================================= */
+/* EXPORT PDF */
 function generatePdf(docDefinition: any) {
-  pdfMake.createPdf(docDefinition).download(generatePdfFilename(state));
+  const filename = typeof generatePdfFilename === "function"
+    ? generatePdfFilename(state)
+    : defaultGeneratePdfFilename();
+
+  pdfMake.createPdf(docDefinition).download(filename);
 }
 
 document.getElementById("btnPdf")?.addEventListener("click", async () => {
-  document.getElementById("pdfLoader")!.style.display = "block";
+  const loader = document.getElementById("pdfLoader");
+  if (loader) loader.style.display = "block";
 
   const doc = await buildDocDefinition(state);
-
   generatePdf(doc);
 
-  document.getElementById("pdfLoader")!.style.display = "none";
+  if (loader) loader.style.display = "none";
 });
 
-/* =========================================================
-   BOUTONS RETOUR
-========================================================= */
+/* BOUTONS RETOUR */
 document.querySelectorAll("[data-back]").forEach(btn => {
   btn.addEventListener("click", () => {
     const target = Number((btn as HTMLElement).getAttribute("data-back"));
     showPage(target);
   });
 });
+
+/* utilitaire pour forms.ts */
+function getOutputsAndCoefsForUI() {
+  // minimal wrapper to avoid circular import in this file
+  // dynamic import to avoid top-level circular dependency
+  // but here we can import synchronously since models.ts is pure
+  // to keep it simple, require the module:
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const models = require("../core/models");
+  return models.getOutputsAndCoefs();
+}
+  
