@@ -1,10 +1,8 @@
 import { state } from "../state/state";
 import { showPage } from "./navigation";
-import { populateFamilySelect, updateFamilyOptions } from "./forms";
+import { populateFamilySelect, updateFamilyOptions, updateModelOptions, hideAllMachineBlocks } from "./forms";
 
-/* =========================================================
-   INITIALISATION DES BOUTONS MACHINE
-========================================================= */
+/* INITIALISATION DES BOUTONS MACHINE */
 
 export function initMachineButtons() {
   const buttons = document.querySelectorAll("[data-type]");
@@ -29,6 +27,7 @@ export function initMachineButtons() {
 
       populateFamilySelect();
       updateFamilyOptions();
+      updateModelOptions();
 
       showPage(2);
     });
@@ -48,16 +47,14 @@ export function initMachineButtons() {
 
       populateFamilySelect();
       updateFamilyOptions();
+      updateModelOptions();
       showPage(2);
     });
   }
 }
 
-/* =========================================================
-   MASQUER TOUS LES BLOCS MACHINE
-========================================================= */
-
-function hideAllMachineBlocks() {
+/* MASQUER TOUS LES BLOCS MACHINE (local fallback) */
+function hideAllMachineBlocksLocal() {
   document.getElementById("arboBlock")!.style.display = "none";
   document.getElementById("vitiBlock")!.style.display = "none";
   document.getElementById("rampeBlock")!.style.display = "none";
