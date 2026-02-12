@@ -69,17 +69,11 @@ export const vitiModels: Record<string, VitiOutput[]> = {
     { name: "Main D2", role: "complete", group: 1 },
   ],
 
-  /* ---------------------------------------------------------
-     MODÈLE VITI LIBRE (rempli dynamiquement)
-  --------------------------------------------------------- */
+  /* MODÈLE VITI LIBRE (rempli dynamiquement) */
   "viti_libre": []
 };
 
-
-/* =========================================================
-   CONSTRUCTEUR DU MODÈLE VITI LIBRE
-========================================================= */
-
+/* CONSTRUCTEUR DU MODÈLE VITI LIBRE */
 export function buildVitiLibreModel(params: {
   canonsG: number;
   canonsD: number;
@@ -94,10 +88,6 @@ export function buildVitiLibreModel(params: {
   const add = (count: number, base: string, group: 1 | 2) => {
     if (count <= 0) return;
 
-    // Rôle automatique :
-    // 1 bus = complete
-    // 2 bus = moitie
-    // >2 bus = moitie (fraction gérée dans optimizer)
     const role: VitiOutput["role"] =
       count === 1 ? "complete" : "moitie";
 
@@ -122,10 +112,7 @@ export function buildVitiLibreModel(params: {
   return outs;
 }
 
-/* =========================================================
-   SORTIES & COEFFICIENTS
-========================================================= */
-
+/* SORTIES & COEFFICIENTS */
 export interface OutputsAndCoefs {
   names: string[];
   coefs: number[];
@@ -134,9 +121,6 @@ export interface OutputsAndCoefs {
 
 export function getOutputsAndCoefs(): OutputsAndCoefs {
 
-  /* ============================
-       MODE VITI
-  ============================ */
   if (state.machineType === "viti") {
     const model = vitiModels[state.modelKey!];
     if (!model) return { names: [], coefs: [], modelLabel: "—" };
@@ -154,9 +138,6 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
     return { names, coefs, modelLabel };
   }
 
-  /* ============================
-       MODE ARBO
-  ============================ */
   if (state.machineType === "arbo") {
     const n = state.arboRangs ?? 2;
     const names: string[] = [];
@@ -171,36 +152,23 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
     };
   }
 
-  /* ============================
-     MODE TANGENTIEL
-============================ */
-if (state.machineType === "tangentiel") {
-  let n = state.arboRangs ?? 2;
+  if (state.machineType === "tangentiel") {
+    let n = state.arboRangs ?? 2;
+    if (n % 2 !== 0) n = n - 1;
+    const perSide = n / 2;
+    const names: string[] = [];
+    for (let i = 1; i <= perSide; i++) names.push(`Buse G${i}`);
+    for (let i = 1; i <= perSide; i++) names.push(`Buse D${i}`);
+    return {
+      names,
+      coefs: Array(n).fill(1),
+      modelLabel: "Tangentiel",
+    };
+  }
 
-  // 🔥 n = nombre total de buses
-  // On impose un nombre pair
-  if (n % 2 !== 0) n = n - 1;
-
-  const perSide = n / 2;
-
-  const names: string[] = [];
-
-  for (let i = 1; i <= perSide; i++) names.push(`Buse G${i}`);
-  for (let i = 1; i <= perSide; i++) names.push(`Buse D${i}`);
-
-  return {
-    names,
-    coefs: Array(n).fill(1),
-    modelLabel: "Tangentiel",
-  };
-}
-  /* ============================
-       MODE RAMPE
-  ============================ */
   if (state.machineType === "rampe") {
     const n = state.rampeCount ?? 1;
     const names = Array.from({ length: n }, (_, i) => `Buse ${i + 1}`);
-
     return {
       names,
       coefs: Array(n).fill(1),
