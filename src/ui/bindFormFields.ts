@@ -9,8 +9,8 @@ export const fieldMap: Record<string, keyof AppState> = {
   modelKey: "modelKey",
 
   dose: "dose",
-  largeur: "largeur",
-  vitesse: "vitesse",
+  largeur: "interligne",   // mappe largeur vers interligne
+  vitesse: "speed",        // mappe vitesse vers speed
   rampeCount: "rampeCount",
 
   arboRangs: "arboRangs",
@@ -24,14 +24,45 @@ export const fieldMap: Record<string, keyof AppState> = {
 
 export function bindFormFields() {
   Object.entries(fieldMap).forEach(([id, key]) => {
-    const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+    const el = document.getElementById(id) as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | null;
     if (!el) return;
 
-    el.addEventListener("input", () => {
-      let value: any = el.value;
+    // initialiser le champ depuis state (si valeur existante)
+    const current = (state as any)[key];
+    if (current !== undefined && current !== null) {
+      if (el instanceof HTMLInputElement) {
+        if (el.type === "checkbox") {
+          el.checked = Boolean(current);
+        } else {
+          el.value = String(current);
+        }
+      } else if (el instanceof HTMLSelectElement) {
+        el.value = String(current);
+      }
+    }
 
-      if (el instanceof HTMLInputElement && el.type === "number") {
-        value = value === "" ? null : Number(value);
+    const eventName = el instanceof HTMLSelectElement || (el instanceof HTMLInputElement && el.type === "checkbox")
+      ? "change"
+      : "input";
+
+    el.addEventListener(eventName, () => {
+      let value: any;
+
+      if (el instanceof HTMLInputElement) {
+        if (el.type === "checkbox") {
+          value = el.checked;
+        } else if (el.type === "number") {
+          value = el.value === "" ? null : Number(el.value);
+        } else {
+          value = el.value;
+        }
+      } else if (el instanceof HTMLSelectElement) {
+        const v = el.value;
+        const asNum = Number(v);
+        value = !Number.isNaN(asNum) && v.trim() !== "" ? asNum : v;
       }
 
       (state as any)[key] = value;
