@@ -1,6 +1,6 @@
-/* ============================================================
+/* =========================================================
    STATE GLOBAL — PulvMalin (compatible optimizer)
-============================================================ */
+========================================================= */
 
 import { VitiOutput } from "../core/models";
 
@@ -27,12 +27,12 @@ export interface AppState {
 
   // Modèle viti
   modelKey: string;         // ex: "3r_avec", "4r_sans", "viti_libre"
-  outputs: VitiOutput[] | null;   // <-- AJOUT CORRECT
+  outputs: VitiOutput[] | null;
 
   // Paramètres
   dose: number | null;
-  largeur: number | null;
-  vitesse: number | null;
+  largeur: number | null;   // alias possible pour interligne
+  vitesse: number | null;   // alias possible pour speed
   rampeCount: number | null;
 
   // Paramètres arbo/viti
@@ -48,7 +48,7 @@ export interface AppState {
   // Pression souhaitée par l'utilisateur (optionnelle)
   userPressureTarget: number | null;
 
-  // Pastilles figées
+  // Pastilles figées (tableau de labels ou codes, ordre idéal = ordre des sorties)
   fixedNozzles: string[];
 
   // Mode forcé
@@ -64,7 +64,7 @@ export const state: AppState = {
 
   familyKey: "",
   modelKey: "",
-  outputs: null,          // <-- AJOUT CORRECT
+  outputs: null,
 
   dose: null,
   largeur: null,
