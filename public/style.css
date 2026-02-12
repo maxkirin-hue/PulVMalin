@@ -10,27 +10,36 @@
   --warn: #facc15;
 }
 
+/* Reset / box model */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+/* Base */
+html, body {
+  height: 100%;
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: radial-gradient(circle at top, #111827 0, #020617 55%);
   color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.35;
 }
 
+/* Header / brand */
 .app-header {
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  backdrop-filter: blur(10px);
   background: linear-gradient(to right, rgba(15,23,42,0.9), rgba(15,23,42,0.6));
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 50;
 }
 
 .brand {
@@ -40,8 +49,8 @@ body {
 }
 
 .logo-circle {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
   background: radial-gradient(circle at 30% 20%, #4ade80, #16a34a);
   display: flex;
@@ -49,7 +58,8 @@ body {
   justify-content: center;
   font-weight: 800;
   color: #022c22;
-  box-shadow: 0 0 18px rgba(74, 222, 128, 0.6);
+  box-shadow: 0 0 18px rgba(74, 222, 128, 0.45);
+  font-size: 14px;
 }
 
 .brand-text {
@@ -59,8 +69,8 @@ body {
 
 .brand-title {
   font-weight: 700;
-  letter-spacing: 0.08em;
-  font-size: 14px;
+  letter-spacing: 0.06em;
+  font-size: 13px;
   text-transform: uppercase;
 }
 
@@ -69,24 +79,30 @@ body {
   color: var(--muted);
 }
 
+/* Main layout */
 .app-main {
-  max-width: 960px;
+  max-width: 980px;
   margin: 20px auto 40px;
   padding: 0 16px;
 }
 
+/* Pages */
 .page {
   display: none;
-  animation: fadeIn 0.25s ease-out;
+  animation: fadeIn 0.22s ease-out;
 }
 
 .page.active {
   display: block;
 }
 
+/* Backwards compatibility: some code uses .hidden */
+.page.hidden { display: none; }
+
+/* Headings */
 h1 {
   font-size: 22px;
-  margin-bottom: 8px;
+  margin: 0 0 10px 0;
 }
 
 h2 {
@@ -94,6 +110,7 @@ h2 {
   margin: 18px 0 8px;
 }
 
+/* Utilities */
 .hint {
   font-size: 13px;
   color: var(--muted);
@@ -105,43 +122,23 @@ h2 {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
-.intro-text {
-  text-align: center;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: #555;
-  max-width: 80%;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.4;
-}
-.machine-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  margin: 12px 0 18px;
-}
 
-.card-btn {
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: radial-gradient(circle at top left, rgba(74, 222, 128, 0.18), rgba(15, 23, 42, 0.95));
-  color: var(--text);
+/* Cards */
+.card {
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.06);
+  background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.03), rgba(15, 23, 42, 0.96));
   padding: 12px 14px;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, border-color 0.12s;
+  margin-top: 12px;
 }
 
-.card-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.8);
-  border-color: var(--accent);
+.card.subtle {
+  background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.02), rgba(15, 23, 42, 0.96));
 }
 
 .card-title {
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .card-sub {
@@ -149,52 +146,50 @@ h2 {
   color: var(--muted);
 }
 
-.card {
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.12), rgba(15, 23, 42, 0.96));
-  padding: 12px 14px;
-  margin-top: 12px;
-}
-
-.card.subtle {
-  background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.06), rgba(15, 23, 42, 0.96));
-}
-
+/* Form fields */
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   font-size: 13px;
 }
 
 .field span {
   color: var(--muted);
+  font-size: 13px;
 }
 
 .field input,
-.field select {
+.field select,
+.field textarea {
   border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.12);
   background: rgba(15, 23, 42, 0.9);
   color: var(--text);
   padding: 8px 10px;
   font-size: 14px;
 }
 
-.field input:focus,
-.field select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.4);
+.field input::placeholder {
+  color: rgba(156, 163, 175, 0.5);
 }
 
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.06);
+}
+
+/* Checkbox inline */
 .field.checkbox {
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
+/* Buttons */
 .nav-row {
   display: flex;
   gap: 10px;
@@ -203,27 +198,30 @@ h2 {
 }
 
 button.primary,
-button.secondary {
+button.secondary,
+button.btn {
   border-radius: 999px;
   padding: 8px 16px;
   font-size: 14px;
   border: 1px solid transparent;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button.primary {
-  background: linear-gradient(to right, #22c55e, #16a34a);
+  background: linear-gradient(90deg, #22c55e, #16a34a);
   color: #022c22;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.06);
 }
 
 button.primary:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.03);
 }
 
 button.secondary {
   background: transparent;
-  border-color: rgba(148, 163, 184, 0.6);
+  border-color: rgba(148, 163, 184, 0.08);
   color: var(--muted);
 }
 
@@ -232,19 +230,52 @@ button.secondary:hover {
   color: var(--accent);
 }
 
+/* Machine buttons (data-type) */
+.machine-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.machine-buttons button {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(74, 222, 128, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.12);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.machine-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(2, 6, 10, 0.6);
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 3px solid rgba(74, 222, 128, 0.12);
+  outline-offset: 2px;
+}
+
+/* Summary and table */
 .summary {
   font-size: 13px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 6px;
+  gap: 8px;
 }
 
 .table-wrapper {
   margin-top: 10px;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.06);
   background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
-  padding: 10px 10px 8px;
+  padding: 10px;
 }
 
 .result-table {
@@ -259,14 +290,14 @@ button.secondary:hover {
 
 .result-table th,
 .result-table td {
-  padding: 6px 6px;
+  padding: 8px 8px;
   border-bottom: 1px solid rgba(31, 41, 55, 0.9);
 }
 
 .result-table th {
   text-align: left;
   color: var(--muted);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .result-table td {
@@ -278,34 +309,27 @@ button.secondary:hover {
   font-variant-numeric: tabular-nums;
 }
 
-.status-ok {
-  color: #4ade80;
-  font-weight: 600;
-}
+/* Status badges */
+.status-ok { color: #4ade80; font-weight: 700; }
+.status-limit { color: #facc15; font-weight: 700; }
+.status-bad { color: #fb7185; font-weight: 700; }
 
-.status-limit {
-  color: #facc15;
-  font-weight: 600;
-}
+/* Small helpers */
+.disclaimer { margin-top: 6px; font-size: 11px; color: var(--muted); }
 
-.status-bad {
-  color: #fb7185;
-  font-weight: 600;
-}
+/* PDF loader */
+#pdfLoader { text-align: center; margin-top: 12px; color: var(--muted); }
 
-.disclaimer {
-  margin-top: 6px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+/* Mobile responsiveness */
 @media (max-width: 600px) {
-  .app-main {
-    padding: 0 10px;
-  }
+  .app-main { padding: 0 12px; }
+  .brand-title { font-size: 12px; }
+  .logo-circle { width: 40px; height: 40px; font-size: 13px; }
+  .grid-2 { gap: 10px; }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
