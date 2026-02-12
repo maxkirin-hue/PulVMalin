@@ -24,40 +24,41 @@
 
 <main class="app-main">
 
-  <!-- PAGE 1 -->
-  <section id="page1" class="page">
-    <h1>1. Informations</h1>
+ <!-- PAGE 1 -->
+<section id="page1" class="page">
+  <h1>1. Informations</h1>
 
-    <div class="card">
-      <label class="field">
-        <span>Votre nom</span>
-        <input id="userName" type="text" placeholder="Ex : Tarte Ampion" required />
-      </label>
+  <div class="card">
+    <label class="field">
+      <span>Votre nom</span>
+      <input id="userName" type="text" placeholder="Ex : Tarte Ampion" required />
+    </label>
 
-      <label class="field">
-        <span>Modèle de machine</span>
-        <input id="machineName" type="text" placeholder="Ex : Calvet 1000L" required />
-      </label>
+    <label class="field">
+      <span>Modèle de machine</span>
+      <input id="machineName" type="text" placeholder="Ex : Calvet 1000L" required />
+    </label>
 
-      <label class="field">
-        <span>Type de machine</span>
-        <select id="machineType">
-          <option value="">Choisir…</option>
-          <option value="viti">Vigne</option>
-          <option value="tangentiel">Tangentiel</option>
-          <option value="arbo">Arboriculture</option>
-          <option value="rampe">Rampe</option>
-        </select>
-      </label>
+    <label class="field">
+      <span>Type de machine</span>
+    </label>
+
+    <div class="machine-buttons">
+      <button data-type="viti" type="button">Vigne</button>
+      <button data-type="tangentiel" type="button">Tangentiel</button>
+      <button data-type="arbo" type="button">Arboriculture</button>
+      <button data-type="rampe" type="button">Rampe</button>
     </div>
+  </div>
 
-    <div class="nav-row">
-      <button class="primary" id="toPage2">Continuer</button>
-      <button id="btnInstall" style="display:none; margin:20px;">
-        📲 Installer PulvMalin
-      </button>
-    </div>
-  </section>
+  <div class="nav-row">
+    <button class="primary" id="toPage2">Continuer</button>
+    <button id="btnInstall" style="display:none; margin:20px;">
+      📲 Installer PulvMalin
+    </button>
+  </div>
+</section>
+
 
   <!-- PAGE 2 -->
   <section id="page2" class="page">
