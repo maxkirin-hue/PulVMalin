@@ -1,15 +1,11 @@
 /* =========================================================
    IMPORTS
 ========================================================= */
-import { nozzleFamilies } from "../data/nozzles";
-import { state } from "../state/state"; 
-import { computeAll, recomputePressureOnly } from "../core/optimizer"; 
-import { generatePdfHtml, generatePdfFilename} from "../pdf/pdfTemplate"; 
-import { formatName, formatVitiModel } from "../utils/format";
-import { buildDocDefinition } from "../pdf/pdfmakeTemplate"; 
+import { state } from "../state/state";
+import { computeAll, recomputePressureOnly } from "../core/optimizer";
+import { buildDocDefinition } from "../pdf/pdfmakeTemplate";
 import { buildVitiLibreModel } from "../core/models";
-import { renderResultsTable } from "./summary";
-import { fillSummary } from "./summary";
+import { renderResultsTable, fillSummary } from "./summary";
 
 declare const pdfMake: any;
 
@@ -19,6 +15,72 @@ declare const pdfMake: any;
 export function showPage(n: number) {
   document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
   document.getElementById(`page${n}`)?.classList.remove("hidden");
+}
+
+/* =========================================================
+   FAMILLES & PASTILLES (MODE FORCÉ)
+========================================================= */
+
+export function populateFamilySelect() {
+  const sel = document.getElementById("familySelect") as HTMLSelectElement;
+  if (!sel) return;
+
+  sel.innerHTML = "";
+
+  const families = ["Albuz ATR", "Albuz TVI", "Teejet XR", "Lechler IDK"];
+
+  families.forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f;
+    opt.textContent = f;
+    sel.appendChild(opt);
+  });
+
+  if (!state.familyKey) {
+    state.familyKey = families[0];
+  }
+
+  sel.value = state.familyKey;
+}
+
+export function updateFamilyOptions() {
+  const fam = state.familyKey;
+  const forced1 = document.getElementById("forcedNozzle1") as HTMLSelectElement;
+  const forced2 = document.getElementById("forcedNozzle2") as HTMLSelectElement;
+
+  if (!fam || !forced1 || !forced2) return;
+
+  const nozzlesByFamily: Record<string, string[]> = {
+    "Albuz ATR": ["ATR 80", "ATR 100", "ATR 120"],
+    "Albuz TVI": ["TVI 80", "TVI 100", "TVI 120"],
+    "Teejet XR": ["XR 80", "XR 110", "XR 150"],
+    "Lechler IDK": ["IDK 80", "IDK 110", "IDK 150"]
+  };
+
+  const list = nozzlesByFamily[fam] ?? [];
+
+  forced1.innerHTML = "";
+  forced2.innerHTML = "";
+
+  list.forEach(n => {
+    const opt1 = document.createElement("option");
+    opt1.value = n;
+    opt1.textContent = n;
+    forced1.appendChild(opt1);
+
+    const opt2 = document.createElement("option");
+    opt2.value = n;
+    opt2.textContent = n;
+    forced2.appendChild(opt2);
+  });
+
+  if (list.length > 0) {
+    if (!state.forcedNozzle1) state.forcedNozzle1 = list[0];
+    if (!state.forcedNozzle2) state.forcedNozzle2 = list[0];
+
+    forced1.value = state.forcedNozzle1;
+    forced2.value = state.forcedNozzle2;
+  }
 }
 
 /* =========================================================
@@ -45,13 +107,31 @@ document.getElementById("vitiModel")?.addEventListener("change", () => {
 });
 
 /* =========================================================
+   MODE FORCÉ / AUTOMATIQUE
+========================================================= */
+document.getElementById("forcedToggle")?.addEventListener("change", () => {
+  const panel = document.getElementById("forcedPanel");
+  const checked = (document.getElementById("forcedToggle") as HTMLInputElement).checked;
+
+  panel.style.display = checked ? "block" : "none";
+  state.forcedToggle = checked;
+});
+
+document.getElementById("familySelect")?.addEventListener("change", () => {
+  const sel = document.getElementById("familySelect") as HTMLSelectElement;
+  state.familyKey = sel.value;
+  updateFamilyOptions();
+});
+
+/* =========================================================
    PAGE 1 → PAGE 2
+   (machineType est déjà géré par machine.ts via les boutons)
 ========================================================= */
 document.getElementById("toPage2")?.addEventListener("click", () => {
-  const machineSel = document.getElementById("machineType") as HTMLSelectElement;
-  state.machineType = machineSel.value;
-
+  // On ne touche pas à machineType ici, il est défini dans machine.ts
   updatePage2Visibility();
+  populateFamilySelect();
+  updateFamilyOptions();
   showPage(2);
 });
 
@@ -59,21 +139,19 @@ document.getElementById("toPage2")?.addEventListener("click", () => {
    PAGE 2 → PAGE 3
 ========================================================= */
 document.getElementById("toPage3")?.addEventListener("click", () => {
-
-  /* ----------- LECTURE DES CHAMPS COMMUNS ----------- */
   state.dose = Number((document.getElementById("dose") as HTMLInputElement).value);
   state.interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
   state.speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
   state.machineName = (document.getElementById("machineName") as HTMLInputElement).value;
 
-  /* ----------- VITI ----------- */
+  const famSel = document.getElementById("familySelect") as HTMLSelectElement;
+  if (famSel) state.familyKey = famSel.value;
+
   if (state.machineType === "viti") {
     const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
     state.modelKey = modelSel.value;
 
-    /* ----- MODÈLE LIBRE ----- */
     if (state.modelKey === "viti_libre") {
-
       const canG = Number((document.getElementById("libreCanonsG") as HTMLInputElement).value);
       const canD = Number((document.getElementById("libreCanonsD") as HTMLInputElement).value);
       const retG = Number((document.getElementById("libreRetourG") as HTMLInputElement).value);
@@ -81,13 +159,11 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
       const mainG = Number((document.getElementById("libreMainsG") as HTMLInputElement).value);
       const mainD = Number((document.getElementById("libreMainsD") as HTMLInputElement).value);
 
-      // Validation : au moins une sortie
       if (canG + canD + retG + retD + mainG + mainD === 0) {
         alert("Merci de définir au moins une sortie pour le modèle libre.");
         return;
       }
 
-      // Génération des sorties
       state.outputs = buildVitiLibreModel({
         canonsG: canG,
         canonsD: canD,
@@ -99,31 +175,24 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     }
   }
 
-  /* ----------- ARBO ----------- */
   if (state.machineType === "arbo") {
-    const arboCount = document.getElementById("arboCount") as HTMLInputElement;
     const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
-
-  
     state.arboRangs = Number(arboRangs.value);
     state.modelKey = null;
   }
 
-  /* ----------- RAMPE ----------- */
   if (state.machineType === "rampe") {
     const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
     state.rampeCount = Number(rampeCount.value);
     state.modelKey = null;
   }
 
-  /* ----------- TANGENTIEL ----------- */
   if (state.machineType === "tangentiel") {
     const tangCount = document.getElementById("tangentielCount") as HTMLInputElement;
-  
+    // si besoin : state.arboRangs ou autre
     state.modelKey = null;
   }
 
-  /* ----------- VALIDATION GÉNÉRALE ----------- */
   if (!state.dose || !state.interligne || !state.speed) {
     alert("Merci de remplir tous les champs.");
     return;
@@ -136,13 +205,10 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
    PAGE 3 → PAGE 4
 ========================================================= */
 document.getElementById("toPage4")?.addEventListener("click", () => {
-
-  // Forced mode
   state.forcedToggle = (document.getElementById("forcedToggle") as HTMLInputElement).checked;
   state.forcedNozzle1 = (document.getElementById("forcedNozzle1") as HTMLSelectElement).value;
   state.forcedNozzle2 = (document.getElementById("forcedNozzle2") as HTMLSelectElement).value;
 
-  // Pression utilisateur
   const userP = Number((document.getElementById("userPressure") as HTMLInputElement).value);
   state.userPressureTarget = userP || null;
 
@@ -162,17 +228,14 @@ document.getElementById("btnRecalc")?.addEventListener("click", () => {
   if (newI) state.interligne = newI;
   if (newDose) state.dose = newDose;
 
-  // 🔥 recalcul pression uniquement (pastilles figées)
   recomputePressureOnly();
-
-  // 🔥 on met à jour uniquement la pression affichée
   fillSummary();
 });
 
 /* =========================================================
    EXPORT PDF
 ========================================================= */
-function generatePdf(docDefinition) {
+function generatePdf(docDefinition: any) {
   pdfMake.createPdf(docDefinition).download(generatePdfFilename(state));
 }
 
