@@ -1,18 +1,19 @@
-/* ============================================================
+/* =========================================================
    SUMMARY + RESULTS TABLE — Page Résultats
-============================================================ */
+========================================================= */
 
 import { state } from "../state/state";
 import { computeAll } from "../core/optimizer";
 
-/* ============================================================
-   Remplit le résumé + le tableau
-============================================================ */
+/**
+ * Met à jour le résumé (haut de page) et appelle le rendu du tableau.
+ * Exportée pour être utilisée par forms.ts
+ */
 export function fillSummary() {
-  // 1) Calcul complet
+  // 1) Calcul complet (s'assure que state est à jour)
   computeAll();
 
-  // 2) Helper
+  // 2) Helper pour écrire dans le DOM
   const set = (id: string, value: any) => {
     const el = document.getElementById(id);
     if (el) el.textContent = value ?? "";
@@ -27,33 +28,37 @@ export function fillSummary() {
 
   set("sumMode", state.forcedToggle ? "Mode forcé" : "Automatique");
 
-  set("sumLargeur", state.interligne ?? "—");
+  const largeur = state.interligne ?? state.largeur ?? "—";
+  const vitesse = state.speed ?? state.vitesse ?? "—";
+
+  set("sumLargeur", largeur);
   set("sumDose", state.dose ?? "—");
-  set("sumVitesse", state.speed ?? "—");
+  set("sumVitesse", vitesse);
 
   set("sumQtotal", (state.qTotal ?? 0).toFixed(2));
   set("sumPressure", (state.recommendedPressure ?? 0).toFixed(2));
 
-  // 4) Tableau
+  // 4) Rendu du tableau des sorties
   renderResultsTable();
 }
 
-/* ============================================================
-   Tableau des sorties
-============================================================ */
+/**
+ * Rendu du tableau simplifié des résultats (3 colonnes).
+ * Exportée pour être utilisée par forms.ts
+ */
 export function renderResultsTable() {
   const body = document.getElementById("resultBody");
   if (!body) return;
 
   body.innerHTML = "";
 
-  state.results.forEach(r => {
+  (state.results || []).forEach((r: any) => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${r.outputName}</td>
-      <td class="num">${r.qTarget.toFixed(2)}</td>
-      <td>${r.nozzleLabel}</td>
+      <td>${r.outputName ?? "—"}</td>
+      <td class="num">${typeof r.qTarget === "number" ? r.qTarget.toFixed(2) : "—"}</td>
+      <td>${r.nozzleLabel ?? "—"}</td>
     `;
 
     body.appendChild(tr);
