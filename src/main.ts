@@ -1,6 +1,6 @@
 // src/main.ts
 import { loadState, enableAutoSave } from "./state/statePersistence";
-import { bindFormFields } from "./ui/bindformfields";
+import { bindFormFields } from "./ui/bindFormFields";
 import { initMachineButtons } from "./ui/machine";
 import {
   populateFamilySelect,
