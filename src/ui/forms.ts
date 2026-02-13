@@ -18,6 +18,35 @@ function defaultGeneratePdfFilename(): string {
   const date = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
   return `${name}_${date}.pdf`;
 }
+function validatePage2(): boolean {
+  if (!state.machineType) {
+    alert("Merci de choisir un type de machine.");
+    return false;
+  }
+
+  if (state.machineType === "arbo") {
+    if (!state.arboCount || state.arboCount < 2) {
+      alert("Merci de renseigner le nombre de buses.");
+      return false;
+    }
+    if (!state.arboRangs) {
+      alert("Merci de choisir le nombre de rangs.");
+      return false;
+    }
+  }
+
+  if (state.machineType === "viti" && !state.modelKey) {
+    alert("Merci de choisir un modèle viti.");
+    return false;
+  }
+
+  if (state.machineType === "rampe" && !state.rampeCount) {
+    alert("Merci de renseigner le nombre de buses de la rampe.");
+    return false;
+  }
+
+  return true;
+}
 
 /* =========================================================
    FAMILLES & PASTILLES
@@ -137,12 +166,36 @@ document.getElementById("familySelect")?.addEventListener("change", () => {
   state.familyKey = sel.value;
   updateFamilyOptions();
 });
+document.getElementById("toPage3")?.addEventListener("click", () => {
+
+  // récupération des champs
+  state.dose = Number((document.getElementById("dose") as HTMLInputElement).value);
+  state.interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
+  state.speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
+
+  // validation des champs communs
+  if (!state.dose || !state.interligne || !state.speed) {
+    alert("Merci de remplir la dose, l’interligne et la vitesse.");
+    return;
+  }
+
+  // validation machine
+  if (!validatePage2()) return;
+
+  showPage(3);
+});
 
 /* =========================================================
    NAVIGATION
 ========================================================= */
 
+// Page 1 → Page 2
 document.getElementById("toPage2")?.addEventListener("click", () => {
+  if (!state.machineType) {
+    alert("Merci de choisir un type de machine.");
+    return;
+  }
+
   updatePage2Visibility();
   populateFamilySelect();
   updateFamilyOptions();
@@ -150,11 +203,26 @@ document.getElementById("toPage2")?.addEventListener("click", () => {
   showPage(2);
 });
 
+// Page 2 → Page 3
 document.getElementById("toPage3")?.addEventListener("click", () => {
-  state.dose = Number((document.getElementById("dose") as HTMLInputElement).value);
-  state.interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
-  state.speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
-  state.machineName = (document.getElementById("machineName") as HTMLInputElement).value;
+
+  const dose = Number((document.getElementById("dose") as HTMLInputElement).value);
+  const interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
+  const speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
+  const machineName = (document.getElementById("machineName") as HTMLInputElement).value;
+
+  if (!dose || !interligne || !speed) {
+    alert("Merci de remplir la dose, l’interligne et la vitesse.");
+    return;
+  }
+
+  if (!validatePage2()) return;
+
+  // Écriture dans le state uniquement après validation
+  state.dose = dose;
+  state.interligne = interligne;
+  state.speed = speed;
+  state.machineName = machineName;
 
   const famSel = document.getElementById("familySelect") as HTMLSelectElement;
   if (famSel) state.familyKey = famSel.value;
@@ -176,7 +244,6 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
         return;
       }
 
-      // Injection du modèle libre dans la source de vérité
       vitiModels["viti_libre"] = buildVitiLibreModel({
         canonsG: canG,
         canonsD: canD,
@@ -191,7 +258,7 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
   if (state.machineType === "arbo") {
     const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
     state.arboRangs = Number(arboRangs.value) === 2 ? 2 : 1;
-   state.modelKey = null as any;
+    state.modelKey = null as any;
   }
 
   if (state.machineType === "rampe") {
@@ -204,14 +271,10 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     state.modelKey = null as any;
   }
 
-  if (!state.dose || !state.interligne || !state.speed) {
-    alert("Merci de remplir tous les champs.");
-    return;
-  }
-
   showPage(3);
 });
 
+// Page 3 → Page 4
 document.getElementById("toPage4")?.addEventListener("click", () => {
   state.forcedToggle = (document.getElementById("forcedToggle") as HTMLInputElement).checked;
   state.forcedNozzle1 = (document.getElementById("forcedNozzle1") as HTMLSelectElement).value;
@@ -222,7 +285,9 @@ document.getElementById("toPage4")?.addEventListener("click", () => {
 
   if (state.forcedToggle) {
     const { names } = getOutputsAndCoefs();
-    state.fixedNozzles = names.map((_, i) => (i % 2 === 0 ? state.forcedNozzle1 : state.forcedNozzle2));
+    state.fixedNozzles = names.map((_, i) =>
+      i % 2 === 0 ? state.forcedNozzle1 : state.forcedNozzle2
+    );
   } else {
     state.fixedNozzles = [];
   }
