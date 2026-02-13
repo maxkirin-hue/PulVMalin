@@ -10,6 +10,13 @@ export interface VitiOutput {
   group: 1 | 2;
 }
 
+export interface OutputsAndCoefs {
+  names: string[];
+  roles: ("complete" | "moitie")[];
+  groups: (1 | 2)[];
+  modelLabel: string;
+}
+
 export const vitiModels: Record<string, VitiOutput[]> = {
 
   "3r_avec": [
@@ -69,64 +76,24 @@ export const vitiModels: Record<string, VitiOutput[]> = {
     { name: "Main D2", role: "complete", group: 1 },
   ],
 
-  /* MODÈLE VITI LIBRE (rempli dynamiquement) */
   "viti_libre": []
 };
 
-/* CONSTRUCTEUR DU MODÈLE VITI LIBRE */
-export function buildVitiLibreModel(params: {
-  canonsG: number;
-  canonsD: number;
-  retourG: number;
-  retourD: number;
-  mainsG: number;
-  mainsD: number;
-}): VitiOutput[] {
-
-  const outs: VitiOutput[] = [];
-
-  const add = (count: number, base: string, group: 1 | 2) => {
-    if (count <= 0) return;
-
-    const role: VitiOutput["role"] =
-      count === 1 ? "complete" : "moitie";
-
-    for (let i = 1; i <= count; i++) {
-      outs.push({
-        name: `${base} ${i}`,
-        role,
-        group
-      });
-    }
-  };
-
-  add(params.canonsG, "Canon G", 1);
-  add(params.canonsD, "Canon D", 1);
-
-  add(params.retourG, "Main retour G", 2);
-  add(params.retourD, "Main retour D", 2);
-
-  add(params.mainsG, "Main G", 1);
-  add(params.mainsD, "Main D", 1);
-
-  return outs;
-}
-
-/* SORTIES & COEFFICIENTS */
-export interface OutputsAndCoefs {
-  names: string[];
-  coefs: number[];
-  modelLabel: string;
-}
+/* =========================================================
+   SORTIES & COEFFICIENTS
+========================================================= */
 
 export function getOutputsAndCoefs(): OutputsAndCoefs {
 
   if (state.machineType === "viti") {
     const model = vitiModels[state.modelKey!];
-    if (!model) return { names: [], coefs: [], modelLabel: "—" };
+    if (!model) {
+      return { names: [], roles: [], groups: [], modelLabel: "—" };
+    }
 
     const names = model.map(o => o.name);
-    const coefs = model.map(o => (o.role === "complete" ? 1 : 0.5));
+    const roles = model.map(o => o.role);
+    const groups = model.map(o => o.group);
 
     const modelLabel =
       state.modelKey === "3r_avec" ? "Viti — 3 rangs avec retour" :
@@ -135,33 +102,35 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
       state.modelKey === "4r_sans" ? "Viti — 4 rangs sans retour" :
       "Viti";
 
-    return { names, coefs, modelLabel };
+    return { names, roles, groups, modelLabel };
   }
 
   if (state.machineType === "arbo") {
     const n = state.arboRangs ?? 2;
     const names: string[] = [];
-
     for (let i = 1; i <= n; i++) names.push(`Buse G${i}`);
     for (let i = 1; i <= n; i++) names.push(`Buse D${i}`);
 
     return {
       names,
-      coefs: Array(n * 2).fill(1),
+      roles: Array(n * 2).fill("complete"),
+      groups: Array(n * 2).fill(1),
       modelLabel: "Arbo",
     };
   }
 
   if (state.machineType === "tangentiel") {
     let n = state.arboRangs ?? 2;
-    if (n % 2 !== 0) n = n - 1;
+    if (n % 2 !== 0) n -= 1;
     const perSide = n / 2;
     const names: string[] = [];
     for (let i = 1; i <= perSide; i++) names.push(`Buse G${i}`);
     for (let i = 1; i <= perSide; i++) names.push(`Buse D${i}`);
+
     return {
       names,
-      coefs: Array(n).fill(1),
+      roles: Array(n).fill("complete"),
+      groups: Array(n).fill(1),
       modelLabel: "Tangentiel",
     };
   }
@@ -169,12 +138,14 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
   if (state.machineType === "rampe") {
     const n = state.rampeCount ?? 1;
     const names = Array.from({ length: n }, (_, i) => `Buse ${i + 1}`);
+
     return {
       names,
-      coefs: Array(n).fill(1),
+      roles: Array(n).fill("complete"),
+      groups: Array(n).fill(1),
       modelLabel: "Rampe désherbage",
     };
   }
 
-  return { names: [], coefs: [], modelLabel: "—" };
+  return { names: [], roles: [], groups: [], modelLabel: "—" };
 }
