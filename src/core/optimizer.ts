@@ -239,9 +239,10 @@ export function recomputePressureOnly(): void {
   const qTotal = (dose * largeurTotale * speed) / 600;
   state.qTotal = qTotal;
 
-  const sumCoef = coefs.reduce((a, b) => a + b, 0);
-  if (sumCoef === 0) return;
-  const targets = coefs.map(c => qTotal * (c / sumCoef));
+const qParRang = qTotal / rangs;
+const targets = coefs.map(c => qParRang * c);
+
+
 
   const fixedMap = buildFixedMapForOutputs(outputNames, fixedNozzles, fam);
 
