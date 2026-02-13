@@ -20,25 +20,29 @@ export interface AppState {
   // Identité / machine
   userName: string;
   machineName: string;
-  machineType: string;     // "arbo" | "viti" | "rampe" | "tangentiel"
+  machineType: "arbo" | "viti" | "rampe" | "tangentiel";
 
   // Sélection famille
   familyKey: string;        // ex: "CP4916"
 
   // Modèle viti
   modelKey: string;         // ex: "3r_avec", "4r_sans", "viti_libre"
- 
 
-  // Paramètres
+  // Paramètres communs
   dose: number | null;
-  largeur: number | null;   // alias possible pour interligne
-  vitesse: number | null;   // alias possible pour speed
+  interligne: number | null;
+  speed: number | null;
+
+  // Alias UI (compatibilité)
+  largeur: number | null;
+  vitesse: number | null;
+
+  // Rampe
   rampeCount: number | null;
 
-  // Paramètres arbo/viti
-  arboRangs: number | null;
-  interligne: number | null;
-  speed: number | null;     // utilisé par optimizer
+  // Arbo / Tangentiel
+  arboCount: number | null;   // nombre total de buses (pair, ≤ 16)
+  arboRangs: 1 | 2 | null;    // 1 ou 2 rangs hydrauliques
 
   // Résultats calculés
   qTotal: number;
@@ -48,7 +52,7 @@ export interface AppState {
   // Pression souhaitée par l'utilisateur (optionnelle)
   userPressureTarget: number | null;
 
-  // Pastilles figées (tableau de labels ou codes, ordre idéal = ordre des sorties)
+  // Pastilles figées (ordre = sorties)
   fixedNozzles: string[];
 
   // Mode forcé
@@ -57,21 +61,25 @@ export interface AppState {
   forcedNozzle2: string;
 }
 
+
 export const state: AppState = {
   userName: "",
   machineName: "",
-  machineType: "",
+  machineType: "arbo",
 
   familyKey: "",
   modelKey: "",
 
   dose: null,
-  largeur: null,
-  vitesse: null,
-  rampeCount: null,
-  arboRangs: null,
   interligne: null,
   speed: null,
+  largeur: null,
+  vitesse: null,
+
+  rampeCount: null,
+
+  arboCount: null,
+  arboRangs: 1,
 
   qTotal: 0,
   recommendedPressure: 0,
