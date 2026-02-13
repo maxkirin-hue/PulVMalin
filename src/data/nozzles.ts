@@ -233,6 +233,26 @@ export const nozzleFamilies: Record<string, NozzleFamily> = {
       { code: "ATR80-VERT", color: "vert", qRef: 2.47 },
       { code: "ATR80-BLEU", color: "bleu", qRef: 3.4 }
     ]
-  }
+  },
+
+  TVI80: {
+  label: "TVI 80° ISO – Injection d'air (ALBUZ)",
+  machines: ["viti", "arbo", "tangentiel"],
+  refPressure: 3,
+  optimalRange: [5, 10],
+  limitRange: [3, 20],
+  nozzles: [
+    { code: "TVI80-0050", color: "lilas",  qRef: 0.20 }, // tableau à 3 bar
+    { code: "TVI80-0075", color: "rose",   qRef: 0.30 }, // tableau à 3 bar
+    { code: "TVI80-01",   color: "orange", qRef: 0.40 }, // tableau à 3 bar
+
+    // Calculés depuis 5 bar avec q3 = q5 * sqrt(3/5) (cohérent avec flowAtPressure)
+    { code: "TVI80-015",  color: "vert",   qRef: 0.60 }, // 0.77 @5bar
+    { code: "TVI80-02",   color: "jaune",  qRef: 0.80 }, // 1.03 @5bar
+    { code: "TVI80-025",  color: "violet", qRef: 1.00 }, // 1.29 @5bar
+    { code: "TVI80-03",   color: "bleu",   qRef: 1.20 }, // 1.55 @5bar
+    { code: "TVI80-04",   color: "rouge",  qRef: 1.60 }, // 2.07 @5bar
+  ]
+},
 
 };
