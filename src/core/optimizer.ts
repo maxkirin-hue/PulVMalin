@@ -200,6 +200,26 @@ function optimizePressureAndNozzles(
 function roleWeight(role: "complete" | "moitie"): number {
   return role === "complete" ? 1 : 0.5;
 }
+function computeTargets(
+  qTotal: number,
+  rangs: number,
+  roles: ("complete" | "moitie")[]
+): number[] {
+
+  // Débit par rang réel
+  const qParRang = qTotal / rangs;
+
+  // Poids d’un rang (pas de toute la machine)
+  const weights = roles.map(r => (r === "complete" ? 1 : 0.5));
+
+  // On divise par le nombre de rangs pour retrouver le pattern d’un rang
+  const sumPerRang = weights.reduce((a, b) => a + b, 0) / rangs;
+
+  if (!sumPerRang) return roles.map(() => 0);
+
+  // Répartition correcte par sortie
+  return weights.map(w => qParRang * (w / sumPerRang));
+}
 
 /* =========================================================
    computeAll — ORCHESTRATEUR
