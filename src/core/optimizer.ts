@@ -1,12 +1,5 @@
 /* =========================================================
    OPTIMIZER — computeAll + recomputePressureOnly
-   - Viti / Arbo / Tangentiel : coefs = parts DU RANG (normalisés AU RANG)
-   - Rampe : coefs = pondérations DU TOTAL (normalisés AU TOTAL)
-
-   Corrections intégrées :
-   - Optimisation par GROUPES (canon / main / retour) : 1 pastille par groupe
-   - Pression cible via optimalRange/refPressure (pénalité d’éloignement)
-   - Erreur relative (cohérente hydraulique)
 ========================================================= */
 
 import { state } from "../state/state";
@@ -25,7 +18,7 @@ function flowAtPressure(qRef: number, P: number, refP: number): number {
 }
 
 function pressureStatus(P: number, fam: NozzleFamily): "ok" | "limit" | "bad" {
-  const [min, max] = Array.isArray(fam.limitRange) ? fam.limitRange : [1, 6];
+  const [min, max] = fam.limitRange ?? [1, 6];
   if (P < min || P > max) return "bad";
   if (P < min + 0.2 || P > max - 0.2) return "limit";
   return "ok";
@@ -40,12 +33,7 @@ function getValidatedInputs() {
   const speed = state.speed ?? state.vitesse;
   const dose = state.dose;
 
-  if (
-    typeof interligne !== "number" ||
-    typeof speed !== "number" ||
-    typeof dose !== "number"
-  ) return null;
-
+  if (!interligne || !speed || !dose) return null;
   if (interligne <= 0 || speed <= 0 || dose <= 0) return null;
 
   return { interligne, speed, dose };
@@ -68,24 +56,6 @@ function detectRangs(): number {
 
 function computeQTotal(dose: number, speed: number, largeurTotale: number): number {
   return (dose * speed * largeurTotale) / 600;
-}
-
-/* Viti / Arbo / Tangentiel : coefs = parts DU RANG */
-function computeTargetsPerRang(
-  qTotal: number,
-  rangs: number,
-  coefs: number[]
-): number[] {
-  const qParRang = qTotal / rangs;
-  return coefs.map(c => qParRang * c);
-}
-
-
-/* Rampe : coefs = pondérations DU TOTAL (normalisés AU TOTAL) */
-function computeTargetsNormalized(qTotal: number, coefs: number[]): number[] {
-  const sum = coefs.reduce((a, b) => a + b, 0);
-  if (!sum) return coefs.map(() => 0);
-  return coefs.map(c => qTotal * (c / sum));
 }
 
 /* =========================================================
@@ -124,14 +94,6 @@ function getNozzleVariants(fam: NozzleFamily): NozzleVariant[] {
   return variants;
 }
 
-/* Grouping mécanique : 1 pastille par type de sortie */
-function getOutputGroup(name: string): "canon" | "main" | "retour" {
-  const n = name.toLowerCase();
-  if (n.includes("retour")) return "retour";
-  if (n.includes("canon")) return "canon";
-  return "main";
-}
-
 function optimizePressureAndNozzles(
   fam: NozzleFamily,
   targets: number[],
@@ -148,22 +110,12 @@ function optimizePressureAndNozzles(
       : 3);
 
   const variants = getNozzleVariants(fam);
-  if (!variants.length) {
-    return {
-      P: preferredP,
-      results: targets.map(t => ({
-        nozzle: { code: "—", qRef: 0, color: undefined },
-        q: 0,
-        qTarget: t,
-        relErr: 0,
-      })),
-      cost: Number.POSITIVE_INFINITY,
-    };
-  }
+  const groups = names.map(n =>
+    n.toLowerCase().includes("retour") ? "retour" :
+    n.toLowerCase().includes("canon") ? "canon" : "main"
+  );
 
-  const groups = names.map(getOutputGroup);
   const uniqueGroups = Array.from(new Set(groups));
-
   let best: any = null;
 
   for (let P = Pmin; P <= Pmax + 1e-6; P += step) {
@@ -175,8 +127,7 @@ function optimizePressureAndNozzles(
         .map((gg, i) => (gg === g ? i : -1))
         .filter(i => i >= 0);
 
-      const qTargetGroup =
-        idxs.reduce((s, i) => s + (targets[i] ?? 0), 0) / idxs.length;
+      const qTargetGroup = idxs.reduce((s, i) => s + targets[i], 0);
 
       let bestNz = variants[0];
       let bestErr = Infinity;
@@ -184,24 +135,19 @@ function optimizePressureAndNozzles(
 
       for (const nz of variants) {
         const q = flowAtPressure(nz.qRef, P, refP);
-        const err =
-  qTargetGroup > 0
-    ? (q < qTargetGroup
-        ? 1e6 + (qTargetGroup - q) / qTargetGroup   // interdit sous-dimensionnement
-        : (q - qTargetGroup) / qTargetGroup)
-    : 0;
+        if (q < qTargetGroup) continue;
 
-if (err < bestErr) {
-  bestErr = err;
-  bestNz = nz;
-  bestQ = q;
-}
-
+        const err = (q - qTargetGroup) / qTargetGroup;
+        if (err < bestErr) {
+          bestErr = err;
+          bestNz = nz;
+          bestQ = q;
+        }
       }
 
       for (const i of idxs) {
-        const qTarget = targets[i] ?? 0;
-        const relErr = qTarget > 0 ? (bestQ - qTarget) / qTarget : 0;
+        const qTarget = targets[i];
+        const relErr = (bestQ - qTarget) / qTarget;
 
         results[i] = {
           nozzle: bestNz,
@@ -235,11 +181,8 @@ export function computeAll(): void {
   const fam = nozzleFamilies[state.familyKey];
   if (!fam) return;
 
-  const { names, coefs } = getOutputsAndCoefs();
-  if (!coefs.length) {
-    state.results = [];
-    return;
-  }
+  const { names, roles, groups } = getOutputsAndCoefs();
+  if (!names.length) return;
 
   const inputs = getValidatedInputs();
   if (!inputs) return;
@@ -255,118 +198,42 @@ export function computeAll(): void {
   const qTotal = computeQTotal(dose, speed, largeurTotale);
   state.qTotal = qTotal;
 
-  const targets =
-    state.machineType === "rampe"
-      ? computeTargetsNormalized(qTotal, coefs)
-      : computeTargetsPerRang(qTotal, rangs, coefs);
+  const qParRang = qTotal / rangs;
+
+  const groupRoleSum: Record<number, number> = {};
+  roles.forEach((r, i) => {
+    const g = groups[i];
+    groupRoleSum[g] = (groupRoleSum[g] ?? 0) + (r === "complete" ? 1 : 0.5);
+  });
+
+  const totalRole = Object.values(groupRoleSum).reduce((a, b) => a + b, 0);
+
+  const groupFlow: Record<number, number> = {};
+  Object.keys(groupRoleSum).forEach(g => {
+    groupFlow[+g] = qParRang * (groupRoleSum[+g] / totalRole);
+  });
+
+  const targets = roles.map((r, i) =>
+    groupFlow[groups[i]] * (r === "complete" ? 1 : 0.5)
+  );
 
   const opt = optimizePressureAndNozzles(fam, targets, names);
   state.recommendedPressure = opt.P;
 
   state.results = names.map((name, i) => {
     const r = opt.results[i];
-    return {
-      outputName: name,
-      coef: coefs[i],
-      qTarget: r.qTarget,
-      nozzleLabel: r.nozzle.code,
-      nozzleColor: r.nozzle.color,
-      pressure: opt.P,
-      qReal: r.q,
-      relError: r.relErr,
-      status: pressureStatus(opt.P, fam),
-    };
+return {
+  outputName: name,
+  coef: roles[i] === "complete" ? 1 : 0.5,
+  qTarget: r.qTarget,
+  nozzleLabel: r.nozzle.code,
+  nozzleColor: r.nozzle.color,
+  pressure: opt.P,
+  qReal: r.q,
+  relError: r.relErr,
+  status: pressureStatus(opt.P, fam),
+};
   });
 
   (state as any).fixedNozzles = state.results.map(r => r.nozzleLabel);
-}
-
-/* =========================================================
-   recomputePressureOnly — pression seule, pastilles figées
-========================================================= */
-
-function findVariantByLabel(fam: NozzleFamily, label: string): NozzleVariant | null {
-  const variants = getNozzleVariants(fam);
-  const v = variants.find(x => x.code === label);
-  return v ?? null;
-}
-
-export function recomputePressureOnly(): void {
-  if (!state.familyKey) return;
-
-  const fam = nozzleFamilies[state.familyKey];
-  if (!fam) return;
-
-  const { names, coefs } = getOutputsAndCoefs();
-  if (!coefs.length) return;
-
-  const fixedNozzles: string[] = (state as any).fixedNozzles ?? [];
-  if (!fixedNozzles.length) return;
-
-  const inputs = getValidatedInputs();
-  if (!inputs) return;
-
-  const { interligne, speed, dose } = inputs;
-  const rangs = detectRangs();
-
-  const largeurTotale =
-    state.machineType === "rampe"
-      ? (state.largeur ?? interligne)
-      : interligne * rangs;
-
-  const qTotal = computeQTotal(dose, speed, largeurTotale);
-  state.qTotal = qTotal;
-
-  const targets =
-    state.machineType === "rampe"
-      ? computeTargetsNormalized(qTotal, coefs)
-      : computeTargetsPerRang(qTotal, rangs, coefs);
-
-  const refP = fam.refPressure ?? 3;
-  const [Pmin, Pmax] = fam.limitRange ?? [1, 6];
-  const step = 0.1;
-
-  const preferredP =
-    fam.refPressure ??
-    (fam.optimalRange
-      ? (fam.optimalRange[0] + fam.optimalRange[1]) / 2
-      : 3);
-
-  let bestP = preferredP;
-  let bestCost = Infinity;
-
-  const steps = Math.max(1, Math.round((Pmax - Pmin) / step));
-  for (let s = 0; s <= steps; s++) {
-    const P = +(Pmin + s * step).toFixed(6);
-    let sumErr2 = 0;
-    let valid = true;
-
-    for (let i = 0; i < targets.length; i++) {
-      const label = fixedNozzles[i];
-      if (!label) continue;
-
-      const nozzle = findVariantByLabel(fam, label);
-      if (!nozzle) {
-        valid = false;
-        break;
-      }
-
-      const q = flowAtPressure(nozzle.qRef, P, refP);
-      const qTarget = targets[i] ?? 0;
-      const relErr = qTarget > 0 ? (q - qTarget) / qTarget : 0;
-      sumErr2 += relErr * relErr;
-    }
-
-    if (!valid) continue;
-
-    const pressurePenalty = Math.pow((P - preferredP) / preferredP, 2);
-    const cost = sumErr2 + 3 * pressurePenalty;
-
-    if (cost < bestCost) {
-      bestCost = cost;
-      bestP = P;
-    }
-  }
-
-  state.recommendedPressure = Number.isFinite(bestCost) ? bestP : preferredP;
 }
