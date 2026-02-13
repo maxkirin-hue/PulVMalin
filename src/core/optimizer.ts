@@ -151,7 +151,7 @@ function optimizePressureAndNozzles(fam: NozzleFamily, targets: number[]) {
 
       for (const nz of variants) {
         const q = flowAtPressure(nz.qRef, P, refP);
-        const err = Math.abs(q - qTarget);
+        const err = qTarget > 0 ? Math.abs(q - qTarget) / qTarget : 0;
         if (err < bestErr) {
           bestErr = err;
           bestNz = nz;
