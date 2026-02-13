@@ -152,8 +152,15 @@ function optimizePressureAndNozzles(
           if (q < t) {
             costGroup += 1e6 + ((t - q) / t); // interdit sous-dimensionnement
           } else {
-            const rel = (q - t) / t;
-            costGroup += rel * rel;
+           const rel = (q - t) / t;
+
+// pénalité asymétrique : le sur-débit coûte plus cher
+if (rel > 0) {
+  costGroup += 2.5 * rel * rel;
+} else {
+  costGroup += rel * rel;
+}
+
           }
         }
 
@@ -192,34 +199,34 @@ function optimizePressureAndNozzles(
 
   return best;
 }
-
-/* =========================================================
-   TARGETS — logique débit
-========================================================= */
-
 function roleWeight(role: "complete" | "moitie"): number {
   return role === "complete" ? 1 : 0.5;
 }
+
 function computeTargets(
   qTotal: number,
   rangs: number,
   roles: ("complete" | "moitie")[]
 ): number[] {
 
-  // Débit par rang réel
+  // CAS ARBO : répartition sur toutes les buses
+  if (state.machineType === "arbo") {
+    const n = roles.length;
+    if (!n) return [];
+    return roles.map(() => qTotal / n);
+  }
+
+  // VITI / TANGENTIEL / RAMPE
   const qParRang = qTotal / rangs;
 
-  // Poids d’un rang (pas de toute la machine)
   const weights = roles.map(r => (r === "complete" ? 1 : 0.5));
-
-  // On divise par le nombre de rangs pour retrouver le pattern d’un rang
   const sumPerRang = weights.reduce((a, b) => a + b, 0) / rangs;
 
   if (!sumPerRang) return roles.map(() => 0);
 
-  // Répartition correcte par sortie
   return weights.map(w => qParRang * (w / sumPerRang));
 }
+
 
 /* =========================================================
    computeAll — ORCHESTRATEUR
@@ -253,6 +260,7 @@ export function computeAll(): void {
   state.qTotal = qTotal;
 
   const targets = computeTargets(qTotal, rangs, roles);
+  
 
   const opt = optimizePressureAndNozzles(fam, targets, groups);
   state.recommendedPressure = opt.P;
