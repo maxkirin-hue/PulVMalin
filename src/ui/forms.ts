@@ -5,7 +5,7 @@
 import { nozzleFamilies } from "../data/nozzles";
 import { state } from "../state/state";
 import { computeAll, recomputePressureOnly } from "../core/optimizer";
-import { buildVitiLibreModel } from "../core/models";
+import { getOutputsAndCoefs, buildVitiLibreModel, vitiModels } from "../core/models";
 import { renderResultsTable, fillSummary } from "./summary";
 import { buildDocDefinition, generatePdfFilename } from "../pdf/pdfmakeTemplate";
 import { showPage } from "./navigation";
@@ -15,11 +15,14 @@ declare const pdfMake: any;
 /* Helpers PDF fallback */
 function defaultGeneratePdfFilename(): string {
   const name = (state.machineName || "PulvMalin").replace(/\s+/g, "_");
-  const date = new Date().toISOString().slice(0,19).replace(/[:T]/g, "-");
+  const date = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
   return `${name}_${date}.pdf`;
 }
 
-/* FAMILLES & PASTILLES */
+/* =========================================================
+   FAMILLES & PASTILLES
+========================================================= */
+
 export function populateFamilySelect() {
   const sel = document.getElementById("familySelect") as HTMLSelectElement;
   if (!sel) return;
@@ -44,12 +47,11 @@ export function populateFamilySelect() {
 }
 
 export function updateFamilyOptions() {
-  const famKey = state.familyKey;
   const forced1 = document.getElementById("forcedNozzle1") as HTMLSelectElement;
   const forced2 = document.getElementById("forcedNozzle2") as HTMLSelectElement;
   if (!forced1 || !forced2) return;
 
-  const fam = nozzleFamilies[famKey];
+  const fam = nozzleFamilies[state.familyKey];
   const list = fam ? fam.nozzles.map(n => n.code) : [];
 
   forced1.innerHTML = "";
@@ -68,7 +70,10 @@ export function updateFamilyOptions() {
   }
 }
 
-/* MODELES VITI */
+/* =========================================================
+   MODÈLES VITI
+========================================================= */
+
 export function updateModelOptions() {
   const sel = document.getElementById("vitiModel") as HTMLSelectElement;
   if (!sel) return;
@@ -88,7 +93,10 @@ export function updateModelOptions() {
   `;
 }
 
-/* VISIBILITÉ */
+/* =========================================================
+   VISIBILITÉ
+========================================================= */
+
 export function hideAllMachineBlocks() {
   const ids = ["arboBlock", "vitiBlock", "rampeBlock", "tangentielBlock"];
   ids.forEach(id => {
@@ -100,14 +108,17 @@ export function hideAllMachineBlocks() {
 function updatePage2Visibility() {
   const libreBlock = document.getElementById("vitiLibreBlock");
   if (!libreBlock) return;
-  if (state.machineType === "viti" && state.modelKey === "viti_libre") {
-    libreBlock.style.display = "block";
-  } else {
-    libreBlock.style.display = "none";
-  }
+
+  libreBlock.style.display =
+    state.machineType === "viti" && state.modelKey === "viti_libre"
+      ? "block"
+      : "none";
 }
 
-/* LISTENERS */
+/* =========================================================
+   LISTENERS
+========================================================= */
+
 document.getElementById("vitiModel")?.addEventListener("change", () => {
   const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
   state.modelKey = modelSel.value;
@@ -127,9 +138,11 @@ document.getElementById("familySelect")?.addEventListener("change", () => {
   updateFamilyOptions();
 });
 
-/* PAGE NAV */
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
 document.getElementById("toPage2")?.addEventListener("click", () => {
-  // machineType may be set by machine.ts buttons or a select
   updatePage2Visibility();
   populateFamilySelect();
   updateFamilyOptions();
@@ -163,7 +176,8 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
         return;
       }
 
-      state.outputs = buildVitiLibreModel({
+      // Injection du modèle libre dans la source de vérité
+      vitiModels["viti_libre"] = buildVitiLibreModel({
         canonsG: canG,
         canonsD: canD,
         retourG: retG,
@@ -177,17 +191,17 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
   if (state.machineType === "arbo") {
     const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
     state.arboRangs = Number(arboRangs.value);
-    state.modelKey = null;
+    state.modelKey = null as any;
   }
 
   if (state.machineType === "rampe") {
     const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
     state.rampeCount = Number(rampeCount.value);
-    state.modelKey = null;
+    state.modelKey = null as any;
   }
 
   if (state.machineType === "tangentiel") {
-    state.modelKey = null;
+    state.modelKey = null as any;
   }
 
   if (!state.dose || !state.interligne || !state.speed) {
@@ -206,10 +220,8 @@ document.getElementById("toPage4")?.addEventListener("click", () => {
   const userP = Number((document.getElementById("userPressure") as HTMLInputElement).value);
   state.userPressureTarget = userP || null;
 
-  // If forced mode, populate fixedNozzles array (simple strategy: use forcedNozzle1/2 for all outputs if needed)
   if (state.forcedToggle) {
-    // simple default: apply forcedNozzle1 to odd outputs and forcedNozzle2 to even outputs
-    const { names } = getOutputsAndCoefsForUI();
+    const { names } = getOutputsAndCoefs();
     state.fixedNozzles = names.map((_, i) => (i % 2 === 0 ? state.forcedNozzle1 : state.forcedNozzle2));
   } else {
     state.fixedNozzles = [];
@@ -221,7 +233,10 @@ document.getElementById("toPage4")?.addEventListener("click", () => {
   showPage(4);
 });
 
-/* RE-CALCUL PRESSION (PAGE 4) */
+/* =========================================================
+   RE-CALCUL PRESSION (PAGE 4)
+========================================================= */
+
 document.getElementById("btnRecalc")?.addEventListener("click", () => {
   const newI = Number((document.getElementById("newInterligne") as HTMLInputElement).value);
   const newDose = Number((document.getElementById("newDose") as HTMLInputElement).value);
@@ -233,11 +248,15 @@ document.getElementById("btnRecalc")?.addEventListener("click", () => {
   fillSummary();
 });
 
-/* EXPORT PDF */
+/* =========================================================
+   EXPORT PDF
+========================================================= */
+
 function generatePdf(docDefinition: any) {
-  const filename = typeof generatePdfFilename === "function"
-    ? generatePdfFilename(state)
-    : defaultGeneratePdfFilename();
+  const filename =
+    typeof generatePdfFilename === "function"
+      ? generatePdfFilename(state)
+      : defaultGeneratePdfFilename();
 
   pdfMake.createPdf(docDefinition).download(filename);
 }
@@ -252,22 +271,13 @@ document.getElementById("btnPdf")?.addEventListener("click", async () => {
   if (loader) loader.style.display = "none";
 });
 
-/* BOUTONS RETOUR */
+/* =========================================================
+   BOUTONS RETOUR
+========================================================= */
+
 document.querySelectorAll("[data-back]").forEach(btn => {
   btn.addEventListener("click", () => {
     const target = Number((btn as HTMLElement).getAttribute("data-back"));
     showPage(target);
   });
 });
-
-/* utilitaire pour forms.ts */
-function getOutputsAndCoefsForUI() {
-  // minimal wrapper to avoid circular import in this file
-  // dynamic import to avoid top-level circular dependency
-  // but here we can import synchronously since models.ts is pure
-  // to keep it simple, require the module:
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const models = require("../core/models");
-  return models.getOutputsAndCoefs();
-}
-  
