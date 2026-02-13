@@ -3,8 +3,10 @@
   "short_name": "PulvMalin",
   "start_url": "/PulVMalin/",
   "display": "standalone",
+  "description": "Régler votre pulvérisateur devient un jeu d'enfant",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",
+  "categories": ["productivity", "agriculture"],
   "orientation": "portrait",
   "icons": [
     {
