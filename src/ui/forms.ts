@@ -190,8 +190,8 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
 
   if (state.machineType === "arbo") {
     const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
-    state.arboRangs = Number(arboRangs.value);
-    state.modelKey = null as any;
+    state.arboRangs = Number(arboRangs.value) === 2 ? 2 : 1;
+   state.modelKey = null as any;
   }
 
   if (state.machineType === "rampe") {
