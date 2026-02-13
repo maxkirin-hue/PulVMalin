@@ -115,43 +115,39 @@ function getNozzleVariants(fam: NozzleFamily): NozzleVariant[] {
 
   return variants;
 }
-
-function optimizePressureAndNozzles(fam: NozzleFamily, targets: number[]) {
+function optimizePressureAndNozzles(
+  fam: NozzleFamily,
+  targets: number[]
+) {
   const refP = fam.refPressure ?? 3;
   const [Pmin, Pmax] = fam.limitRange ?? [1, 6];
   const step = 0.1;
 
-  const variants = getNozzleVariants(fam);
-  if (!variants.length) {
-    return {
-      P: refP,
-      results: targets.map(t => ({
-        nozzle: { code: "—", qRef: 0 },
-        q: 0,
-        qTarget: t,
-        relErr: 0,
-      })),
-      Qtot: 0,
-      cost: Number.POSITIVE_INFINITY,
-    };
-  }
+  // 🎯 pression cible (logique constructeur retrouvée)
+  const preferredP =
+    fam.refPressure ??
+    (fam.optimalRange
+      ? (fam.optimalRange[0] + fam.optimalRange[1]) / 2
+      : 3);
 
+  const variants = getNozzleVariants(fam);
   let best: any = null;
 
   for (let P = Pmin; P <= Pmax + 1e-6; P += step) {
     let sumErr2 = 0;
-    let Qtot = 0;
     const results: any[] = [];
 
     for (let i = 0; i < targets.length; i++) {
       const qTarget = targets[i];
       let bestNz = variants[0];
-      let bestQ = 0;
       let bestErr = Infinity;
+      let bestQ = 0;
 
       for (const nz of variants) {
         const q = flowAtPressure(nz.qRef, P, refP);
-        const err = qTarget > 0 ? Math.abs(q - qTarget) / qTarget : 0;
+        const err =
+          qTarget > 0 ? Math.abs(q - qTarget) / qTarget : 0;
+
         if (err < bestErr) {
           bestErr = err;
           bestNz = nz;
@@ -159,19 +155,29 @@ function optimizePressureAndNozzles(fam: NozzleFamily, targets: number[]) {
         }
       }
 
-      const relErr = qTarget > 0 ? (bestQ - qTarget) / qTarget : 0;
-      sumErr2 += relErr * relErr;
-      Qtot += bestQ;
+      sumErr2 += bestErr * bestErr;
 
-      results.push({ nozzle: bestNz, q: bestQ, qTarget, relErr });
+      results.push({
+        nozzle: bestNz,
+        q: bestQ,
+        qTarget,
+        relErr: bestErr,
+      });
     }
 
-    const cost = sumErr2;
-    if (!best || cost < best.cost) best = { P, results, Qtot, cost };
+    // 🔒 pénalité d’éloignement de la pression cible
+    const pressurePenalty = Math.pow((P - preferredP) / preferredP, 2);
+
+    const cost = sumErr2 + 3 * pressurePenalty;
+
+    if (!best || cost < best.cost) {
+      best = { P, results, cost };
+    }
   }
 
   return best;
 }
+
 
 /* =========================================================
    computeAll — ORCHESTRATEUR
