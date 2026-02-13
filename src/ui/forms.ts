@@ -166,28 +166,41 @@ document.getElementById("familySelect")?.addEventListener("change", () => {
   state.familyKey = sel.value;
   updateFamilyOptions();
 });
-document.getElementById("toPage3")?.addEventListener("click", () => {
 
-  // récupération des champs
-  state.dose = Number((document.getElementById("dose") as HTMLInputElement).value);
-  state.interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
-  state.speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
-
-  // validation des champs communs
-  if (!state.dose || !state.interligne || !state.speed) {
-    alert("Merci de remplir la dose, l’interligne et la vitesse.");
-    return;
-  }
-
-  // validation machine
-  if (!validatePage2()) return;
-
-  showPage(3);
-});
 
 /* =========================================================
-   NAVIGATION
+   NAVIGATION (verrouillée, unique handlers)
 ========================================================= */
+
+// utilitaire pour activer/désactiver boutons
+function setButtonEnabled(id: string, enabled: boolean) {
+  const btn = document.getElementById(id) as HTMLButtonElement | null;
+  if (btn) btn.disabled = !enabled;
+}
+
+// validation live simple pour Page 2 (active le bouton)
+function isPage2InputsFilled(): boolean {
+  const dose = Number((document.getElementById("dose") as HTMLInputElement).value);
+  const interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
+  const speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
+  return !!dose && !!interligne && !!speed && !!state.machineType;
+}
+
+// attacher listeners aux inputs pour activer le bouton "toPage3"
+["dose","largeur","vitesse","machineName","arboCount","arboRangs","rampeCount","vitiModel"].forEach(id => {
+  const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+  if (el) {
+    el.addEventListener("input", () => {
+      setButtonEnabled("toPage3", isPage2InputsFilled());
+    });
+    el.addEventListener("change", () => {
+      setButtonEnabled("toPage3", isPage2InputsFilled());
+    });
+  }
+});
+
+// initial state: désactiver bouton si pas prêt
+setButtonEnabled("toPage3", isPage2InputsFilled());
 
 // Page 1 → Page 2
 document.getElementById("toPage2")?.addEventListener("click", () => {
@@ -195,7 +208,6 @@ document.getElementById("toPage2")?.addEventListener("click", () => {
     alert("Merci de choisir un type de machine.");
     return;
   }
-
   updatePage2Visibility();
   populateFamilySelect();
   updateFamilyOptions();
@@ -203,9 +215,9 @@ document.getElementById("toPage2")?.addEventListener("click", () => {
   showPage(2);
 });
 
-// Page 2 → Page 3
+// Page 2 → Page 3 (unique handler, validation avant écriture dans state)
 document.getElementById("toPage3")?.addEventListener("click", () => {
-
+  // lire sans écrire d'abord
   const dose = Number((document.getElementById("dose") as HTMLInputElement).value);
   const interligne = Number((document.getElementById("largeur") as HTMLInputElement).value);
   const speed = Number((document.getElementById("vitesse") as HTMLInputElement).value);
@@ -218,7 +230,7 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
 
   if (!validatePage2()) return;
 
-  // Écriture dans le state uniquement après validation
+  // écrire dans le state seulement après validation
   state.dose = dose;
   state.interligne = interligne;
   state.speed = speed;
@@ -255,16 +267,13 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     }
   }
 
-if (state.machineType === "arbo") {
-  const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
-  const arboCount = document.getElementById("arboCount") as HTMLInputElement;
-
-  state.arboRangs = Number(arboRangs.value) === 2 ? 2 : 1;
-  state.arboCount = Number(arboCount.value);
-
-  state.modelKey = null as any;
-}
-
+  if (state.machineType === "arbo") {
+    const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
+    const arboCountEl = document.getElementById("arboCount") as HTMLInputElement | null;
+    state.arboRangs = Number(arboRangs.value) === 2 ? 2 : 1;
+    state.arboCount = arboCountEl ? Number(arboCountEl.value) : null;
+    state.modelKey = null as any;
+  }
 
   if (state.machineType === "rampe") {
     const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
