@@ -2,6 +2,11 @@
    OPTIMIZER — computeAll + recomputePressureOnly
    - Viti / Arbo / Tangentiel : coefs = parts DU RANG (normalisés AU RANG)
    - Rampe : coefs = pondérations DU TOTAL (normalisés AU TOTAL)
+
+   Corrections intégrées :
+   - Optimisation par GROUPES (canon / main / retour) : 1 pastille par groupe
+   - Pression cible via optimalRange/refPressure (pénalité d’éloignement)
+   - Erreur relative (cohérente hydraulique)
 ========================================================= */
 
 import { state } from "../state/state";
@@ -115,15 +120,24 @@ function getNozzleVariants(fam: NozzleFamily): NozzleVariant[] {
 
   return variants;
 }
+
+/* Grouping mécanique : 1 pastille par type de sortie */
+function getOutputGroup(name: string): "canon" | "main" | "retour" {
+  const n = name.toLowerCase();
+  if (n.includes("retour")) return "retour";
+  if (n.includes("canon")) return "canon";
+  return "main";
+}
+
 function optimizePressureAndNozzles(
   fam: NozzleFamily,
-  targets: number[]
+  targets: number[],
+  names: string[]
 ) {
   const refP = fam.refPressure ?? 3;
   const [Pmin, Pmax] = fam.limitRange ?? [1, 6];
   const step = 0.1;
 
-  // 🎯 pression cible (logique constructeur retrouvée)
   const preferredP =
     fam.refPressure ??
     (fam.optimalRange
@@ -131,23 +145,43 @@ function optimizePressureAndNozzles(
       : 3);
 
   const variants = getNozzleVariants(fam);
+  if (!variants.length) {
+    return {
+      P: preferredP,
+      results: targets.map(t => ({
+        nozzle: { code: "—", qRef: 0, color: undefined },
+        q: 0,
+        qTarget: t,
+        relErr: 0,
+      })),
+      cost: Number.POSITIVE_INFINITY,
+    };
+  }
+
+  const groups = names.map(getOutputGroup);
+  const uniqueGroups = Array.from(new Set(groups));
+
   let best: any = null;
 
   for (let P = Pmin; P <= Pmax + 1e-6; P += step) {
     let sumErr2 = 0;
-    const results: any[] = [];
+    const results: any[] = new Array(targets.length);
 
-    for (let i = 0; i < targets.length; i++) {
-      const qTarget = targets[i];
+    for (const g of uniqueGroups) {
+      const idxs = groups
+        .map((gg, i) => (gg === g ? i : -1))
+        .filter(i => i >= 0);
+
+      const qTargetGroup =
+        idxs.reduce((s, i) => s + (targets[i] ?? 0), 0) / idxs.length;
+
       let bestNz = variants[0];
       let bestErr = Infinity;
       let bestQ = 0;
 
       for (const nz of variants) {
         const q = flowAtPressure(nz.qRef, P, refP);
-        const err =
-          qTarget > 0 ? Math.abs(q - qTarget) / qTarget : 0;
-
+        const err = qTargetGroup > 0 ? Math.abs(q - qTargetGroup) / qTargetGroup : 0;
         if (err < bestErr) {
           bestErr = err;
           bestNz = nz;
@@ -155,19 +189,22 @@ function optimizePressureAndNozzles(
         }
       }
 
-      sumErr2 += bestErr * bestErr;
+      for (const i of idxs) {
+        const qTarget = targets[i] ?? 0;
+        const relErr = qTarget > 0 ? (bestQ - qTarget) / qTarget : 0;
 
-      results.push({
-        nozzle: bestNz,
-        q: bestQ,
-        qTarget,
-        relErr: bestErr,
-      });
+        results[i] = {
+          nozzle: bestNz,
+          q: bestQ,
+          qTarget,
+          relErr,
+        };
+
+        sumErr2 += relErr * relErr;
+      }
     }
 
-    // 🔒 pénalité d’éloignement de la pression cible
     const pressurePenalty = Math.pow((P - preferredP) / preferredP, 2);
-
     const cost = sumErr2 + 3 * pressurePenalty;
 
     if (!best || cost < best.cost) {
@@ -177,7 +214,6 @@ function optimizePressureAndNozzles(
 
   return best;
 }
-
 
 /* =========================================================
    computeAll — ORCHESTRATEUR
@@ -214,7 +250,7 @@ export function computeAll(): void {
       ? computeTargetsNormalized(qTotal, coefs)
       : computeTargetsPerRang(qTotal, rangs, coefs);
 
-  const opt = optimizePressureAndNozzles(fam, targets);
+  const opt = optimizePressureAndNozzles(fam, targets, names);
   state.recommendedPressure = opt.P;
 
   state.results = names.map((name, i) => {
@@ -251,7 +287,7 @@ export function recomputePressureOnly(): void {
   const fam = nozzleFamilies[state.familyKey];
   if (!fam) return;
 
-  const { coefs } = getOutputsAndCoefs();
+  const { names, coefs } = getOutputsAndCoefs();
   if (!coefs.length) return;
 
   const fixedNozzles: string[] = (state as any).fixedNozzles ?? [];
@@ -280,7 +316,13 @@ export function recomputePressureOnly(): void {
   const [Pmin, Pmax] = fam.limitRange ?? [1, 6];
   const step = 0.1;
 
-  let bestP = refP;
+  const preferredP =
+    fam.refPressure ??
+    (fam.optimalRange
+      ? (fam.optimalRange[0] + fam.optimalRange[1]) / 2
+      : 3);
+
+  let bestP = preferredP;
   let bestCost = Infinity;
 
   const steps = Math.max(1, Math.round((Pmax - Pmin) / step));
@@ -307,11 +349,14 @@ export function recomputePressureOnly(): void {
 
     if (!valid) continue;
 
-    if (sumErr2 < bestCost) {
-      bestCost = sumErr2;
+    const pressurePenalty = Math.pow((P - preferredP) / preferredP, 2);
+    const cost = sumErr2 + 3 * pressurePenalty;
+
+    if (cost < bestCost) {
+      bestCost = cost;
       bestP = P;
     }
   }
 
-  state.recommendedPressure = Number.isFinite(bestCost) ? bestP : refP;
+  state.recommendedPressure = Number.isFinite(bestCost) ? bestP : preferredP;
 }
