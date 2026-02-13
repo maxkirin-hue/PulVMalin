@@ -181,12 +181,19 @@ function optimizePressureAndNozzles(
 
       for (const nz of variants) {
         const q = flowAtPressure(nz.qRef, P, refP);
-        const err = qTargetGroup > 0 ? Math.abs(q - qTargetGroup) / qTargetGroup : 0;
-        if (err < bestErr) {
-          bestErr = err;
-          bestNz = nz;
-          bestQ = q;
-        }
+        const err =
+  qTargetGroup > 0
+    ? (q < qTargetGroup
+        ? 1e6 + (qTargetGroup - q) / qTargetGroup   // interdit sous-dimensionnement
+        : (q - qTargetGroup) / qTargetGroup)
+    : 0;
+
+if (err < bestErr) {
+  bestErr = err;
+  bestNz = nz;
+  bestQ = q;
+}
+
       }
 
       for (const i of idxs) {
