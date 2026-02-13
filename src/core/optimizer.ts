@@ -70,13 +70,16 @@ function computeQTotal(dose: number, speed: number, largeurTotale: number): numb
   return (dose * speed * largeurTotale) / 600;
 }
 
-/* Viti / Arbo / Tangentiel : coefs = parts DU RANG (normalisés AU RANG) */
-function computeTargetsPerRang(qTotal: number, rangs: number, coefs: number[]): number[] {
+/* Viti / Arbo / Tangentiel : coefs = parts DU RANG */
+function computeTargetsPerRang(
+  qTotal: number,
+  rangs: number,
+  coefs: number[]
+): number[] {
   const qParRang = qTotal / rangs;
-  const sumCoef = coefs.reduce((a, b) => a + b, 0);
-  if (!sumCoef) return coefs.map(() => 0);
-  return coefs.map(c => qParRang * (c / sumCoef));
+  return coefs.map(c => qParRang * c);
 }
+
 
 /* Rampe : coefs = pondérations DU TOTAL (normalisés AU TOTAL) */
 function computeTargetsNormalized(qTotal: number, coefs: number[]): number[] {
