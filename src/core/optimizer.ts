@@ -201,25 +201,6 @@ function roleWeight(role: "complete" | "moitie"): number {
   return role === "complete" ? 1 : 0.5;
 }
 
-function computeTargets(
-  qTotal: number,
-  rangs: number,
-  roles: ("complete" | "moitie")[],
-): number[] {
-  const weights = roles.map(roleWeight);
-  const sumW = weights.reduce((a, b) => a + b, 0);
-  if (!sumW) return weights.map(() => 0);
-
-  // Rampe : pondération sur le TOTAL
-  if (state.machineType === "rampe") {
-    return weights.map(w => qTotal * (w / sumW));
-  }
-
-  // Viti / Arbo / Tangentiel : pondération sur UN RANG
-  const qParRang = qTotal / rangs;
-  return weights.map(w => qParRang * (w / sumW));
-}
-
 /* =========================================================
    computeAll — ORCHESTRATEUR
 ========================================================= */
