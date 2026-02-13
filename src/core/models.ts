@@ -104,19 +104,33 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
 
     return { names, roles, groups, modelLabel };
   }
+if (state.machineType === "arbo") {
+  const n = state.arboCount ?? 0;
+  const r = state.arboRangs ?? 1;
 
-  if (state.machineType === "arbo") {
-    const n = state.arboRangs ?? 2;
-    const names: string[] = [];
-    for (let i = 1; i <= n; i++) names.push(`Buse G${i}`);
-    for (let i = 1; i <= n; i++) names.push(`Buse D${i}`);
+  // validations métier
+  if (n < 2 || n > 16 || n % 2 !== 0) {
+    throw new Error("En arbo, le nombre de buses doit être pair (2 à 16).");
+  }
 
-    return {
-      names,
-      roles: Array(n * 2).fill("complete"),
-      groups: Array(n * 2).fill(1),
-      modelLabel: "Arbo",
-    };
+  if (r === 2 && n % 4 !== 0) {
+    throw new Error("En arbo 2 rangs, le nombre de buses doit être divisible par 4.");
+  }
+
+  // construction symétrique G/D
+  const half = n / 2;
+  const names = [
+    ...Array.from({ length: half }, (_, i) => `Buse G${i + 1}`),
+    ...Array.from({ length: half }, (_, i) => `Buse D${i + 1}`),
+  ];
+
+  return {
+    names,
+    roles: Array(n).fill("complete"),
+    groups: Array(n).fill(1),
+    modelLabel: "Arbo",
+  };
+
   }
 
   if (state.machineType === "tangentiel") {
@@ -149,6 +163,8 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
 
   return { names: [], roles: [], groups: [], modelLabel: "—" };
 }
+
+
 export function buildVitiLibreModel(params: {
   canonsG: number;
   canonsD: number;
