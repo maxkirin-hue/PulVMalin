@@ -255,11 +255,16 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     }
   }
 
-  if (state.machineType === "arbo") {
-    const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
-    state.arboRangs = Number(arboRangs.value) === 2 ? 2 : 1;
-    state.modelKey = null as any;
-  }
+if (state.machineType === "arbo") {
+  const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
+  const arboCount = document.getElementById("arboCount") as HTMLInputElement;
+
+  state.arboRangs = Number(arboRangs.value) === 2 ? 2 : 1;
+  state.arboCount = Number(arboCount.value);
+
+  state.modelKey = null as any;
+}
+
 
   if (state.machineType === "rampe") {
     const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
