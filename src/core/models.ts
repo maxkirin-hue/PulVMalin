@@ -149,3 +149,40 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
 
   return { names: [], roles: [], groups: [], modelLabel: "—" };
 }
+export function buildVitiLibreModel(params: {
+  canonsG: number;
+  canonsD: number;
+  retourG: number;
+  retourD: number;
+  mainsG: number;
+  mainsD: number;
+}): VitiOutput[] {
+
+  const outs: VitiOutput[] = [];
+
+  const add = (count: number, base: string, group: 1 | 2) => {
+    if (count <= 0) return;
+
+    const role: VitiOutput["role"] =
+      count === 1 ? "complete" : "moitie";
+
+    for (let i = 1; i <= count; i++) {
+      outs.push({
+        name: `${base} ${i}`,
+        role,
+        group
+      });
+    }
+  };
+
+  add(params.canonsG, "Canon G", 1);
+  add(params.canonsD, "Canon D", 1);
+
+  add(params.retourG, "Main retour G", 2);
+  add(params.retourD, "Main retour D", 2);
+
+  add(params.mainsG, "Main G", 1);
+  add(params.mainsD, "Main D", 1);
+
+  return outs;
+}
