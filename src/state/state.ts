@@ -27,7 +27,7 @@ export interface AppState {
 
   // Modèle viti
   modelKey: string;         // ex: "3r_avec", "4r_sans", "viti_libre"
-  outputs: VitiOutput[] | null;
+ 
 
   // Paramètres
   dose: number | null;
@@ -64,7 +64,6 @@ export const state: AppState = {
 
   familyKey: "",
   modelKey: "",
-  outputs: null,
 
   dose: null,
   largeur: null,
