@@ -96,7 +96,7 @@ export const nozzleFamilies: Record<string, NozzleFamily> = {
     machines: ["viti"],
     refPressure: 10,
     optimalRange: [2, 6],
-    limitRange: [2, 50],
+    limitRange: [1, 7],
     nozzles: [
       {
         code: "AMT-007",
@@ -204,7 +204,7 @@ export const nozzleFamilies: Record<string, NozzleFamily> = {
   },
 
   AD90: {
-    label: "AD 90 – Jet plat désherbage",
+    label: "AD 90 – Jet plat",
     machines: ["rampe", "viti"],
     refPressure: 3,
     optimalRange: [2, 4],
@@ -236,7 +236,7 @@ export const nozzleFamilies: Record<string, NozzleFamily> = {
   },
 
   TVI80: {
-  label: "TVI 80° ISO – Injection d'air (ALBUZ)",
+  label: "TVI 80° – Injection d'air (ALBUZ)",
   machines: ["viti", "arbo", "tangentiel"],
   refPressure: 3,
   optimalRange: [5, 10],
