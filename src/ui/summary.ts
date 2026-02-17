@@ -30,6 +30,11 @@ export function fillSummary() {
   set("sumPressure", (state.recommendedPressure ?? 0).toFixed(2));
 
   renderComparisonTable();
+  const counter = document.getElementById("settingsCounter");
+if (counter && state.calculations) {
+  counter.textContent = `Réglage ${state.calculations.length} / 4`;
+}
+
 }
 
 /**
