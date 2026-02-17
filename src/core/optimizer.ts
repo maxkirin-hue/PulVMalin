@@ -283,9 +283,10 @@ export function computeAll(): void {
   // Ne figer les buses que si aucune n'est déjà définie
 if (!state.fixedNozzles || state.fixedNozzles.length === 0) {
   state.fixedNozzles = state.results.map(r => r.nozzleLabel);
-};
+
 }
 
+}
 /* =========================================================
    recomputePressureOnly — pression seule, pastilles figées
 ========================================================= */
