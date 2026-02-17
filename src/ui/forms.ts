@@ -375,6 +375,8 @@ document.getElementById("btnNewSetting")?.addEventListener("click", () => {
       results: structuredClone(state.results),
     });
   }
+console.log("AVANT PUSH", state.calculations);
+console.log("APRÈS PUSH", state.calculations);
 
   fillSummary();
 });
