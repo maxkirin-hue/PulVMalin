@@ -338,8 +338,12 @@ document.getElementById("btnRecalc")?.addEventListener("click", () => {
   if (newDose) state.dose = newDose;
 
   recomputePressureOnly();
-  // === MISE À JOUR DU DERNIER RÉGLAGE ===
-const lastCalc = state.calculations?.at(-1);
+// === MISE À JOUR DU DERNIER RÉGLAGE ===
+const lastCalc =
+  state.calculations && state.calculations.length
+    ? state.calculations[state.calculations.length - 1]
+    : null;
+
 if (lastCalc) {
   lastCalc.pressure = state.recommendedPressure;
   lastCalc.results = structuredClone(state.results);
