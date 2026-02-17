@@ -309,6 +309,18 @@ document.getElementById("toPage4")?.addEventListener("click", () => {
   }
 }
   computeAll();
+  // === AJOUT DU RÉGLAGE DANS LE COMPARATIF ===
+if (!state.calculations) state.calculations = [];
+
+// Limite à 4 réglages max
+if (state.calculations.length < 4) {
+  state.calculations.push({
+    label: `Réglage ${state.calculations.length + 1}`,
+    pressure: state.recommendedPressure,
+    results: structuredClone(state.results),
+  });
+}
+
   renderResultsTable();
   fillSummary();
   showPage(4);
@@ -326,6 +338,13 @@ document.getElementById("btnRecalc")?.addEventListener("click", () => {
   if (newDose) state.dose = newDose;
 
   recomputePressureOnly();
+  // === MISE À JOUR DU DERNIER RÉGLAGE ===
+const lastCalc = state.calculations?.at(-1);
+if (lastCalc) {
+  lastCalc.pressure = state.recommendedPressure;
+  lastCalc.results = structuredClone(state.results);
+}
+
   fillSummary();
 });
 
