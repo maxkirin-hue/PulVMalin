@@ -359,14 +359,13 @@ document.getElementById("btnNewSetting")?.addEventListener("click", () => {
   if (newI > 0) state.interligne = newI;
   if (newDose > 0) state.dose = newDose;
 
-  // On force un nouveau réglage
+  // On force un nouveau calcul complet
   state.fixedNozzles = [];
   state.userPressureTarget = null;
 
-  // Calcul complet → nouvelles buses + nouvelle pression
   computeAll();
 
-  // Ajout d'une nouvelle colonne
+  // 🔴 C'EST CETTE PARTIE QUI MANQUAIT
   if (!state.calculations) state.calculations = [];
 
   if (state.calculations.length < 4) {
@@ -379,6 +378,7 @@ document.getElementById("btnNewSetting")?.addEventListener("click", () => {
 
   fillSummary();
 });
+
 
 /* =========================================================
    EXPORT PDF
