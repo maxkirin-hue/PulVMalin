@@ -298,14 +298,16 @@ document.getElementById("toPage4")?.addEventListener("click", () => {
   state.userPressureTarget = userP || null;
 
   if (state.forcedToggle) {
-    const { names } = getOutputsAndCoefs();
-    state.fixedNozzles = names.map((_, i) =>
-      i % 2 === 0 ? state.forcedNozzle1 : state.forcedNozzle2
-    );
-  } else {
+  const { names } = getOutputsAndCoefs();
+  state.fixedNozzles = names.map((_, i) =>
+    i % 2 === 0 ? state.forcedNozzle1 : state.forcedNozzle2
+  );
+} else {
+  // IMPORTANT : ne pas écraser les buses si elles existent déjà
+  if (!state.fixedNozzles || state.fixedNozzles.length === 0) {
     state.fixedNozzles = [];
   }
-
+}
   computeAll();
   renderResultsTable();
   fillSummary();
