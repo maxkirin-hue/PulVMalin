@@ -39,9 +39,10 @@ export function fillSummary() {
 
   // 4) Rendu du tableau des sorties
   renderResultsTable();
-}
-// 5) Tableau comparatif si plusieurs réglages
+  // 5) Tableau comparatif si plusieurs réglages
 renderComparisonTable();
+}
+
 
 /**
  * Rendu du tableau simplifié des résultats (3 colonnes).
