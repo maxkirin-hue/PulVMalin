@@ -12,6 +12,9 @@ export async function buildDocDefinition(state: any) {
   const images = await loadPdfImages();
   const schema = getSchema(state.machineType as MachineKind);
   const buses = typeof schema?.getBusPositions === "function" ? schema.getBusPositions((state.results || []).length) : [];
+const calcs = state.calculations && state.calculations.length > 1
+  ? state.calculations
+  : null;
 
   const rows = (state.results || []).map((r: any) => [
     r.outputName ?? "-",
@@ -58,25 +61,47 @@ export async function buildDocDefinition(state: any) {
         margin: [0, 0, 0, 15]
       },
 
-      { text: "Détail par sortie", style: "section" },
+      { text: "Comparatif des réglages", style: "section" },
 
-      {
-        table: {
-          widths: ["*", "*", "*", "*", "*"],
-          body: [
-            [
-              { text: "Sortie", style: "tableHeader" },
-              { text: "Pastille", style: "tableHeader" },
-              { text: "Débit cible", style: "tableHeader" },
-              { text: "Débit réel", style: "tableHeader" },
-              { text: "Écart", style: "tableHeader" }
-            ],
-            ...rows
-          ]
-        },
-        layout: "lightHorizontalLines",
-        margin: [0, 0, 0, 15]
-      },
+{
+  table: {
+    widths: [
+      "*",
+      ...((calcs ?? [state]).map(() => "auto"))
+    ],
+    body: [
+      [
+        { text: "Sortie", style: "tableHeader" },
+        ...(calcs
+          ? calcs.map(c => ({
+              text: `${c.label}\n${c.pressure.toFixed(1)} bar`,
+              style: "tableHeader",
+              alignment: "center"
+            }))
+          : [{
+              text: `${state.recommendedPressure.toFixed(1)} bar`,
+              style: "tableHeader"
+            }]
+        )
+      ],
+
+      ...(calcs
+        ? calcs[0].results.map((r, i) => [
+            r.outputName,
+            ...calcs.map(c =>
+              `${c.results[i].qReal.toFixed(2)} L/min`
+            )
+          ])
+        : rows
+      )
+    ]
+  },
+  layout: "lightHorizontalLines",
+  margin: [0, 0, 0, 15]
+},
+
+
+
 
       {
         text: `Pression de travail recommandée : ${(state.recommendedPressure ?? 0).toFixed(1)} bar`,
