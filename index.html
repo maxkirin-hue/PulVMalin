@@ -221,62 +221,85 @@
     </div>
   </section>
 
-  <!-- PAGE 4 -->
-  <section id="page4" class="page">
-    <h1>4. Résultats</h1>
+<!-- PAGE 4 -->
+<section id="page4" class="page">
+  <h1>4. Résultats</h1>
 
-    <div class="summary card">
-      <div><strong>Machine :</strong> <span id="sumMachine"></span></div>
-      <div><strong>Nom :</strong> <span id="sumName"></span></div>
-      <div><strong>Famille :</strong> <span id="sumFamily"></span></div>
-      <div><strong>Modèle :</strong> <span id="sumModel"></span></div>
-      <div><strong>Type pastille ou buse :</strong> <span id="sumMode"></span></div>
-      <div><strong>Largeur :</strong> <span id="sumLargeur"></span></div>
-      <div><strong>Dose :</strong> <span id="sumDose"></span></div>
-      <div><strong>Vitesse :</strong> <span id="sumVitesse"></span></div>
-      <div><strong>Débit total cible :</strong> <span id="sumQtotal"></span> L/min</div>
+  <!-- Résumé machine -->
+  <div class="summary card">
+    <div><strong>Machine :</strong> <span id="sumMachine"></span></div>
+    <div><strong>Nom :</strong> <span id="sumName"></span></div>
+    <div><strong>Famille :</strong> <span id="sumFamily"></span></div>
+    <div><strong>Modèle :</strong> <span id="sumModel"></span></div>
+    <div><strong>Type pastille ou buse :</strong> <span id="sumMode"></span></div>
+    <div><strong>Largeur :</strong> <span id="sumLargeur"></span></div>
+    <div><strong>Dose :</strong> <span id="sumDose"></span></div>
+    <div><strong>Vitesse :</strong> <span id="sumVitesse"></span></div>
+    <div><strong>Débit total cible :</strong> <span id="sumQtotal"></span> L/min</div>
+  </div>
+
+  <!-- Comparatif -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="margin:0;">Comparaison des réglages</h2>
+      <span class="hint" id="settingsCounter">Réglage 1 / 4</span>
     </div>
+
+    <p class="hint">
+      Les buses / pastilles sont identiques pour tous les réglages.
+    </p>
+
     <div id="comparisonTable"></div>
-    <h2>Réglage par sortie</h2>
 
-    
-      <p class="disclaimer">
-        Les résultats fournis n’excluent pas un contrôle réel.
-      </p>
+    <p class="disclaimer">
+      Les résultats fournis n’excluent pas un contrôle réel.
+    </p>
+  </div>
+
+  <!-- Pression -->
+  <div class="summary card">
+    <div>
+      <strong>Pression de travail :</strong>
+      <span id="sumPressure"></span> bar
     </div>
+  </div>
 
-    <div class="summary card">
-      <div><strong>Pression de travail:</strong>
-        <span id="sumPressure"></span> bar
-      </div>
-    </div>
+  <!-- Réglage supplémentaire -->
+  <div class="card">
+    <label class="field">
+      <span>Nouvel interligne (m)</span>
+      <input id="newInterligne" type="number" step="0.01" placeholder="Ex : 2.2" />
+    </label>
 
-    <div class="card">
-      <label class="field">
-        <span>Nouvel interligne (m)</span>
-        <input id="newInterligne" type="number" step="0.01" placeholder="Ex : 2.2" />
-      </label>
-
-      <label class="field">
-        <span>Nouvelle dose (L/ha)</span>
-        <input id="newDose" type="number" step="1" placeholder="Ex : 150" />
-      </label>
-    <button id="btnNewSetting">➕ Réglage supplémentaire</button>
-    <p class="help-text">
-  Chaque réglage supplémentaire conserve les mêmes buses/pastilles.<br>
-  Pour modifier les buses, revenir à l’étape précédente.
-</p>
+    <label class="field">
+      <span>Nouvelle dose (L/ha)</span>
+      <input id="newDose" type="number" step="1" placeholder="Ex : 150" />
+    </label>
 
     <div class="nav-row">
-      <button class="secondary" data-back="3">Modifier</button>
-      <button class="secondary" data-back="1">Recommencer</button>
-      <button id="btnPdf" class="btn primary">Télécharger PDF</button>
+      <button id="btnNewSetting" class="primary">
+        ➕ Réglage supplémentaire
+      </button>
     </div>
 
-    <div id="pdfLoader" style="display:none; text-align:center; margin-top:20px;">
-      <p>📄 Génération du PDF en cours…</p>
-    </div>
-  </section>
+    <p class="help-text">
+      Chaque réglage supplémentaire conserve les mêmes buses/pastilles.<br>
+      Pour modifier les buses, revenir à l’étape précédente.
+    </p>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav-row">
+    <button class="secondary" data-back="3">Modifier</button>
+    <button class="secondary" data-back="1">Recommencer</button>
+    <button id="btnPdf" class="btn primary">Télécharger PDF</button>
+  </div>
+
+  <div id="pdfLoader" style="display:none; text-align:center; margin-top:20px;">
+    <p>📄 Génération du PDF en cours…</p>
+  </div>
+</section>
+
 
 </main>
 
