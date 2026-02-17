@@ -3,7 +3,6 @@
 ========================================================= */
 
 import { state } from "../state/state";
-import { computeAll } from "../core/optimizer";
 
 /**
  * Met à jour le résumé (haut de page) et appelle le rendu du tableau.
@@ -11,7 +10,7 @@ import { computeAll } from "../core/optimizer";
  */
 export function fillSummary() {
   // 1) Calcul complet (s'assure que state est à jour)
-  computeAll();
+
 
   // 2) Helper pour écrire dans le DOM
   const set = (id: string, value: any) => {
