@@ -6,7 +6,7 @@ import { nozzleFamilies } from "../data/nozzles";
 import { state } from "../state/state";
 import { computeAll, recomputePressureOnly } from "../core/optimizer";
 import { getOutputsAndCoefs, buildVitiLibreModel, vitiModels } from "../core/models";
-import { renderResultsTable, fillSummary } from "./summary";
+import { fillSummary } from "./summary";
 import { buildDocDefinition, generatePdfFilename } from "../pdf/pdfmakeTemplate";
 import { resetCalculOnly, resetAll } from "../state/reset";
 
@@ -301,44 +301,30 @@ document.getElementById("toPage4")?.addEventListener("click", () => {
   state.userPressureTarget = userP || null;
 
   if (state.forcedToggle) {
-  const { names } = getOutputsAndCoefs();
-  state.fixedNozzles = names.map((_, i) =>
-    i % 2 === 0 ? state.forcedNozzle1 : state.forcedNozzle2
-  );
-} else {
-  // IMPORTANT : ne pas écraser les buses si elles existent déjà
-  if (!state.fixedNozzles || state.fixedNozzles.length === 0) {
+    const { names } = getOutputsAndCoefs();
+    state.fixedNozzles = names.map((_, i) =>
+      i % 2 === 0 ? state.forcedNozzle1 : state.forcedNozzle2
+    );
+  } else if (!state.fixedNozzles || state.fixedNozzles.length === 0) {
     state.fixedNozzles = [];
   }
-}
+
   computeAll();
-  // === AJOUT DU RÉGLAGE DANS LE COMPARATIF ===
-if (!state.calculations) state.calculations = [];
 
-// Limite à 4 réglages max
-if (state.calculations.length < 4) {
+  if (!state.calculations) state.calculations = [];
 
-  const labelParts: string[] = [];
+  if (state.calculations.length < 4) {
+    const labelParts: string[] = [];
+    if (state.interligne) labelParts.push(`${state.interligne.toFixed(2)} m`);
+    if (state.dose) labelParts.push(`${state.dose} L/ha`);
 
-  if (state.interligne) {
-    labelParts.push(`${state.interligne.toFixed(2)} m`);
+    state.calculations.push({
+      label: labelParts.join(" – ") || "Réglage",
+      pressure: state.recommendedPressure,
+      results: structuredClone(state.results),
+    });
   }
 
-  if (state.dose) {
-    labelParts.push(`${state.dose} L/ha`);
-  }
-
-  const label = labelParts.join(" – ") || "Réglage";
-
-  state.calculations.push({
-    label,
-    pressure: state.recommendedPressure,
-    results: structuredClone(state.results),
-  });
-}
-
-
-  renderResultsTable();
   fillSummary();
   showPage(4);
 });
@@ -347,28 +333,6 @@ if (state.calculations.length < 4) {
    RE-CALCUL PRESSION (PAGE 4)
 ========================================================= */
 
-document.getElementById("btnRecalc")?.addEventListener("click", () => {
-  const newI = Number((document.getElementById("newInterligne") as HTMLInputElement).value);
-  const newDose = Number((document.getElementById("newDose") as HTMLInputElement).value);
-
-  if (newI) state.interligne = newI;
-  if (newDose) state.dose = newDose;
-
-  
-  recomputePressureOnly();
-// === MISE À JOUR DU DERNIER RÉGLAGE ===
-const lastCalc =
-  state.calculations && state.calculations.length
-    ? state.calculations[state.calculations.length - 1]
-    : null;
-
-if (lastCalc) {
-  lastCalc.pressure = state.recommendedPressure;
-  lastCalc.results = structuredClone(state.results);
-}
-
-  fillSummary();
-});
 document.getElementById("btnNewSetting")?.addEventListener("click", () => {
   const newI = Number((document.getElementById("newInterligne") as HTMLInputElement).value);
   const newDose = Number((document.getElementById("newDose") as HTMLInputElement).value);
@@ -376,24 +340,22 @@ document.getElementById("btnNewSetting")?.addEventListener("click", () => {
   if (newI > 0) state.interligne = newI;
   if (newDose > 0) state.dose = newDose;
 
-  // On force un nouveau calcul complet
-  state.fixedNozzles = [];
-  state.userPressureTarget = null;
-
+  // Nouveau calcul complet (buses/pastilles inchangées)
   computeAll();
 
-  // 🔴 C'EST CETTE PARTIE QUI MANQUAIT
   if (!state.calculations) state.calculations = [];
 
   if (state.calculations.length < 4) {
+    const labelParts: string[] = [];
+    if (state.interligne) labelParts.push(`${state.interligne.toFixed(2)} m`);
+    if (state.dose) labelParts.push(`${state.dose} L/ha`);
+
     state.calculations.push({
-      label: `Réglage ${state.calculations.length + 1}`,
+      label: labelParts.join(" – ") || "Réglage",
       pressure: state.recommendedPressure,
       results: structuredClone(state.results),
     });
   }
-console.log("AVANT PUSH", state.calculations);
-console.log("APRÈS PUSH", state.calculations);
 
   fillSummary();
 });
