@@ -317,12 +317,26 @@ if (!state.calculations) state.calculations = [];
 
 // Limite à 4 réglages max
 if (state.calculations.length < 4) {
+
+  const labelParts: string[] = [];
+
+  if (state.interligne) {
+    labelParts.push(`${state.interligne.toFixed(2)} m`);
+  }
+
+  if (state.dose) {
+    labelParts.push(`${state.dose} L/ha`);
+  }
+
+  const label = labelParts.join(" – ") || "Réglage";
+
   state.calculations.push({
-    label: `Réglage ${state.calculations.length + 1}`,
+    label,
     pressure: state.recommendedPressure,
     results: structuredClone(state.results),
   });
 }
+
 
   renderResultsTable();
   fillSummary();
