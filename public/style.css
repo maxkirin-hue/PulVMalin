@@ -333,3 +333,72 @@
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
+/* =========================================================
+   TABLEAU COMPARATIF DES RÉGLAGES
+========================================================= */
+
+.comparison {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.comparison thead {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.comparison th,
+.comparison td {
+  padding: 8px 8px;
+  border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+  text-align: center;
+}
+
+.comparison th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.comparison td {
+  color: var(--text);
+}
+
+.comparison td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Colonne Sortie */
+.comparison td:first-child,
+.comparison th:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+/* Colonne Pastille */
+.comparison td:nth-child(2),
+.comparison th:nth-child(2) {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Pression sous le nom du réglage */
+.comparison .pressure {
+  font-size: 12px;
+  color: var(--accent);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .comparison {
+    font-size: 12px;
+  }
+
+  .comparison th,
+  .comparison td {
+    padding: 6px 6px;
+  }
+}
