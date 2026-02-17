@@ -41,6 +41,8 @@ export function fillSummary() {
   // 4) Rendu du tableau des sorties
   renderResultsTable();
 }
+// 5) Tableau comparatif si plusieurs réglages
+renderComparisonTable();
 
 /**
  * Rendu du tableau simplifié des résultats (3 colonnes).
@@ -63,4 +65,45 @@ export function renderResultsTable() {
 
     body.appendChild(tr);
   });
+}
+/**
+ * Rendu du tableau comparatif multi-réglages (colonnes)
+ */
+function renderComparisonTable() {
+  const container = document.getElementById("comparisonTable");
+  if (!container) return;
+
+  const calcs = state.calculations;
+  if (!calcs || calcs.length < 2) {
+    container.innerHTML = "";
+    return;
+  }
+
+  const outputs = calcs[0].results;
+
+  let html = `<table class="comparison">
+    <thead>
+      <tr>
+        <th>Sortie</th>`;
+
+  calcs.forEach(c => {
+    html += `<th>${c.label}<br><small>${c.pressure.toFixed(2)} bar</small></th>`;
+  });
+
+  html += `</tr></thead><tbody>`;
+
+  outputs.forEach((r, i) => {
+    html += `<tr>
+      <td>${r.outputName}</td>`;
+
+    calcs.forEach(c => {
+      const cr = c.results[i];
+      html += `<td class="num">${cr.qReal.toFixed(2)}</td>`;
+    });
+
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
 }
