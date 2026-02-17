@@ -8,6 +8,9 @@ import { computeAll, recomputePressureOnly } from "../core/optimizer";
 import { getOutputsAndCoefs, buildVitiLibreModel, vitiModels } from "../core/models";
 import { renderResultsTable, fillSummary } from "./summary";
 import { buildDocDefinition, generatePdfFilename } from "../pdf/pdfmakeTemplate";
+import { resetCalculOnly, resetAll } from "../state/reset";
+
+
 import { showPage } from "./navigation";
 
 declare const pdfMake: any;
@@ -412,6 +415,16 @@ document.getElementById("btnPdf")?.addEventListener("click", async () => {
 document.querySelectorAll("[data-back]").forEach(btn => {
   btn.addEventListener("click", () => {
     const target = Number((btn as HTMLElement).getAttribute("data-back"));
+
+    // Décision métier selon la destination
+    if (target === 1) {
+      // Recommencer → reset complet
+      resetAll();
+    } else if (target === 3) {
+      // Modifier → reset calcul uniquement
+      resetCalculOnly();
+    }
+
     showPage(target);
   });
 });
