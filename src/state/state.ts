@@ -16,6 +16,12 @@ export interface ResultRow {
   status: string;
 }
 
+export type CalcColumn = {
+  label: string;                 // "Réglage 1", "Dose 180", etc.
+  pressure: number;
+  results: ResultRow[];
+}
+
 export interface AppState {
   // Identité / machine
   userName: string;
@@ -59,6 +65,10 @@ export interface AppState {
   forcedToggle: boolean;
   forcedNozzle1: string;
   forcedNozzle2: string;
+
+   // Historique des réglages (comparatif)
+  calculations: CalcColumn[];
+
 }
 
 
@@ -90,5 +100,7 @@ export const state: AppState = {
 
   forcedToggle: false,
   forcedNozzle1: "",
-  forcedNozzle2: ""
+  forcedNozzle2: "",
+  calculations: [],
+
 };
