@@ -337,6 +337,7 @@ document.getElementById("btnRecalc")?.addEventListener("click", () => {
   if (newI) state.interligne = newI;
   if (newDose) state.dose = newDose;
 
+  
   recomputePressureOnly();
 // === MISE À JOUR DU DERNIER RÉGLAGE ===
 const lastCalc =
@@ -348,6 +349,33 @@ if (lastCalc) {
   lastCalc.pressure = state.recommendedPressure;
   lastCalc.results = structuredClone(state.results);
 }
+
+  fillSummary();
+});
+document.getElementById("btnNewSetting")?.addEventListener("click", () => {
+  const newI = Number((document.getElementById("newInterligne") as HTMLInputElement).value);
+  const newDose = Number((document.getElementById("newDose") as HTMLInputElement).value);
+
+  if (newI > 0) state.interligne = newI;
+  if (newDose > 0) state.dose = newDose;
+
+  // On force un nouveau réglage
+  state.fixedNozzles = [];
+  state.userPressureTarget = null;
+
+  // Calcul complet → nouvelles buses + nouvelle pression
+  computeAll();
+
+  // Ajout d'une nouvelle colonne
+  if (!state.calculations) state.calculations = [];
+
+  if (state.calculations.length < 4) {
+    state.calculations.push({
+      label: `Réglage ${state.calculations.length + 1}`,
+      pressure: state.recommendedPressure,
+      results: structuredClone(state.results),
+    });
+  }
 
   fillSummary();
 });
