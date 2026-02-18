@@ -84,14 +84,16 @@ type NozzleVariant = {
 function getNozzleVariants(fam: NozzleFamily): NozzleVariant[] {
   const variants: NozzleVariant[] = [];
 
-  fam.nozzles.forEach((n: any) => {
+  fam.nozzles.forEach((n) => {
+    const color = (n as any).color ?? undefined;
+
     if (Array.isArray(n.faces)) {
-      n.faces.forEach((f: any) => {
+      n.faces.forEach((f) => {
         if (typeof f.qRef === "number") {
           variants.push({
             code: `${n.code} (${f.label})`,
             qRef: f.qRef,
-            color: n.color,
+            color, // ← couleur figée ici
           });
         }
       });
@@ -99,7 +101,7 @@ function getNozzleVariants(fam: NozzleFamily): NozzleVariant[] {
       variants.push({
         code: n.code,
         qRef: n.qRef,
-        color: n.color,
+        color, // ← couleur figée ici
       });
     }
   });
