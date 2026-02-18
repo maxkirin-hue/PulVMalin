@@ -260,31 +260,66 @@ export function computeAll(): void {
   state.qTotal = qTotal;
 
   const targets = computeTargets(qTotal, rangs, roles);
-  
 
-  const opt = optimizePressureAndNozzles(fam, targets, groups);
-  state.recommendedPressure = opt.P;
+const hasFixed =
+  Array.isArray(state.fixedNozzles) &&
+  state.fixedNozzles.length === names.length;
 
+if (hasFixed) {
+  // 1️⃣ Recalcul pression uniquement (buses figées)
+  recomputePressureOnly();
+  const P = state.recommendedPressure;
+  const refP = fam.refPressure ?? 3;
+
+  // 2️⃣ Reconstruire les résultats avec la nouvelle pression
   state.results = names.map((name, i) => {
-    const r = opt.results[i];
+    const label = state.fixedNozzles[i];
+    const nozzle = findVariantByLabel(fam, label);
+
+    const qTarget = targets[i] ?? 0;
+    const qReal = nozzle ? flowAtPressure(nozzle.qRef, P, refP) : 0;
+    const relError = qTarget > 0 ? (qReal - qTarget) / qTarget : 0;
+
     return {
       outputName: name,
       coef: roleWeight(roles[i]),
-      qTarget: r.qTarget,
-      nozzleLabel: r.nozzle.code,
-      nozzleColor: r.nozzle.color,
-      pressure: opt.P,
-      qReal: r.q,
-      relError: r.relErr,
-      status: pressureStatus(opt.P, fam),
+      qTarget,
+      nozzleLabel: label ?? "—",
+      nozzleColor: nozzle?.color,
+      pressure: P,
+      qReal,
+      relError,
+      status: pressureStatus(P, fam),
     };
   });
 
-  // Ne figer les buses que si aucune n'est déjà définie
+  return;
+}
+
+// 1er calcul : optimisation complète buses + pression
+const opt = optimizePressureAndNozzles(fam, targets, groups);
+state.recommendedPressure = opt.P;
+
+state.results = names.map((name, i) => {
+  const r = opt.results[i];
+  return {
+    outputName: name,
+    coef: roleWeight(roles[i]),
+    qTarget: r.qTarget,
+    nozzleLabel: r.nozzle.code,
+    nozzleColor: r.nozzle.color,
+    pressure: opt.P,
+    qReal: r.q,
+    relError: r.relErr,
+    status: pressureStatus(opt.P, fam),
+  };
+});
+
+// Figer les buses UNE seule fois
 if (!state.fixedNozzles || state.fixedNozzles.length === 0) {
   state.fixedNozzles = state.results.map(r => r.nozzleLabel);
-
 }
+
 
 }
 /* =========================================================
