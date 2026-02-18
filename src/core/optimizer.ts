@@ -5,6 +5,8 @@
 import { state } from "../state/state";
 import { nozzleFamilies, NozzleFamily } from "../data/nozzles";
 import { getOutputsAndCoefs } from "./models";
+import { vitiModels } from "./models";
+
 
 /* =========================================================
    HYDRAULIQUE
@@ -209,24 +211,37 @@ function computeTargets(
   roles: ("complete" | "moitie")[]
 ): number[] {
 
-  // CAS ARBO : répartition sur toutes les buses
+  // CAS ARBO : répartition uniforme
   if (state.machineType === "arbo") {
     const n = roles.length;
     if (!n) return [];
     return roles.map(() => qTotal / n);
   }
 
-  // VITI / TANGENTIEL / RAMPE
+  // CAS RAMPE / TANGENTIEL
+  if (state.machineType === "rampe" || state.machineType === "tangentiel") {
+    const n = roles.length;
+    if (!n) return [];
+    return roles.map(() => qTotal / n);
+  }
+
+  // CAS VITI (inclut Jet projeté)
+  const model = vitiModels[state.modelKey!];
+  if (!model || !model.length) return [];
+
   const qParRang = qTotal / rangs;
 
+  // poids métier
   const weights = roles.map(r => (r === "complete" ? 1 : 0.5));
   const sumPerRang = weights.reduce((a, b) => a + b, 0) / rangs;
-
   if (!sumPerRang) return roles.map(() => 0);
 
-  return weights.map(w => qParRang * (w / sumPerRang));
+  return model.map((out, i) => {
+    const w = out.role === "complete" ? 1 : 0.5;
+    const nozzleCount = out.nozzleCount ?? 1; // ← clé Jet projeté
+    return (qParRang * (w / sumPerRang)) / nozzleCount;
+  });
 }
-
 
 /* =========================================================
    computeAll — ORCHESTRATEUR
