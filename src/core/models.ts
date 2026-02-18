@@ -16,8 +16,14 @@ export interface OutputsAndCoefs {
   groups: (1 | 2)[];
   modelLabel: string;
 }
+type ModelOutputDef = {
+  name: string;
+  role: "complete" | "moitie";
+  group: 1 | 2;
+  nozzleCount?: number; // nombre de buses physiques (défaut = 1)
+};
 
-export const vitiModels: Record<string, VitiOutput[]> = {
+export const vitiModels: Record<string, ModelOutputDef[]> = {
 
   "3r_avec": [
     { name: "Canon G1", role: "moitie", group: 1 },
@@ -75,6 +81,23 @@ export const vitiModels: Record<string, VitiOutput[]> = {
     { name: "Main D1", role: "complete", group: 1 },
     { name: "Main D2", role: "complete", group: 1 },
   ],
+
+  "3r_avec_jet_projete": [
+  { name: "Canon G1", role: "moitie", group: 1, nozzleCount: 1 },
+  { name: "Canon G2", role: "moitie", group: 1, nozzleCount: 1 },
+  { name: "Canon D2", role: "moitie", group: 1, nozzleCount: 1 },
+  { name: "Canon D1", role: "moitie", group: 1, nozzleCount: 1 },
+
+  { name: "Main retour G", role: "complete", group: 2, nozzleCount: 2 },
+  { name: "Main retour D", role: "complete", group: 2, nozzleCount: 2 },
+
+  { name: "Main G1", role: "moitie", group: 1, nozzleCount: 2 },
+  { name: "Main G2", role: "moitie", group: 1, nozzleCount: 2 },
+  { name: "Main D2", role: "moitie", group: 1, nozzleCount: 2 },
+  { name: "Main D1", role: "moitie", group: 1, nozzleCount: 2 },
+],
+
+
 
   "viti_libre": []
 };
