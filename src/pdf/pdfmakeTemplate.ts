@@ -88,14 +88,27 @@ export async function buildDocDefinition(state: any) {
               }))
             ],
 
-            /* Lignes */
-            ...calcs[0].results.map((r: any, i: number) => [
-              r.outputName,
-              r.nozzleLabel ?? "-",
-              ...calcs.map(c =>
-                c.results[i].qReal.toFixed(2)
-              )
-            ])
+        /* Lignes */
+...calcs[0].results.map((r: any, i: number) => [
+  r.outputName,
+
+  // Pastille couleur
+  {
+    text: r.nozzleLabel ?? "-",
+    alignment: "center",
+    color: ["yellow", "silver"].includes(r.nozzleColor) ? "#000" : "#fff",
+    fillColor: r.nozzleColor || "#cccccc",
+    margin: [4, 2, 4, 2],
+    borderRadius: 6,
+    fontSize: 10,
+    bold: true
+  },
+
+  ...calcs.map(c =>
+    c.results[i].qReal.toFixed(2)
+  )
+])
+
           ]
         },
         layout: "lightHorizontalLines",
