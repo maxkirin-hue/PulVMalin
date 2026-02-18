@@ -424,3 +424,23 @@
   white-space: nowrap;
   border: 1px solid rgba(0,0,0,0.15);
 }
+/* Pastilles ISO / matière */
+.iso-badge {
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85em;
+  line-height: 1;
+  white-space: nowrap;
+
+  background-color: var(--iso-color) !important;
+  color: #fff !important;
+  border: 1px solid rgba(0,0,0,0.25);
+}
+
+/* Lisibilité couleurs claires */
+.iso-badge.yellow,
+.iso-badge.silver {
+  color: #000 !important;
+}
