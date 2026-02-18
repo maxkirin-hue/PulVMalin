@@ -50,15 +50,58 @@ export function renderTables() {
   state.results.forEach(r => {
     const tr = document.createElement("tr");
 
-    tr.innerHTML = `
-      <td>${r.outputName}</td>
-      <td class="num">${r.coef.toFixed(2)}</td>
-      <td class="num">${r.qTarget.toFixed(2)}</td>
-      <td>${r.nozzleLabel}</td>
-      <td class="num">${r.pressure.toFixed(2)}</td>
-      <td class="${statusClass(r.status)}">${r.status}</td>
-    `;
+    // Colonne sortie
+    const tdOut = document.createElement("td");
+    tdOut.textContent = r.outputName;
+
+    // Coef
+    const tdCoef = document.createElement("td");
+    tdCoef.className = "num";
+    tdCoef.textContent = r.coef.toFixed(2);
+
+    // Débit cible
+    const tdTarget = document.createElement("td");
+    tdTarget.className = "num";
+    tdTarget.textContent = r.qTarget.toFixed(2);
+
+    // Pastille / buse (avec couleur ISO)
+    const tdNozzle = document.createElement("td");
+
+    if (r.nozzleColor) {
+      const badge = document.createElement("span");
+      badge.className = "iso-badge";
+      badge.textContent = r.nozzleLabel;
+      badge.style.backgroundColor = r.nozzleColor;
+
+      // lisibilité sur couleurs claires (jaune)
+      badge.style.color =
+        r.nozzleColor === "yellow" || r.nozzleColor === "#ffff00"
+          ? "#000"
+          : "#fff";
+
+      tdNozzle.appendChild(badge);
+    } else {
+      tdNozzle.textContent = r.nozzleLabel;
+    }
+
+    // Pression
+    const tdP = document.createElement("td");
+    tdP.className = "num";
+    tdP.textContent = r.pressure.toFixed(2);
+
+    // Statut
+    const tdStatus = document.createElement("td");
+    tdStatus.className = statusClass(r.status);
+    tdStatus.textContent = r.status;
+
+    tr.appendChild(tdOut);
+    tr.appendChild(tdCoef);
+    tr.appendChild(tdTarget);
+    tr.appendChild(tdNozzle);
+    tr.appendChild(tdP);
+    tr.appendChild(tdStatus);
 
     body.appendChild(tr);
   });
 }
+
