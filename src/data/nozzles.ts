@@ -46,124 +46,133 @@ export const nozzleFamilies: Record<string, NozzleFamily> = {
     ]
   },
 
-  CP4916: {
-    label: "CP4916 TeeJet – Pastille vigne",
-    machines: ["viti"],
-    refPressure: 3,
-    optimalRange: [2, 5],
-    limitRange: [1.5, 6],
-    nozzles: [
-      { code: "CP4916-20", qRef: 0.21 },
-      { code: "CP4916-22", qRef: 0.24 },
-      { code: "CP4916-24", qRef: 0.29 },
-      { code: "CP4916-25", qRef: 0.31 },
-      { code: "CP4916-26", qRef: 0.34 },
-      { code: "CP4916-27", qRef: 0.36 },
-      { code: "CP4916-28", qRef: 0.39 },
-      { code: "CP4916-29", qRef: 0.43 },
-      { code: "CP4916-30", qRef: 0.45 },
-      { code: "CP4916-31", qRef: 0.49 },
-      { code: "CP4916-32", qRef: 0.53 },
-      { code: "CP4916-34", qRef: 0.58 },
-      { code: "CP4916-35", qRef: 0.62 },
-      { code: "CP4916-37", qRef: 0.68 },
-      { code: "CP4916-39", qRef: 0.75 },
-      { code: "CP4916-40", qRef: 0.81 },
-      { code: "CP4916-41", qRef: 0.83 },
-      { code: "CP4916-43", qRef: 0.91 },
-      { code: "CP4916-45", qRef: 0.99 },
-      { code: "CP4916-46", qRef: 1.07 },
-      { code: "CP4916-47", qRef: 1.09 },
-      { code: "CP4916-48", qRef: 1.13 },
-      { code: "CP4916-49", qRef: 1.16 },
-      { code: "CP4916-51", qRef: 1.30 },
-      { code: "CP4916-52", qRef: 1.32 },
-      { code: "CP4916-54", qRef: 1.42 },
-      { code: "CP4916-55", qRef: 1.49 },
-      { code: "CP4916-57", qRef: 1.58 },
-      { code: "CP4916-59", qRef: 1.71 },
-      { code: "CP4916-61", qRef: 1.84 },
-      { code: "CP4916-63", qRef: 1.94 },
-      { code: "CP4916-65", qRef: 2.06 },
-      { code: "CP4916-67", qRef: 2.19 },
-      { code: "CP4916-68", qRef: 2.26 },
-      { code: "CP4916-70", qRef: 2.42 }
-    ]
-  },
+ CP4916: {
+  label: "CP4916 TeeJet – Pastille vigne",
+  machines: ["viti"],
+  refPressure: 3,
+  optimalRange: [2, 5],
+  limitRange: [1.5, 6],
+  nozzles: [
+    { code: "CP4916-20", qRef: 0.21, color: "silver" },
+    { code: "CP4916-22", qRef: 0.24, color: "silver" },
+    { code: "CP4916-24", qRef: 0.29, color: "silver" },
+    { code: "CP4916-25", qRef: 0.31, color: "silver" },
+    { code: "CP4916-26", qRef: 0.34, color: "silver" },
+    { code: "CP4916-27", qRef: 0.36, color: "silver" },
+    { code: "CP4916-28", qRef: 0.39, color: "silver" },
+    { code: "CP4916-29", qRef: 0.43, color: "silver" },
+    { code: "CP4916-30", qRef: 0.45, color: "silver" },
+    { code: "CP4916-31", qRef: 0.49, color: "silver" },
+    { code: "CP4916-32", qRef: 0.53, color: "silver" },
+    { code: "CP4916-34", qRef: 0.58, color: "silver" },
+    { code: "CP4916-35", qRef: 0.62, color: "silver" },
+    { code: "CP4916-37", qRef: 0.68, color: "silver" },
+    { code: "CP4916-39", qRef: 0.75, color: "silver" },
+    { code: "CP4916-40", qRef: 0.81, color: "silver" },
+    { code: "CP4916-41", qRef: 0.83, color: "silver" },
+    { code: "CP4916-43", qRef: 0.91, color: "silver" },
+    { code: "CP4916-45", qRef: 0.99, color: "silver" },
+    { code: "CP4916-46", qRef: 1.07, color: "silver" },
+    { code: "CP4916-47", qRef: 1.09, color: "silver" },
+    { code: "CP4916-48", qRef: 1.13, color: "silver" },
+    { code: "CP4916-49", qRef: 1.16, color: "silver" },
+    { code: "CP4916-51", qRef: 1.30, color: "silver" },
+    { code: "CP4916-52", qRef: 1.32, color: "silver" },
+    { code: "CP4916-54", qRef: 1.42, color: "silver" },
+    { code: "CP4916-55", qRef: 1.49, color: "silver" },
+    { code: "CP4916-57", qRef: 1.58, color: "silver" },
+    { code: "CP4916-59", qRef: 1.71, color: "silver" },
+    { code: "CP4916-61", qRef: 1.84, color: "silver" },
+    { code: "CP4916-63", qRef: 1.94, color: "silver" },
+    { code: "CP4916-65", qRef: 2.06, color: "silver" },
+    { code: "CP4916-67", qRef: 2.19, color: "silver" },
+    { code: "CP4916-68", qRef: 2.26, color: "silver" },
+    { code: "CP4916-70", qRef: 2.42, color: "silver" }
+  ]
+},
 
-  AMT: {
-    label: "AMT ALBUZ – Céramique double face",
-    machines: ["viti"],
-    refPressure: 10,
-    optimalRange: [2, 6],
-    limitRange: [1, 7],
-    nozzles: [
-      {
-        code: "AMT-007",
-        qRef: 0.91,
-        faces: [
-          { side: "plate", label: "plate", qRef: 0.91 },
-          { side: "creuse", label: "creuse", qRef: 0.65 }
-        ]
-      },
-      {
-        code: "AMT-008",
-        qRef: 1.39,
-        faces: [
-          { side: "plate", label: "plate", qRef: 1.39 },
-          { side: "creuse", label: "creuse", qRef: 1.16 }
-        ]
-      },
-      {
-        code: "AMT-010",
-        qRef: 1.89,
-        faces: [
-          { side: "plate", label: "plate", qRef: 1.89 },
-          { side: "creuse", label: "creuse", qRef: 1.42 }
-        ]
-      },
-      {
-        code: "AMT-012",
-        qRef: 2.51,
-        faces: [
-          { side: "plate", label: "plate", qRef: 2.51 },
-          { side: "creuse", label: "creuse", qRef: 2.07 }
-        ]
-      },
-      {
-        code: "AMT-015",
-        qRef: 3.99,
-        faces: [
-          { side: "plate", label: "plate", qRef: 3.99 },
-          { side: "creuse", label: "creuse", qRef: 3.15 }
-        ]
-      },
-      {
-        code: "AMT-018",
-        qRef: 5.70,
-        faces: [
-          { side: "plate", label: "plate", qRef: 5.70 },
-          { side: "creuse", label: "creuse", qRef: 4.43 }
-        ]
-      },
-      {
-        code: "AMT-020",
-        qRef: 6.85,
-        faces: [
-          { side: "plate", label: "plate", qRef: 6.85 },
-          { side: "creuse", label: "creuse", qRef: 5.58 }
-        ]
-      },
-      {
-        code: "AMT-023",
-        qRef: 9.17,
-        faces: [
-          { side: "plate", label: "plate", qRef: 9.17 },
-          { side: "creuse", label: "creuse", qRef: 7.12 }
-        ]
-      }
-    ]
-  },
+ AMT: {
+  label: "AMT ALBUZ – Céramique double face",
+  machines: ["viti"],
+  refPressure: 10,
+  optimalRange: [2, 6],
+  limitRange: [1, 7],
+  nozzles: [
+    {
+      code: "AMT-007",
+      qRef: 0.91,
+      color: "pink",
+      faces: [
+        { side: "plate", label: "plate", qRef: 0.91 },
+        { side: "creuse", label: "creuse", qRef: 0.65 }
+      ]
+    },
+    {
+      code: "AMT-008",
+      qRef: 1.39,
+      color: "pink",
+      faces: [
+        { side: "plate", label: "plate", qRef: 1.39 },
+        { side: "creuse", label: "creuse", qRef: 1.16 }
+      ]
+    },
+    {
+      code: "AMT-010",
+      qRef: 1.89,
+      color: "pink",
+      faces: [
+        { side: "plate", label: "plate", qRef: 1.89 },
+        { side: "creuse", label: "creuse", qRef: 1.42 }
+      ]
+    },
+    {
+      code: "AMT-012",
+      qRef: 2.51,
+      color: "pink",
+      faces: [
+        { side: "plate", label: "plate", qRef: 2.51 },
+        { side: "creuse", label: "creuse", qRef: 2.07 }
+      ]
+    },
+    {
+      code: "AMT-015",
+      qRef: 3.99,
+      color: "pink",
+      faces: [
+        { side: "plate", label: "plate", qRef: 3.99 },
+        { side: "creuse", label: "creuse", qRef: 3.15 }
+      ]
+    },
+    {
+      code: "AMT-018",
+      qRef: 5.70,
+      color: "pink",
+      faces: [
+        { side: "plate", label: "plate", qRef: 5.70 },
+        { side: "creuse", label: "creuse", qRef: 4.43 }
+      ]
+    },
+    {
+      code: "AMT-020",
+      qRef: 6.85,
+      color: "pink",
+      faces: [
+        { side: "plate", label: "plate", qRef: 6.85 },
+        { side: "creuse", label: "creuse", qRef: 5.58 }
+      ]
+    },
+    {
+      code: "AMT-023",
+      qRef: 9.17,
+      color: "pink",
+      faces: [
+        { side: "plate", label: "plate", qRef: 9.17 },
+        { side: "creuse", label: "creuse", qRef: 7.12 }
+      ]
+    }
+  ]
+},
+
 
   TXR: {
     label: "TXR ConeJet – Cône creux",
