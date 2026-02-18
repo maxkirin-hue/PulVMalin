@@ -414,3 +414,12 @@
 .comparison tbody tr:nth-child(even) {
   background: rgba(148, 163, 184, 0.03);
 }
+.iso-badge {
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85em;
+  line-height: 1;
+  white-space: nowrap;
+}
