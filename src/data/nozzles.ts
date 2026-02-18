@@ -207,7 +207,7 @@ export const nozzleFamilies: Record<string, NozzleFamily> = {
     label: "AD 90 – Jet plat",
     machines: ["rampe", "viti"],
     refPressure: 3,
-    optimalRange: [2, 4],
+    optimalRange: [2, 6],
     limitRange: [1.5, 6],
     nozzles: [
       { code: "AD 90-0067", color: "gris", qRef: 0.27 },
