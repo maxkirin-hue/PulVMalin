@@ -10,7 +10,7 @@ import { state } from "../state/state";
 export function fillSummary() {
   const set = (id: string, value: any) => {
     const el = document.getElementById(id);
-    if (el) el.textContent = value ?? "";
+    if (el) el.textContent = value ?? "—";
   };
 
   // Résumé machine
@@ -26,25 +26,25 @@ export function fillSummary() {
   set("sumLargeur", largeur);
   set("sumDose", state.dose ?? "—");
   set("sumVitesse", vitesse);
- set(
-  "sumQtotal",
-  state.qTotal != null ? state.qTotal.toFixed(2) : "—"
-);
 
-set(
-  "sumPressure",
-  state.recommendedPressure != null
-    ? state.recommendedPressure.toFixed(2)
-    : "—"
-);
+  set(
+    "sumQtotal",
+    state.qTotal != null ? state.qTotal.toFixed(2) : "—"
+  );
 
+  set(
+    "sumPressure",
+    state.recommendedPressure != null
+      ? state.recommendedPressure.toFixed(2)
+      : "—"
+  );
 
   renderComparisonTable();
-  const counter = document.getElementById("settingsCounter");
-if (counter && state.calculations) {
-  counter.textContent = `Réglage ${state.calculations.length} / 4`;
-}
 
+  const counter = document.getElementById("settingsCounter");
+  if (counter && state.calculations) {
+    counter.textContent = `Réglage ${state.calculations.length} / 4`;
+  }
 }
 
 /**
@@ -62,6 +62,10 @@ function renderComparisonTable() {
   }
 
   const outputs = calcs[0].results;
+  if (!outputs || outputs.length === 0) {
+    container.innerHTML = "";
+    return;
+  }
 
   let html = `
     <h2>Comparaison des réglages</h2>
@@ -75,7 +79,9 @@ function renderComparisonTable() {
     html += `
       <th>
         ${c.label}
-        <div class="pressure">${c.pressure.toFixed(2)} bar</div>
+        <div class="pressure">
+          ${c.pressure != null ? c.pressure.toFixed(2) + " bar" : "—"}
+        </div>
       </th>`;
   });
 
@@ -88,7 +94,11 @@ function renderComparisonTable() {
         <td>${r.nozzleLabel ?? "—"}</td>`;
 
     calcs.forEach(c => {
-      html += `<td class="num">${c.results[i].qReal.toFixed(2)}</td>`;
+      const q = c.results[i]?.qReal;
+      html += `
+        <td class="num">
+          ${q != null ? q.toFixed(2) : "—"}
+        </td>`;
     });
 
     html += `</tr>`;
