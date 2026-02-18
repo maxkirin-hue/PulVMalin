@@ -26,8 +26,18 @@ export function fillSummary() {
   set("sumLargeur", largeur);
   set("sumDose", state.dose ?? "—");
   set("sumVitesse", vitesse);
-  set("sumQtotal", (state.qTotal ?? 0).toFixed(2));
-  set("sumPressure", (state.recommendedPressure ?? 0).toFixed(2));
+ set(
+  "sumQtotal",
+  state.qTotal != null ? state.qTotal.toFixed(2) : "—"
+);
+
+set(
+  "sumPressure",
+  state.recommendedPressure != null
+    ? state.recommendedPressure.toFixed(2)
+    : "—"
+);
+
 
   renderComparisonTable();
   const counter = document.getElementById("settingsCounter");
