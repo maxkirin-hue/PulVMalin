@@ -24,6 +24,9 @@ export function initMachineButtons() {
       if (type === "viti") document.getElementById("vitiBlock")!.style.display = "block";
       if (type === "rampe") document.getElementById("rampeBlock")!.style.display = "block";
       if (type === "tangentiel") document.getElementById("tangentielBlock")!.style.display = "block";
+      if (state.modelKey === "3r_avec_jet_projete") {document.getElementById("vitiModelBlock")?.classList.add("hidden");
+}
+
 
       populateFamilySelect();
       updateFamilyOptions();
