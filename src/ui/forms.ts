@@ -260,7 +260,7 @@ function isPage2InputsFilled(): boolean {
 }
 
 // attacher listeners aux inputs pour activer le bouton "toPage3"
-["dose","largeur","vitesse","machineName","arboCount","arboRangs","rampeCount","vitiModel"].forEach(id => {
+["dose","largeur","vitesse","machineName","arboCount","arboRangs","rampeCount","vitiModel","tangentielCount"].forEach(id => {
   const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
   if (el) {
     el.addEventListener("input", () => {
