@@ -182,6 +182,63 @@ document.getElementById("familySelect")?.addEventListener("change", () => {
   state.familyKey = sel.value;
   updateFamilyOptions();
 });
+// Bouton Réinitialiser l'application (Page 1)
+document.getElementById("btnResetAll")?.addEventListener("click", () => {
+  const ok = confirm("Voulez‑vous vraiment réinitialiser l'application ? Toutes les données non sauvegardées seront perdues.");
+  if (!ok) return;
+
+  // reset du state global
+  resetAll();
+
+  // Masquer tous les blocs machine et revenir à la page 1
+  hideAllMachineBlocks();
+  showPage(1);
+
+  // Réinitialiser les inputs/selects visibles
+  const idsToClear = [
+    "dose", "largeur", "vitesse", "machineName",
+    "arboCount", "arboRangs", "rampeCount",
+    "vitiModel", "libreCanonsG", "libreCanonsD",
+    "libreRetourG", "libreRetourD", "libreMainsG", "libreMainsD",
+    "familySelect", "forcedNozzle1", "forcedNozzle2",
+    "userName"
+  ];
+  idsToClear.forEach(id => {
+    const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+    if (!el) return;
+    if (el instanceof HTMLInputElement) {
+      if (el.type === "checkbox" || el.type === "radio") el.checked = false;
+      else el.value = "";
+    } else {
+      el.selectedIndex = 0;
+    }
+  });
+
+  // Remettre à jour les listes dépendantes
+  populateFamilySelect();
+  updateFamilyOptions();
+  updateModelOptions();
+  updatePage2Visibility();
+
+  // Désactiver le bouton continuer si nécessaire
+  setButtonEnabled("toPage3", false);
+
+  // Vider le résumé et le tableau résultats
+  const summaryIds = ["sumMachine","sumName","sumFamily","sumModel","sumMode","sumLargeur","sumDose","sumVitesse","sumQtotal","sumPressure"];
+  summaryIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "—";
+  });
+  const comparison = document.getElementById("comparisonTable");
+  if (comparison) comparison.innerHTML = "";
+
+  // Focus ergonomique
+  document.getElementById("btnViti")?.focus();
+
+  // Optionnel : notifier d'autres modules si besoin
+  document.dispatchEvent(new CustomEvent("app:reset"));
+});
+
 
 
 /* =========================================================
