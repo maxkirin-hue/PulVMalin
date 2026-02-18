@@ -316,7 +316,7 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     alert("Merci de remplir la dose, l’interligne et la vitesse.");
     return;
   }
-if (state.machineType === "arbo" || state.machineType === "tangentiel") {
+if (state.machineType === "arbo") {
   const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
   const arboCountEl = document.getElementById("arboCount") as HTMLInputElement | null;
 
@@ -324,6 +324,15 @@ if (state.machineType === "arbo" || state.machineType === "tangentiel") {
   state.arboCount = arboCountEl ? Number(arboCountEl.value) : null;
   state.modelKey = null as any;
 }
+
+if (state.machineType === "tangentiel") {
+  const tangCountEl = document.getElementById("tangentielCount") as HTMLInputElement | null;
+
+  state.arboCount = tangCountEl ? Number(tangCountEl.value) : null;
+  state.arboRangs = 2; // tangentiel = 2 rangs fixes
+  state.modelKey = null as any;
+}
+
 
 if (state.machineType === "rampe") {
   const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
