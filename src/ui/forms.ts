@@ -206,18 +206,34 @@ function isPage2InputsFilled(): boolean {
 // initial state: désactiver bouton si pas prêt
 setButtonEnabled("toPage3", isPage2InputsFilled());
 
-// Page 1 → Page 2
+// Bouton Jet projeté (Page 1 → Page 2)
+document.getElementById("btnJetProjete")?.addEventListener("click", () => {
+  state.machineType = "viti";
+  state.modelKey = "3r_avec_jet_projete";
+
+  updatePage2Visibility();
+  populateFamilySelect();
+  updateFamilyOptions();
+  updateModelOptions();
+
+  showPage(2);
+});
+
+// Bouton standard Page 1 → Page 2
 document.getElementById("toPage2")?.addEventListener("click", () => {
   if (!state.machineType) {
     alert("Merci de choisir un type de machine.");
     return;
   }
+
   updatePage2Visibility();
   populateFamilySelect();
   updateFamilyOptions();
   updateModelOptions();
   showPage(2);
 });
+
+
 
 // Page 2 → Page 3 (unique handler, validation avant écriture dans state)
 document.getElementById("toPage3")?.addEventListener("click", () => {
