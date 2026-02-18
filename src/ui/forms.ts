@@ -346,31 +346,32 @@ if (state.machineType === "rampe") {
     const modelSel = document.getElementById("vitiModel") as HTMLSelectElement;
     state.modelKey = modelSel.value;
 
-    if (state.modelKey === "viti_libre") {
-      const canG = Number((document.getElementById("libreCanonsG") as HTMLInputElement).value);
-      const canD = Number((document.getElementById("libreCanonsD") as HTMLInputElement).value);
-      const retG = Number((document.getElementById("libreRetourG") as HTMLInputElement).value);
-      const retD = Number((document.getElementById("libreRetourD") as HTMLInputElement).value);
-      const mainG = Number((document.getElementById("libreMainsG") as HTMLInputElement).value);
-      const mainD = Number((document.getElementById("libreMainsD") as HTMLInputElement).value);
+  if (state.modelKey === "viti_libre") {
+  const canG = Number((document.getElementById("libreCanonsG") as HTMLInputElement).value);
+  const canD = Number((document.getElementById("libreCanonsD") as HTMLInputElement).value);
+  const retG = Number((document.getElementById("libreRetourG") as HTMLInputElement).value);
+  const retD = Number((document.getElementById("libreRetourD") as HTMLInputElement).value);
+  const mainG = Number((document.getElementById("libreMainsG") as HTMLInputElement).value);
+  const mainD = Number((document.getElementById("libreMainsD") as HTMLInputElement).value);
 
-      if (canG + canD + retG + retD + mainG + mainD === 0) {
-        alert("Merci de définir au moins une sortie pour le modèle libre.");
-        return;
-      }
+  const rangsSel = document.getElementById("vitiLibreRangs") as HTMLSelectElement | null;
+  state.vitiLibreRangs = rangsSel ? (Number(rangsSel.value) as 3 | 4) : 3;
 
-      vitiModels["viti_libre"] = buildVitiLibreModel({
-        canonsG: canG,
-        canonsD: canD,
-        retourG: retG,
-        retourD: retD,
-        mainsG: mainG,
-        mainsD: mainD,
-      });
-    }
+  if (canG + canD + retG + retD + mainG + mainD === 0) {
+    alert("Merci de définir au moins une sortie pour le modèle libre.");
+    return;
   }
 
- 
+  vitiModels["viti_libre"] = buildVitiLibreModel({
+    canonsG: canG,
+    canonsD: canD,
+    retourG: retG,
+    retourD: retD,
+    mainsG: mainG,
+    mainsD: mainD,
+  });
+}
+}
   showPage(3);
 });
 
