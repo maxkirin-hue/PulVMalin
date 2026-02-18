@@ -140,13 +140,25 @@ export function hideAllMachineBlocks() {
 
 function updatePage2Visibility() {
   const libreBlock = document.getElementById("vitiLibreBlock");
-  if (!libreBlock) return;
+  const modelSelect = document.getElementById("vitiModel") as HTMLSelectElement | null;
+  const modelBlock = modelSelect?.closest(".form-group") as HTMLElement | null;
 
-  libreBlock.style.display =
-    state.machineType === "viti" && state.modelKey === "viti_libre"
-      ? "block"
-      : "none";
+  // Bloc modèle libre
+  if (libreBlock) {
+    libreBlock.style.display =
+      state.machineType === "viti" && state.modelKey === "viti_libre"
+        ? "block"
+        : "none";
+  }
+
+  // Cas Jet projeté → on masque le choix de modèle
+  if (state.machineType === "viti" && state.modelKey === "3r_avec_jet_projete") {
+    if (modelBlock) modelBlock.style.display = "none";
+  } else {
+    if (modelBlock) modelBlock.style.display = "block";
+  }
 }
+
 
 /* =========================================================
    LISTENERS
