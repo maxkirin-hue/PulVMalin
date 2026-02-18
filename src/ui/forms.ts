@@ -231,6 +231,20 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     alert("Merci de remplir la dose, l’interligne et la vitesse.");
     return;
   }
+if (state.machineType === "arbo" || state.machineType === "tangentiel") {
+  const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
+  const arboCountEl = document.getElementById("arboCount") as HTMLInputElement | null;
+
+  state.arboRangs = Number(arboRangs?.value) === 2 ? 2 : 1;
+  state.arboCount = arboCountEl ? Number(arboCountEl.value) : null;
+  state.modelKey = null as any;
+}
+
+if (state.machineType === "rampe") {
+  const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
+  state.rampeCount = Number(rampeCount.value);
+  state.modelKey = null as any;
+}
 
   if (!validatePage2()) return;
 
@@ -271,24 +285,7 @@ document.getElementById("toPage3")?.addEventListener("click", () => {
     }
   }
 
-  if (state.machineType === "arbo") {
-    const arboRangs = document.getElementById("arboRangs") as HTMLSelectElement;
-    const arboCountEl = document.getElementById("arboCount") as HTMLInputElement | null;
-    state.arboRangs = Number(arboRangs.value) === 2 ? 2 : 1;
-    state.arboCount = arboCountEl ? Number(arboCountEl.value) : null;
-    state.modelKey = null as any;
-  }
-
-  if (state.machineType === "rampe") {
-    const rampeCount = document.getElementById("rampeCount") as HTMLInputElement;
-    state.rampeCount = Number(rampeCount.value);
-    state.modelKey = null as any;
-  }
-
-  if (state.machineType === "tangentiel") {
-    state.modelKey = null as any;
-  }
-
+ 
   showPage(3);
 });
 
