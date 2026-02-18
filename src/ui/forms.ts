@@ -27,7 +27,7 @@ function validatePage2(): boolean {
     return false;
   }
 
-  if (state.machineType === "arbo") {
+  if (state.machineType === "arbo" || state.machineType === "tangentiel") {
     if (!state.arboCount || state.arboCount < 2) {
       alert("Merci de renseigner le nombre de buses.");
       return false;
@@ -50,6 +50,7 @@ function validatePage2(): boolean {
 
   return true;
 }
+
 
 /* =========================================================
    FAMILLES & PASTILLES
