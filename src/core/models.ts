@@ -119,11 +119,14 @@ export function getOutputsAndCoefs(): OutputsAndCoefs {
     const groups = model.map(o => o.group);
 
     const modelLabel =
-      state.modelKey === "3r_avec" ? "Viti — 3 rangs avec retour" :
-      state.modelKey === "4r_avec" ? "Viti — 4 rangs avec retour" :
-      state.modelKey === "3r_sans" ? "Viti — 3 rangs sans retour" :
-      state.modelKey === "4r_sans" ? "Viti — 4 rangs sans retour" :
-      "Viti";
+  state.modelKey === "3r_avec" ? "Viti — 3 rangs avec retour" :
+  state.modelKey === "3r_sans" ? "Viti — 3 rangs sans retour" :
+  state.modelKey === "3r_avec_jet_projete" ? "Viti — 3 rangs jet projeté" :
+  state.modelKey === "4r_avec" ? "Viti — 4 rangs avec retour" :
+  state.modelKey === "4r_sans" ? "Viti — 4 rangs sans retour" :
+  state.modelKey === "viti_libre" ? `Viti — ${state.vitiLibreRangs} rangs (libre)` :
+  "Viti";
+    
 
     return { names, roles, groups, modelLabel };
   }
