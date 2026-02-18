@@ -33,6 +33,8 @@ export interface AppState {
 
   // Modèle viti
   modelKey: string;         // ex: "3r_avec", "4r_sans", "viti_libre"
+  vitiLibreRangs: 3 | 4;    // ← choix utilisateur (3 ou 4 rangs)
+
 
   // Paramètres communs
   dose: number | null;
@@ -79,6 +81,7 @@ export const state: AppState = {
 
   familyKey: "",
   modelKey: "",
+  vitiLibreRangs: 3,
 
   dose: null,
   interligne: null,
