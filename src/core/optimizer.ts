@@ -48,6 +48,16 @@ function detectRangs(): number {
 
   if (state.machineType === "viti") {
     const key = (state.modelKey ?? "").toLowerCase();
+
+    // Viti libre → choix utilisateur
+    if (key === "viti_libre") {
+      return state.vitiLibreRangs ?? 3;
+    }
+
+    // Jet projeté → 3 rangs
+    if (key.includes("jet_projete")) return 3;
+
+    // Modèles classiques
     if (key.includes("4r")) return 4;
     if (key.includes("3r")) return 3;
     if (key.includes("2r")) return 2;
@@ -55,6 +65,7 @@ function detectRangs(): number {
 
   return 1;
 }
+
 
 function computeQTotal(dose: number, speed: number, largeurTotale: number): number {
   return (dose * speed * largeurTotale) / 600;
