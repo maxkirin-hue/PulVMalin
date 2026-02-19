@@ -327,9 +327,9 @@ state.results = names.map((name, i) => {
   };
 });
 
-// Figer les buses : seulement si le mode forcé est activé
-// et que le calcul est cohérent (pas de "—", pas de qReal = 0)
-if (state.forcedToggle) {
+// Figer les buses automatiquement après le premier calcul
+// (logique métier : réglage 1 = choix optimal, réglages suivants = pression only)
+if (state.fixedNozzles.length !== names.length) {
   const valid = state.results.every(r =>
     r.nozzleLabel &&
     r.nozzleLabel !== "—" &&
@@ -338,12 +338,7 @@ if (state.forcedToggle) {
 
   if (valid) {
     state.fixedNozzles = state.results.map(r => r.nozzleLabel);
-  } else {
-    state.fixedNozzles = [];
   }
-} else {
-  // Mode normal : jamais de buses figées
-  state.fixedNozzles = [];
 }
 
 
