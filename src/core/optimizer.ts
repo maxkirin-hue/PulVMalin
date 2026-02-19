@@ -327,9 +327,23 @@ state.results = names.map((name, i) => {
   };
 });
 
-// Figer les buses UNE seule fois
-if (!state.fixedNozzles || state.fixedNozzles.length === 0) {
-  state.fixedNozzles = state.results.map(r => r.nozzleLabel);
+// Figer les buses : seulement si le mode forcé est activé
+// et que le calcul est cohérent (pas de "—", pas de qReal = 0)
+if (state.forcedToggle) {
+  const valid = state.results.every(r =>
+    r.nozzleLabel &&
+    r.nozzleLabel !== "—" &&
+    r.qReal > 0
+  );
+
+  if (valid) {
+    state.fixedNozzles = state.results.map(r => r.nozzleLabel);
+  } else {
+    state.fixedNozzles = [];
+  }
+} else {
+  // Mode normal : jamais de buses figées
+  state.fixedNozzles = [];
 }
 
 
