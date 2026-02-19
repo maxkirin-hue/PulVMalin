@@ -91,7 +91,11 @@ function renderComparisonTable() {
     html += `
       <tr>
         <td>${r.outputName ?? "—"}</td>
-        <td>${r.nozzleLabel ?? "—"}</td>`;
+        <td>
+          <span class="pastille-color" style="background-color:${r.nozzleColor || "transparent"}"></span>
+          ${r.nozzleLabel ?? "—"}
+        </td>
+    `;
 
     calcs.forEach(c => {
       const q = c.results[i]?.qReal;
