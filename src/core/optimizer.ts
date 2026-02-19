@@ -224,19 +224,21 @@ function computeTargets(
   roles: ("complete" | "moitie")[]
 ): number[] {
   const n = roles.length;
-  if (!n || qTotal <= 0 || rangs <= 0) return [];
+  if (!n || qTotal <= 0) return [];
 
-  const qParRang = qTotal / rangs;
+  // Poids métier :
+  // complete = 1/2 rang → poids 2
+  // moitie   = 1/4 rang → poids 1
+  const weights = roles.map(r => (r === "complete" ? 2 : 1));
 
-  const weights = roles.map(r => (r === "complete" ? 1 : 0.5));
-  const sumPerRang = weights.reduce((a, b) => a + b, 0) / rangs;
+  const sumWeights = weights.reduce((a, b) => a + b, 0);
+  if (sumWeights <= 0) return roles.map(() => 0);
 
-  if (!sumPerRang) {
-    return roles.map(() => qTotal / n);
-  }
+  const qParPoids = qTotal / sumWeights;
 
-  return weights.map(w => (qParRang * (w / sumPerRang)));
+  return weights.map(w => w * qParPoids);
 }
+
 
 /* =========================================================
    computeAll — ORCHESTRATEUR
