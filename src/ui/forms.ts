@@ -5,7 +5,7 @@
 import { nozzleFamilies } from "../data/nozzles";
 import { state } from "../state/state";
 import { computeAll, recomputePressureOnly } from "../core/optimizer";
-import { getOutputsAndCoefs, buildVitiLibreModel, vitiModels } from "../core/models";
+import { getOutputsAndCoefs, buildVitiLibreModel, vitiModels, tangentielModels } from "../core/models";
 import { fillSummary } from "./summary";
 import { buildDocDefinition, generatePdfFilename } from "../pdf/pdfmakeTemplate";
 import { resetCalculOnly, resetAll } from "../state/reset";
@@ -328,7 +328,7 @@ if (state.machineType === "arbo") {
 if (state.machineType === "tangentiel") {
   const tangCountEl = document.getElementById("tangentielCount") as HTMLInputElement | null;
 
-  state.arboCount = tangCountEl ? Number(tangCountEl.value) : null;
+  state.arboCount = tangentielModels[state.modelKey!].length;
   state.arboRangs = 2; // tangentiel = 2 rangs fixes
   state.modelKey = null as any;
 }
