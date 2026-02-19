@@ -92,9 +92,14 @@ function renderComparisonTable() {
       <tr>
         <td>${r.outputName ?? "—"}</td>
         <td>
-          <span class="pastille-color" style="background-color:${r.nozzleColor || "transparent"}"></span>
-          ${r.nozzleLabel ?? "—"}
-        </td>
+  <span
+    class="iso-badge"
+    style="--iso-color:${r.nozzleColor || '#666'}"
+  >
+    ${r.nozzleLabel ?? "—"}
+  </span>
+</td>
+
     `;
 
     calcs.forEach(c => {
