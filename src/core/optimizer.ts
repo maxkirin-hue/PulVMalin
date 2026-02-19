@@ -427,7 +427,8 @@ export function recomputePressureOnly(): void {
       bestCost = cost;
       bestP = P;
     }
-  }
-
-  state.recommendedPressure = Number.isFinite(bestCost) ? bestP : preferredP;
+    state.recommendedPressure = Number.isFinite(bestCost)
+  ? bestP
+  : preferredP;
 }
+  }
