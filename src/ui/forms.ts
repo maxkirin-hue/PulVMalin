@@ -326,11 +326,12 @@ if (state.machineType === "arbo") {
 }
 
 if (state.machineType === "tangentiel") {
-  const tangCountEl = document.getElementById("tangentielCount") as HTMLInputElement | null;
+  // On NE TOUCHE PAS à arboCount
+  // On NE TOUCHE PAS à arboRangs
+  // On NE TOUCHE PAS à modelKey
 
-  state.arboCount = tangentielModels[state.modelKey!].length;
-  state.arboRangs = 2; // tangentiel = 2 rangs fixes
-  state.modelKey = null as any;
+  // Le modèle tangentiel est déjà choisi dans Page 2 (select)
+  // Il suffit de le garder tel quel.
 }
 
 
