@@ -22,6 +22,17 @@ type ModelOutputDef = {
   group: 1 | 2;
   nozzleCount?: number; // nombre de buses physiques (défaut = 1)
 };
+export const tangentielModels: Record<string, string[]> = {
+  "tangentiel_10": [
+    "Buse G1","Buse G2","Buse G3","Buse G4","Buse G5",
+    "Buse D1","Buse D2","Buse D3","Buse D4","Buse D5"
+  ],
+
+  "tangentiel_8": [
+    "Buse G1","Buse G2","Buse G3","Buse G4",
+    "Buse D1","Buse D2","Buse D3","Buse D4"
+  ]
+};
 
 export const vitiModels: Record<string, ModelOutputDef[]> = {
 
@@ -159,20 +170,23 @@ if (state.machineType === "arbo") {
 
   }
 
-  if (state.machineType === "tangentiel") {
-    let n = state.arboRangs ?? 2;
-    if (n % 2 !== 0) n -= 1;
-    const perSide = n / 2;
-    const names: string[] = [];
-    for (let i = 1; i <= perSide; i++) names.push(`Buse G${i}`);
-    for (let i = 1; i <= perSide; i++) names.push(`Buse D${i}`);
+ if (state.machineType === "tangentiel") {
+  const model = tangentielModels[state.modelKey!];
 
-    return {
-      names,
-      roles: Array(n).fill("complete"),
-      groups: Array(n).fill(1),
-      modelLabel: "Tangentiel",
-    };
+  if (!model) {
+    throw new Error("Modèle tangentiel inconnu.");
+  }
+
+  const names = model;
+  const n = names.length;
+
+  return {
+    names,
+    roles: Array(n).fill("complete"),
+    groups: Array(n).fill(1),
+    modelLabel: `Tangentiel — ${n} buses`,
+  };
+
   }
 
   if (state.machineType === "rampe") {
